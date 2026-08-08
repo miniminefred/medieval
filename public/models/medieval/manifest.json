@@ -1,0 +1,632 @@
+[
+ {
+  "key": "banner",
+  "file": "banner.glb",
+  "title": "Banner",
+  "author": "Quaternius",
+  "licence": "CC0 1.0",
+  "source": "https://poly.pizza/m/svYG8KZxjq",
+  "bytes": 34888
+ },
+ {
+  "key": "barn",
+  "file": "barn.glb",
+  "title": "Barn",
+  "author": "Quaternius",
+  "licence": "CC0 1.0",
+  "source": "https://poly.pizza/m/vSqQNA7ez6",
+  "bytes": 128692
+ },
+ {
+  "key": "barrel",
+  "file": "barrel.glb",
+  "title": "Barrel",
+  "author": "Quaternius",
+  "licence": "CC0 1.0",
+  "source": "https://poly.pizza/m/ONdghDBByN",
+  "bytes": 75512
+ },
+ {
+  "key": "bench",
+  "file": "bench.glb",
+  "title": "Bench",
+  "author": "Quaternius",
+  "licence": "CC0 1.0",
+  "source": "https://poly.pizza/m/jLxjFxFRpw",
+  "bytes": 21952
+ },
+ {
+  "key": "blacksmith",
+  "file": "blacksmith.glb",
+  "title": "Blacksmith",
+  "author": "Quaternius",
+  "licence": "CC0 1.0",
+  "source": "https://poly.pizza/m/bV52eTG1Aj",
+  "bytes": 670832
+ },
+ {
+  "key": "bonfire",
+  "file": "bonfire.glb",
+  "title": "Bonfire",
+  "author": "Quaternius",
+  "licence": "CC0 1.0",
+  "source": "https://poly.pizza/m/k1e0cOzi8A",
+  "bytes": 43676
+ },
+ {
+  "key": "bridge",
+  "file": "bridge.glb",
+  "title": "Small Bridge",
+  "author": "Quaternius",
+  "licence": "CC0 1.0",
+  "source": "https://poly.pizza/m/j4KsIuJYnq",
+  "bytes": 72792
+ },
+ {
+  "key": "bucket",
+  "file": "bucket.glb",
+  "title": "Bucket",
+  "author": "Quaternius",
+  "licence": "CC0 1.0",
+  "source": "https://poly.pizza/m/83obI9bNun",
+  "bytes": 23036
+ },
+ {
+  "key": "bull",
+  "file": "bull.glb",
+  "title": "Bull",
+  "author": "Quaternius",
+  "licence": "CC0 1.0",
+  "source": "https://poly.pizza/m/a8PIIYwF7r",
+  "bytes": 1038360
+ },
+ {
+  "key": "bush_a",
+  "file": "bush_a.glb",
+  "title": "Bush",
+  "author": "Quaternius",
+  "licence": "CC0 1.0",
+  "source": "https://poly.pizza/m/EoTERLq3z2",
+  "bytes": 164712
+ },
+ {
+  "key": "bush_b",
+  "file": "bush_b.glb",
+  "title": "Bush",
+  "author": "Quaternius",
+  "licence": "CC0 1.0",
+  "source": "https://poly.pizza/m/BVYSNurXMV",
+  "bytes": 79592
+ },
+ {
+  "key": "bush_flowers",
+  "file": "bush_flowers.glb",
+  "title": "Flower Bushes",
+  "author": "Quaternius",
+  "licence": "CC0 1.0",
+  "source": "https://poly.pizza/m/1X06RgvSr6",
+  "bytes": 342312
+ },
+ {
+  "key": "cart",
+  "file": "cart.glb",
+  "title": "Broken Cart",
+  "author": "Quaternius",
+  "licence": "CC0 1.0",
+  "source": "https://poly.pizza/m/NBDHe8J7f9",
+  "bytes": 57952
+ },
+ {
+  "key": "cauldron",
+  "file": "cauldron.glb",
+  "title": "Cauldron",
+  "author": "Quaternius",
+  "licence": "CC0 1.0",
+  "source": "https://poly.pizza/m/QaWJOPa6Gt",
+  "bytes": 46712
+ },
+ {
+  "key": "chest",
+  "file": "chest.glb",
+  "title": "Chest",
+  "author": "Quaternius",
+  "licence": "CC0 1.0",
+  "source": "https://poly.pizza/m/O72u4Drp8k",
+  "bytes": 95736
+ },
+ {
+  "key": "chicken",
+  "file": "chicken.glb",
+  "title": "Chicken",
+  "author": "Quaternius",
+  "licence": "CC0 1.0",
+  "source": "https://poly.pizza/m/ineV9pU5VL",
+  "bytes": 140112
+ },
+ {
+  "key": "cow",
+  "file": "cow.glb",
+  "title": "Cow",
+  "author": "Quaternius",
+  "licence": "CC0 1.0",
+  "source": "https://poly.pizza/m/5XSc2Fka3F",
+  "bytes": 331280
+ },
+ {
+  "key": "crate",
+  "file": "crate.glb",
+  "title": "Crate",
+  "author": "Quaternius",
+  "licence": "CC0 1.0",
+  "source": "https://poly.pizza/m/3VGWnZPXmG",
+  "bytes": 35812
+ },
+ {
+  "key": "crops",
+  "file": "crops.glb",
+  "title": "Crops",
+  "author": "Quaternius",
+  "licence": "CC0 1.0",
+  "source": "https://poly.pizza/m/Ro6K0Yg7mx",
+  "bytes": 1976880
+ },
+ {
+  "key": "dock",
+  "file": "dock.glb",
+  "title": "Dock",
+  "author": "Quaternius",
+  "licence": "CC0 1.0",
+  "source": "https://poly.pizza/m/XViKoBh2UN",
+  "bytes": 18520
+ },
+ {
+  "key": "donkey",
+  "file": "donkey.glb",
+  "title": "Donkey",
+  "author": "Quaternius",
+  "licence": "CC0 1.0",
+  "source": "https://poly.pizza/m/qmX6nhnvp7",
+  "bytes": 1093824
+ },
+ {
+  "key": "fence",
+  "file": "fence.glb",
+  "title": "Fence",
+  "author": "Quaternius",
+  "licence": "CC0 1.0",
+  "source": "https://poly.pizza/m/e02PFKKhbr",
+  "bytes": 10616
+ },
+ {
+  "key": "fence_b",
+  "file": "fence_b.glb",
+  "title": "Fence",
+  "author": "Quaternius",
+  "licence": "CC0 1.0",
+  "source": "https://poly.pizza/m/U7g0Wxpt63",
+  "bytes": 16812
+ },
+ {
+  "key": "fishing_rod",
+  "file": "fishing_rod.glb",
+  "title": "Fishing Rod",
+  "author": "Quaternius",
+  "licence": "CC0 1.0",
+  "source": "https://poly.pizza/m/0YAR0Lg58p",
+  "bytes": 29596
+ },
+ {
+  "key": "fishing_rod_b",
+  "file": "fishing_rod_b.glb",
+  "title": "Fishing Rod",
+  "author": "Quaternius",
+  "licence": "CC0 1.0",
+  "source": "https://poly.pizza/m/aOabqWh68m",
+  "bytes": 64656
+ },
+ {
+  "key": "fishing_rod_c",
+  "file": "fishing_rod_c.glb",
+  "title": "Fishing Rod",
+  "author": "Quaternius",
+  "licence": "CC0 1.0",
+  "source": "https://poly.pizza/m/lDlWQjn9Zg",
+  "bytes": 50928
+ },
+ {
+  "key": "grass_tuft",
+  "file": "grass_tuft.glb",
+  "title": "Grass",
+  "author": "Quaternius",
+  "licence": "CC0 1.0",
+  "source": "https://poly.pizza/m/iw6l7gqcdQ",
+  "bytes": 26052
+ },
+ {
+  "key": "hay",
+  "file": "hay.glb",
+  "title": "Hay",
+  "author": "Quaternius",
+  "licence": "CC0 1.0",
+  "source": "https://poly.pizza/m/Yu8TOERkpw",
+  "bytes": 27464
+ },
+ {
+  "key": "horse",
+  "file": "horse.glb",
+  "title": "Horse",
+  "author": "Quaternius",
+  "licence": "CC0 1.0",
+  "source": "https://poly.pizza/m/F8HAAcLeBL",
+  "bytes": 294524
+ },
+ {
+  "key": "horse_white",
+  "file": "horse_white.glb",
+  "title": "White Horse",
+  "author": "Quaternius",
+  "licence": "CC0 1.0",
+  "source": "https://poly.pizza/m/bEdE4rmZy9",
+  "bytes": 1109444
+ },
+ {
+  "key": "house_a",
+  "file": "house_a.glb",
+  "title": "Fantasy House",
+  "author": "Quaternius",
+  "licence": "CC0 1.0",
+  "source": "https://poly.pizza/m/BH2XHWUNmF",
+  "bytes": 410268
+ },
+ {
+  "key": "house_b",
+  "file": "house_b.glb",
+  "title": "Fantasy House",
+  "author": "Quaternius",
+  "licence": "CC0 1.0",
+  "source": "https://poly.pizza/m/he3p42mUTH",
+  "bytes": 205028
+ },
+ {
+  "key": "house_c",
+  "file": "house_c.glb",
+  "title": "Fantasy House",
+  "author": "Quaternius",
+  "licence": "CC0 1.0",
+  "source": "https://poly.pizza/m/dcPho4SUA3",
+  "bytes": 509876
+ },
+ {
+  "key": "house_d",
+  "file": "house_d.glb",
+  "title": "House",
+  "author": "Quaternius",
+  "licence": "CC0 1.0",
+  "source": "https://poly.pizza/m/RSwoYSLblu",
+  "bytes": 157096
+ },
+ {
+  "key": "house_e",
+  "file": "house_e.glb",
+  "title": "House",
+  "author": "Quaternius",
+  "licence": "CC0 1.0",
+  "source": "https://poly.pizza/m/oJJIRwv6Bo",
+  "bytes": 108228
+ },
+ {
+  "key": "hut",
+  "file": "hut.glb",
+  "title": "Hut",
+  "author": "Quaternius",
+  "licence": "CC0 1.0",
+  "source": "https://poly.pizza/m/4MJWbyd6vw",
+  "bytes": 36276
+ },
+ {
+  "key": "inn",
+  "file": "inn.glb",
+  "title": "Fantasy Inn",
+  "author": "Quaternius",
+  "licence": "CC0 1.0",
+  "source": "https://poly.pizza/m/x3ZcGn3jr4",
+  "bytes": 468600
+ },
+ {
+  "key": "ladder",
+  "file": "ladder.glb",
+  "title": "Ladder",
+  "author": "Quaternius",
+  "licence": "CC0 1.0",
+  "source": "https://poly.pizza/m/h2xOIRr1OP",
+  "bytes": 20596
+ },
+ {
+  "key": "logs",
+  "file": "logs.glb",
+  "title": "Logs",
+  "author": "Quaternius",
+  "licence": "CC0 1.0",
+  "source": "https://poly.pizza/m/fei4I7FfrJ",
+  "bytes": 27728
+ },
+ {
+  "key": "market_stall",
+  "file": "market_stall.glb",
+  "title": "Market Stand",
+  "author": "Quaternius",
+  "licence": "CC0 1.0",
+  "source": "https://poly.pizza/m/DGIM5HGISb",
+  "bytes": 84992
+ },
+ {
+  "key": "market_stalls",
+  "file": "market_stalls.glb",
+  "title": "Market Stalls Compact",
+  "author": "Quaternius",
+  "licence": "CC0 1.0",
+  "source": "https://poly.pizza/m/fmHUuX9AS3",
+  "bytes": 987996
+ },
+ {
+  "key": "pig",
+  "file": "pig.glb",
+  "title": "Pig",
+  "author": "Quaternius",
+  "licence": "CC0 1.0",
+  "source": "https://poly.pizza/m/TNvG3QUFlp",
+  "bytes": 159724
+ },
+ {
+  "key": "pine_a",
+  "file": "pine_a.glb",
+  "title": "Pine",
+  "author": "Quaternius",
+  "licence": "CC0 1.0",
+  "source": "https://poly.pizza/m/igSu0cPoBz",
+  "bytes": 2147312
+ },
+ {
+  "key": "pine_b",
+  "file": "pine_b.glb",
+  "title": "Pine",
+  "author": "Quaternius",
+  "licence": "CC0 1.0",
+  "source": "https://poly.pizza/m/Zt62gceKXZ",
+  "bytes": 2219996
+ },
+ {
+  "key": "pine_c",
+  "file": "pine_c.glb",
+  "title": "Pine",
+  "author": "Quaternius",
+  "licence": "CC0 1.0",
+  "source": "https://poly.pizza/m/79gmlLnweB",
+  "bytes": 2221932
+ },
+ {
+  "key": "pumpkin",
+  "file": "pumpkin.glb",
+  "title": "Pumpkin",
+  "author": "Quaternius",
+  "licence": "CC0 1.0",
+  "source": "https://poly.pizza/m/bvLvqnU1jX",
+  "bytes": 37424
+ },
+ {
+  "key": "rock_large",
+  "file": "rock_large.glb",
+  "title": "Rock Large",
+  "author": "Quaternius",
+  "licence": "CC0 1.0",
+  "source": "https://poly.pizza/m/54jZKTAt5p",
+  "bytes": 18608
+ },
+ {
+  "key": "rock_medium",
+  "file": "rock_medium.glb",
+  "title": "Rock Medium",
+  "author": "Quaternius",
+  "licence": "CC0 1.0",
+  "source": "https://poly.pizza/m/s1OJ3bBzqc",
+  "bytes": 1064792
+ },
+ {
+  "key": "rock_small",
+  "file": "rock_small.glb",
+  "title": "Rock",
+  "author": "Quaternius",
+  "licence": "CC0 1.0",
+  "source": "https://poly.pizza/m/RtLRqYjfMs",
+  "bytes": 30648
+ },
+ {
+  "key": "sacks",
+  "file": "sacks.glb",
+  "title": "Bags",
+  "author": "Quaternius",
+  "licence": "CC0 1.0",
+  "source": "https://poly.pizza/m/gzvyAQ797z",
+  "bytes": 21124
+ },
+ {
+  "key": "sawmill",
+  "file": "sawmill.glb",
+  "title": "Fantasy Sawmill",
+  "author": "Quaternius",
+  "licence": "CC0 1.0",
+  "source": "https://poly.pizza/m/alxTTFjKDM",
+  "bytes": 309568
+ },
+ {
+  "key": "scythe",
+  "file": "scythe.glb",
+  "title": "Scythe",
+  "author": "Quaternius",
+  "licence": "CC0 1.0",
+  "source": "https://poly.pizza/m/yE9TKCewO8",
+  "bytes": 75252
+ },
+ {
+  "key": "sheep",
+  "file": "sheep.glb",
+  "title": "Sheep",
+  "author": "Quaternius",
+  "licence": "CC0 1.0",
+  "source": "https://poly.pizza/m/C39AUXUUes",
+  "bytes": 156948
+ },
+ {
+  "key": "sign",
+  "file": "sign.glb",
+  "title": "Sign",
+  "author": "Quaternius",
+  "licence": "CC0 1.0",
+  "source": "https://poly.pizza/m/Kg1kxfrItG",
+  "bytes": 8004
+ },
+ {
+  "key": "stable",
+  "file": "stable.glb",
+  "title": "Fantasy Stable",
+  "author": "Quaternius",
+  "licence": "CC0 1.0",
+  "source": "https://poly.pizza/m/qhNQSOGGbi",
+  "bytes": 444596
+ },
+ {
+  "key": "storage_hut",
+  "file": "storage_hut.glb",
+  "title": "Storage Hut",
+  "author": "Quaternius",
+  "licence": "CC0 1.0",
+  "source": "https://poly.pizza/m/BsTn4bKSGb",
+  "bytes": 200212
+ },
+ {
+  "key": "stump",
+  "file": "stump.glb",
+  "title": "Tree Stump with Moss",
+  "author": "Quaternius",
+  "licence": "CC0 1.0",
+  "source": "https://poly.pizza/m/nFvEbUX6LE",
+  "bytes": 15376
+ },
+ {
+  "key": "tent",
+  "file": "tent.glb",
+  "title": "Tent",
+  "author": "Quaternius",
+  "licence": "CC0 1.0",
+  "source": "https://poly.pizza/m/5Q7qIrfDxA",
+  "bytes": 45036
+ },
+ {
+  "key": "torch",
+  "file": "torch.glb",
+  "title": "Wooden Torch",
+  "author": "Quaternius",
+  "licence": "CC0 1.0",
+  "source": "https://poly.pizza/m/pNsfJzhXiD",
+  "bytes": 27932
+ },
+ {
+  "key": "town_sign",
+  "file": "town_sign.glb",
+  "title": "Town Sign",
+  "author": "Quaternius",
+  "licence": "CC0 1.0",
+  "source": "https://poly.pizza/m/VSZubp0ru3",
+  "bytes": 68796
+ },
+ {
+  "key": "tree_a",
+  "file": "tree_a.glb",
+  "title": "Tree",
+  "author": "Quaternius",
+  "licence": "CC0 1.0",
+  "source": "https://poly.pizza/m/2paAm1ja4w",
+  "bytes": 158708
+ },
+ {
+  "key": "tree_autumn",
+  "file": "tree_autumn.glb",
+  "title": "Autumn Tree",
+  "author": "Quaternius",
+  "licence": "CC0 1.0",
+  "source": "https://poly.pizza/m/2lRubrT6Na",
+  "bytes": 163172
+ },
+ {
+  "key": "tree_b",
+  "file": "tree_b.glb",
+  "title": "Tree",
+  "author": "Quaternius",
+  "licence": "CC0 1.0",
+  "source": "https://poly.pizza/m/9nvGuZlbpE",
+  "bytes": 100476
+ },
+ {
+  "key": "tree_c",
+  "file": "tree_c.glb",
+  "title": "Tree",
+  "author": "Quaternius",
+  "licence": "CC0 1.0",
+  "source": "https://poly.pizza/m/qZtx0AHhcy",
+  "bytes": 2540428
+ },
+ {
+  "key": "trough",
+  "file": "trough.glb",
+  "title": "Large Pot Filled",
+  "author": "Quaternius",
+  "licence": "CC0 1.0",
+  "source": "https://poly.pizza/m/xL4YlaHjS2",
+  "bytes": 33172
+ },
+ {
+  "key": "watchtower",
+  "file": "watchtower.glb",
+  "title": "Watch Tower",
+  "author": "Quaternius",
+  "licence": "CC0 1.0",
+  "source": "https://poly.pizza/m/f2J0aSLVi4",
+  "bytes": 53188
+ },
+ {
+  "key": "well",
+  "file": "well.glb",
+  "title": "Well",
+  "author": "Quaternius",
+  "licence": "CC0 1.0",
+  "source": "https://poly.pizza/m/QlqncKYxXb",
+  "bytes": 110340
+ },
+ {
+  "key": "wheat",
+  "file": "wheat.glb",
+  "title": "Wheat",
+  "author": "Quaternius",
+  "licence": "CC0 1.0",
+  "source": "https://poly.pizza/m/lPspzfC8Pu",
+  "bytes": 24108
+ },
+ {
+  "key": "windmill",
+  "file": "windmill.glb",
+  "title": "Windmill",
+  "author": "Quaternius",
+  "licence": "CC0 1.0",
+  "source": "https://poly.pizza/m/WUbU1Nct2W",
+  "bytes": 126108
+ },
+ {
+  "key": "wood_log",
+  "file": "wood_log.glb",
+  "title": "Wood Log",
+  "author": "Quaternius",
+  "licence": "CC0 1.0",
+  "source": "https://poly.pizza/m/L4E32Wee6C",
+  "bytes": 13904
+ }
+]

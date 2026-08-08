@@ -148,6 +148,34 @@ on. Space jumps only when grounded. `dt` is clamped to 50 ms to avoid tunneling 
 spikes.
 
 ### World (`world.js`)
-Everything visible is built procedurally: ground plane, courtyard floor, a curtain wall with
-a gateway gap, four round corner towers, a central keep with steps, and scattered crates.
-`buildWorld` returns the collider AABBs and meshes it created.
+The castle is still pure procedural geometry: ground plane, courtyard floor, a curtain wall
+with a gateway gap, four round corner towers and a central keep with steps. Its clutter —
+barrels, hay, a horse, torches, banners — comes from the model library. `buildWorld(scene,
+library)` returns the collider AABBs and meshes it created, and falls back to plain boxes
+if no library is passed.
+
+### Village (`village.js`)
+`buildVillage(scene, library)` places everything outside the walls from one seeded RNG, so
+the settlement is identical on every reload. A `ZoneGrid` (uniform 8 m spatial hash of
+rectangles) does double duty: during the build it answers "is this spot taken" for overlap
+rejection, and afterwards it backs `isOccupied(x, z)`, which is what the grass asks before
+growing a blade. Returns `{ colliders, meshes, isOccupied, update }`.
+
+### Grass (`grass.js`)
+`createGroundMaterial()` bakes a seamless canvas noise texture for the ground plane;
+`createGrass()` scatters 130k instanced blades in tufts of four across a square patch that
+**wraps around the player like a torus** — a blade that falls off one edge reappears a full
+span away, which keeps the scatter uniform however far the player jumps, instead of piling
+up at the rim. Recycling is budgeted per frame so there is no hitch. Wind is entirely in the
+vertex shader (two travelling sine waves via `onBeforeCompile`), bending each blade in
+proportion to height so the base stays planted. Blades never grow where `exclude(x, z)`
+returns true. The patch is seeded at the spawn point so it is already there on frame one.
+
+### Held fishing rod (`viewmodel.js`)
+The rod is parented to the camera, gripped low-right, and everything about it lives in
+camera space. It draws with `depthTest: false` on **cloned** materials and a high
+`renderOrder` so it never pokes through masonry — cloning matters because the world's own
+copies of the same GLB share the prototype's materials. Idle breathing, speed-scaled walk
+bob, a turn-lag sway and a landing dip all ease toward targets rather than snapping.
+`cast()` runs a rewind → whip → fly → hang → reel timeline; the line is a parabola sampled
+between the rod tip and the bobber, not simulated.

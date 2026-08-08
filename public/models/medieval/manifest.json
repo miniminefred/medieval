@@ -1,5 +1,14 @@
 [
  {
+  "key": "anvil",
+  "file": "anvil.glb",
+  "title": "Workbench Anvil",
+  "author": "Kenney",
+  "licence": "CC0 1.0",
+  "source": "https://poly.pizza/m/bY1pp3kAAb",
+  "bytes": 20532
+ },
+ {
   "key": "banner",
   "file": "banner.glb",
   "title": "Banner",
@@ -9,13 +18,22 @@
   "bytes": 34888
  },
  {
-  "key": "barn",
-  "file": "barn.glb",
-  "title": "Barn",
+  "key": "barn_timber",
+  "file": "barn_timber.glb",
+  "title": "Storage shed",
   "author": "Quaternius",
   "licence": "CC0 1.0",
-  "source": "https://poly.pizza/m/vSqQNA7ez6",
-  "bytes": 128692
+  "source": "https://poly.pizza/m/TvXpjtD2nk",
+  "bytes": 357992
+ },
+ {
+  "key": "barracks",
+  "file": "barracks.glb",
+  "title": "Fantasy Barracks",
+  "author": "Quaternius",
+  "licence": "CC0 1.0",
+  "source": "https://poly.pizza/m/wTDbVozPAj",
+  "bytes": 258580
  },
  {
   "key": "barrel",
@@ -99,6 +117,15 @@
   "bytes": 79592
  },
  {
+  "key": "bush_berries",
+  "file": "bush_berries.glb",
+  "title": "Bush with Berries",
+  "author": "Quaternius",
+  "licence": "CC0 1.0",
+  "source": "https://poly.pizza/m/TSbIxkDtxF",
+  "bytes": 45716
+ },
+ {
   "key": "bush_flowers",
   "file": "bush_flowers.glb",
   "title": "Flower Bushes",
@@ -106,6 +133,15 @@
   "licence": "CC0 1.0",
   "source": "https://poly.pizza/m/1X06RgvSr6",
   "bytes": 342312
+ },
+ {
+  "key": "campfire",
+  "file": "campfire.glb",
+  "title": "Bonfire",
+  "author": "Quaternius",
+  "licence": "CC0 1.0",
+  "source": "https://poly.pizza/m/Azj9hJwwwG",
+  "bytes": 30592
  },
  {
   "key": "cart",
@@ -207,6 +243,15 @@
   "bytes": 16812
  },
  {
+  "key": "fishing_pole",
+  "file": "fishing_pole.glb",
+  "title": "Fishing Rod",
+  "author": "Quaternius",
+  "licence": "CC0 1.0",
+  "source": "https://poly.pizza/m/skqPvEIpve",
+  "bytes": 18244
+ },
+ {
   "key": "fishing_rod",
   "file": "fishing_rod.glb",
   "title": "Fishing Rod",
@@ -216,24 +261,6 @@
   "bytes": 29596
  },
  {
-  "key": "fishing_rod_b",
-  "file": "fishing_rod_b.glb",
-  "title": "Fishing Rod",
-  "author": "Quaternius",
-  "licence": "CC0 1.0",
-  "source": "https://poly.pizza/m/aOabqWh68m",
-  "bytes": 64656
- },
- {
-  "key": "fishing_rod_c",
-  "file": "fishing_rod_c.glb",
-  "title": "Fishing Rod",
-  "author": "Quaternius",
-  "licence": "CC0 1.0",
-  "source": "https://poly.pizza/m/lDlWQjn9Zg",
-  "bytes": 50928
- },
- {
   "key": "grass_tuft",
   "file": "grass_tuft.glb",
   "title": "Grass",
@@ -241,6 +268,24 @@
   "licence": "CC0 1.0",
   "source": "https://poly.pizza/m/iw6l7gqcdQ",
   "bytes": 26052
+ },
+ {
+  "key": "guard_tower",
+  "file": "guard_tower.glb",
+  "title": "Guard Tower",
+  "author": "Quaternius",
+  "licence": "CC0 1.0",
+  "source": "https://poly.pizza/m/sbaM8I229r",
+  "bytes": 23968
+ },
+ {
+  "key": "handcart",
+  "file": "handcart.glb",
+  "title": "Cart",
+  "author": "Quaternius",
+  "licence": "CC0 1.0",
+  "source": "https://poly.pizza/m/l7bDe7ak6j",
+  "bytes": 108660
  },
  {
   "key": "hay",
@@ -369,6 +414,15 @@
   "bytes": 987996
  },
  {
+  "key": "palisade",
+  "file": "palisade.glb",
+  "title": "Wooden Wall",
+  "author": "Quaternius",
+  "licence": "CC0 1.0",
+  "source": "https://poly.pizza/m/8C9NBoi9cA",
+  "bytes": 18624
+ },
+ {
   "key": "pig",
   "file": "pig.glb",
   "title": "Pig",
@@ -486,6 +540,15 @@
   "bytes": 8004
  },
  {
+  "key": "signpost",
+  "file": "signpost.glb",
+  "title": "Sign",
+  "author": "Quaternius",
+  "licence": "CC0 1.0",
+  "source": "https://poly.pizza/m/lGC5MHYT85",
+  "bytes": 13972
+ },
+ {
   "key": "stable",
   "file": "stable.glb",
   "title": "Fantasy Stable",
@@ -531,15 +594,6 @@
   "bytes": 27932
  },
  {
-  "key": "town_sign",
-  "file": "town_sign.glb",
-  "title": "Town Sign",
-  "author": "Quaternius",
-  "licence": "CC0 1.0",
-  "source": "https://poly.pizza/m/VSZubp0ru3",
-  "bytes": 68796
- },
- {
   "key": "tree_a",
   "file": "tree_a.glb",
   "title": "Tree",
@@ -583,6 +637,15 @@
   "licence": "CC0 1.0",
   "source": "https://poly.pizza/m/xL4YlaHjS2",
   "bytes": 33172
+ },
+ {
+  "key": "village_market",
+  "file": "village_market.glb",
+  "title": "Village Market",
+  "author": "Quaternius",
+  "licence": "CC0 1.0",
+  "source": "https://poly.pizza/m/0TsHLxX6CB",
+  "bytes": 385312
  },
  {
   "key": "watchtower",

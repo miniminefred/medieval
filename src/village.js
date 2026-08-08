@@ -213,10 +213,12 @@ export function buildVillage(scene, library) {
   put('tent', -15.5, 24.5, { yaw: 2.4 });
   put('tent', 15, 24.5, { yaw: -2.4 });
 
+  put('village_market', -13, 33.5, { yaw: faceToward(-13, 33.5, 0, 33.5), pad: 1.2, noGrass: true });
   put('well', 7.5, 44.5, { pad: 1 });
-  put('town_sign', 5.5, 23.5, { yaw: faceToward(5.5, 23.5, 0, 34) });
+  put('signpost', 5.5, 23.5, { yaw: faceToward(5.5, 23.5, 0, 34) });
   put('bonfire', -7.5, 45, { pad: 1.2 });
   put('cauldron', -9.4, 43.6);
+  put('handcart', 8.5, 27.5, { yaw: 2.3 });
   for (const [bx, bz] of [[-5.6, 46.6], [-9.6, 47], [-5.4, 43.2]]) {
     put('bench', bx, bz, { yaw: faceToward(bx, bz, -7.5, 45) });
   }
@@ -264,6 +266,18 @@ export function buildVillage(scene, library) {
 
   put('watchtower', -24, 122, { yaw: faceToward(-24, 122, 0, 118), pad: 1.5, noGrass: true });
   put('sign', 4.6, 60, { yaw: faceToward(4.6, 60, 0, 60) });
+  put('signpost', -5.2, 61.5, { yaw: faceToward(-5.2, 61.5, 0, 61.5) });
+
+  // Barracks and a timber guard tower where the cross street meets the road, with a
+  // stretch of palisade running off the tower so the village edge reads as defended.
+  put('barracks', 24, 66.5, { yaw: faceToward(24, 66.5, 24, 62), pad: 1.6, noGrass: true });
+  put('guard_tower', -34, 64.5, { yaw: faceToward(-34, 64.5, 0, 64.5), pad: 1.6, noGrass: true });
+  palisadeRun(-37.5, 66, -37.5, 92);   // hoisted; defined with the fence helpers below
+
+  // The smithy's yard: anvil, firewood and a working fire outside the blacksmith.
+  put('anvil', -10.5, 49.5, { yaw: 0.7 });
+  put('campfire', -12.5, 47.5, { reserve: false });
+  put('logs', -8.8, 47, { yaw: 1.2 });
 
   // Yard clutter against the houses, and a woodpile by the sawmill.
   scatter(['barrel', 'crate', 'sacks', 'bucket', 'logs', 'wood_log', 'bench', 'ladder'], 38, () => {
@@ -294,6 +308,20 @@ export function buildVillage(scene, library) {
     }
   }
 
+  // Same idea for the palisade, whose panels are much longer and taller.
+  function palisadeRun(x0, z0, x1, z1) {
+    if (!lib?.has('palisade')) return;
+    const size = lib.size('palisade');
+    const seg = Math.max(size.x, size.z);
+    const dx = x1 - x0, dz = z1 - z0;
+    const n = Math.max(1, Math.round(Math.hypot(dx, dz) / seg));
+    const yaw = Math.atan2(dx, dz) + (size.x >= size.z ? Math.PI / 2 : 0);
+    for (let i = 0; i < n; i++) {
+      const t = (i + 0.5) / n;
+      put('palisade', x0 + dx * t, z0 + dz * t, { yaw, pad: 0.05 });
+    }
+  }
+
   function fenceRect(r, gapSide) {
     fenceRun(r.minX, r.minZ, r.maxX, r.minZ, gapSide === 'n' ? [0.4, 0.6] : null);
     fenceRun(r.maxX, r.minZ, r.maxX, r.maxZ, gapSide === 'e' ? [0.4, 0.6] : null);
@@ -304,7 +332,7 @@ export function buildVillage(scene, library) {
   // --------------------------------------------------------------------------- farm
   // West of the street: a windmill on the rise, a barn, and one properly fenced field.
   put('windmill', -58, 58, { yaw: faceToward(-58, 58, 0, 58), pad: 2, noGrass: true });
-  put('barn', -42, 100, { yaw: faceToward(-42, 100, -20, 100), pad: 2, noGrass: true });
+  put('barn_timber', -42, 100, { yaw: faceToward(-42, 100, -20, 100), pad: 2, noGrass: true });
 
   slab((FIELD.minX + FIELD.maxX) / 2, (FIELD.minZ + FIELD.maxZ) / 2,
        FIELD.maxX - FIELD.minX, FIELD.maxZ - FIELD.minZ, MAT.soil);
@@ -409,7 +437,7 @@ export function buildVillage(scene, library) {
     const key = rng() < 0.55 ? 'grass_tuft' : (rng() < 0.6 ? 'bush_a' : 'rock_small');
     put(key, x, z, { yaw: rng() * Math.PI * 2, scale: key === 'grass_tuft' ? rand(1.6, 2.8) : rand(0.8, 1.3), reserve: false });
   }
-  scatter(['rock_medium', 'bush_b', 'bush_flowers', 'tree_a'], 10,
+  scatter(['rock_medium', 'bush_b', 'bush_flowers', 'bush_berries', 'tree_a'], 12,
     inRect(rect(POND.x - 20, POND.x + 18, POND.z - 18, POND.z + 16)), { half: 2 });
 
   // -------------------------------------------------------------------------- woods
@@ -435,7 +463,7 @@ export function buildVillage(scene, library) {
   }, { half: 2.6, scaleMin: 0.8, scaleMax: 1.1, pad: 1 });
 
   // Undergrowth and ground litter everywhere the buildings aren't.
-  scatter(['rock_small', 'rock_medium', 'rock_large', 'stump', 'wood_log', 'bush_a', 'bush_b', 'bush_flowers'], 58,
+  scatter(['rock_small', 'rock_medium', 'rock_large', 'stump', 'wood_log', 'bush_a', 'bush_b', 'bush_flowers', 'bush_berries'], 70,
     () => {
       const a = rng() * Math.PI * 2, r = rand(30, 130);
       return { x: Math.cos(a) * r, z: Math.sin(a) * r };

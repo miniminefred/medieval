@@ -1,12 +1,14 @@
 # Model credits — medieval prop set
 
 All models downloaded from [Poly Pizza](https://poly.pizza) with `node tools/fetch-props.mjs`.
-Authors: Quaternius — thank you!
+Authors: Kenney, Quaternius — thank you!
 
 | Key | Model | Author | Licence | Source |
 |---|---|---|---|---|
+| `anvil` | Workbench Anvil | Kenney | CC0 1.0 | https://poly.pizza/m/bY1pp3kAAb |
 | `banner` | Banner | Quaternius | CC0 1.0 | https://poly.pizza/m/svYG8KZxjq |
-| `barn` | Barn | Quaternius | CC0 1.0 | https://poly.pizza/m/vSqQNA7ez6 |
+| `barn_timber` | Storage shed | Quaternius | CC0 1.0 | https://poly.pizza/m/TvXpjtD2nk |
+| `barracks` | Fantasy Barracks | Quaternius | CC0 1.0 | https://poly.pizza/m/wTDbVozPAj |
 | `barrel` | Barrel | Quaternius | CC0 1.0 | https://poly.pizza/m/ONdghDBByN |
 | `bench` | Bench | Quaternius | CC0 1.0 | https://poly.pizza/m/jLxjFxFRpw |
 | `blacksmith` | Blacksmith | Quaternius | CC0 1.0 | https://poly.pizza/m/bV52eTG1Aj |
@@ -16,7 +18,9 @@ Authors: Quaternius — thank you!
 | `bull` | Bull | Quaternius | CC0 1.0 | https://poly.pizza/m/a8PIIYwF7r |
 | `bush_a` | Bush | Quaternius | CC0 1.0 | https://poly.pizza/m/EoTERLq3z2 |
 | `bush_b` | Bush | Quaternius | CC0 1.0 | https://poly.pizza/m/BVYSNurXMV |
+| `bush_berries` | Bush with Berries | Quaternius | CC0 1.0 | https://poly.pizza/m/TSbIxkDtxF |
 | `bush_flowers` | Flower Bushes | Quaternius | CC0 1.0 | https://poly.pizza/m/1X06RgvSr6 |
+| `campfire` | Bonfire | Quaternius | CC0 1.0 | https://poly.pizza/m/Azj9hJwwwG |
 | `cart` | Broken Cart | Quaternius | CC0 1.0 | https://poly.pizza/m/NBDHe8J7f9 |
 | `cauldron` | Cauldron | Quaternius | CC0 1.0 | https://poly.pizza/m/QaWJOPa6Gt |
 | `chest` | Chest | Quaternius | CC0 1.0 | https://poly.pizza/m/O72u4Drp8k |
@@ -28,10 +32,11 @@ Authors: Quaternius — thank you!
 | `donkey` | Donkey | Quaternius | CC0 1.0 | https://poly.pizza/m/qmX6nhnvp7 |
 | `fence` | Fence | Quaternius | CC0 1.0 | https://poly.pizza/m/e02PFKKhbr |
 | `fence_b` | Fence | Quaternius | CC0 1.0 | https://poly.pizza/m/U7g0Wxpt63 |
+| `fishing_pole` | Fishing Rod | Quaternius | CC0 1.0 | https://poly.pizza/m/skqPvEIpve |
 | `fishing_rod` | Fishing Rod | Quaternius | CC0 1.0 | https://poly.pizza/m/0YAR0Lg58p |
-| `fishing_rod_b` | Fishing Rod | Quaternius | CC0 1.0 | https://poly.pizza/m/aOabqWh68m |
-| `fishing_rod_c` | Fishing Rod | Quaternius | CC0 1.0 | https://poly.pizza/m/lDlWQjn9Zg |
 | `grass_tuft` | Grass | Quaternius | CC0 1.0 | https://poly.pizza/m/iw6l7gqcdQ |
+| `guard_tower` | Guard Tower | Quaternius | CC0 1.0 | https://poly.pizza/m/sbaM8I229r |
+| `handcart` | Cart | Quaternius | CC0 1.0 | https://poly.pizza/m/l7bDe7ak6j |
 | `hay` | Hay | Quaternius | CC0 1.0 | https://poly.pizza/m/Yu8TOERkpw |
 | `horse` | Horse | Quaternius | CC0 1.0 | https://poly.pizza/m/F8HAAcLeBL |
 | `horse_white` | White Horse | Quaternius | CC0 1.0 | https://poly.pizza/m/bEdE4rmZy9 |
@@ -46,6 +51,7 @@ Authors: Quaternius — thank you!
 | `logs` | Logs | Quaternius | CC0 1.0 | https://poly.pizza/m/fei4I7FfrJ |
 | `market_stall` | Market Stand | Quaternius | CC0 1.0 | https://poly.pizza/m/DGIM5HGISb |
 | `market_stalls` | Market Stalls Compact | Quaternius | CC0 1.0 | https://poly.pizza/m/fmHUuX9AS3 |
+| `palisade` | Wooden Wall | Quaternius | CC0 1.0 | https://poly.pizza/m/8C9NBoi9cA |
 | `pig` | Pig | Quaternius | CC0 1.0 | https://poly.pizza/m/TNvG3QUFlp |
 | `pine_a` | Pine | Quaternius | CC0 1.0 | https://poly.pizza/m/igSu0cPoBz |
 | `pine_b` | Pine | Quaternius | CC0 1.0 | https://poly.pizza/m/Zt62gceKXZ |
@@ -59,17 +65,18 @@ Authors: Quaternius — thank you!
 | `scythe` | Scythe | Quaternius | CC0 1.0 | https://poly.pizza/m/yE9TKCewO8 |
 | `sheep` | Sheep | Quaternius | CC0 1.0 | https://poly.pizza/m/C39AUXUUes |
 | `sign` | Sign | Quaternius | CC0 1.0 | https://poly.pizza/m/Kg1kxfrItG |
+| `signpost` | Sign | Quaternius | CC0 1.0 | https://poly.pizza/m/lGC5MHYT85 |
 | `stable` | Fantasy Stable | Quaternius | CC0 1.0 | https://poly.pizza/m/qhNQSOGGbi |
 | `storage_hut` | Storage Hut | Quaternius | CC0 1.0 | https://poly.pizza/m/BsTn4bKSGb |
 | `stump` | Tree Stump with Moss | Quaternius | CC0 1.0 | https://poly.pizza/m/nFvEbUX6LE |
 | `tent` | Tent | Quaternius | CC0 1.0 | https://poly.pizza/m/5Q7qIrfDxA |
 | `torch` | Wooden Torch | Quaternius | CC0 1.0 | https://poly.pizza/m/pNsfJzhXiD |
-| `town_sign` | Town Sign | Quaternius | CC0 1.0 | https://poly.pizza/m/VSZubp0ru3 |
 | `tree_a` | Tree | Quaternius | CC0 1.0 | https://poly.pizza/m/2paAm1ja4w |
 | `tree_autumn` | Autumn Tree | Quaternius | CC0 1.0 | https://poly.pizza/m/2lRubrT6Na |
 | `tree_b` | Tree | Quaternius | CC0 1.0 | https://poly.pizza/m/9nvGuZlbpE |
 | `tree_c` | Tree | Quaternius | CC0 1.0 | https://poly.pizza/m/qZtx0AHhcy |
 | `trough` | Large Pot Filled | Quaternius | CC0 1.0 | https://poly.pizza/m/xL4YlaHjS2 |
+| `village_market` | Village Market | Quaternius | CC0 1.0 | https://poly.pizza/m/0TsHLxX6CB |
 | `watchtower` | Watch Tower | Quaternius | CC0 1.0 | https://poly.pizza/m/f2J0aSLVi4 |
 | `well` | Well | Quaternius | CC0 1.0 | https://poly.pizza/m/QlqncKYxXb |
 | `wheat` | Wheat | Quaternius | CC0 1.0 | https://poly.pizza/m/lPspzfC8Pu |

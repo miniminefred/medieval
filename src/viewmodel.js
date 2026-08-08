@@ -11,7 +11,8 @@ import * as THREE from 'three';
 // shares the prototype's materials — mutating them would flatten props too) and a
 // high renderOrder, which keeps it on top instead of poking through masonry.
 
-const ROD_KEYS = ['fishing_rod', 'fishing_rod_b', 'fishing_rod_c'];
+// Preference order: the bare wooden pole first, the reeled rod only as a fallback.
+const ROD_KEYS = ['fishing_pole', 'fishing_rod'];
 
 // --- resting pose (camera space, metres; the camera looks down -Z) -----------
 const VIEW_SCALE = 0.17;                                // 2 m rod -> 0.34 m of prop

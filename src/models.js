@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+import { clone as cloneSkinned } from 'three/addons/utils/SkeletonUtils.js';
 import { MODEL_DIR, MODELS } from './model-table.js';
 
 // Loads the prop GLBs once, normalises each into a reusable prototype, and hands
@@ -19,10 +20,17 @@ export class ModelLibrary {
   // A model that fails to load is skipped with a console warning rather than
   // taking the whole scene down — the village just misses that prop.
   async load(keys = Object.keys(MODELS)) {
+    const rejected = keys.filter((k) => MODELS[k]?.reject);
+    if (rejected.length) {
+      console.info(`[models] skipping ${rejected.length} rejected asset(s): ${rejected.join(', ')}`);
+    }
     await Promise.all(keys.map(async (key) => {
       if (this.entries.has(key)) return;
       const spec = MODELS[key];
       if (!spec) throw new Error(`unknown model "${key}" — add it to model-table.js`);
+      // Assets the visual audit rejected never load, so `has()` is false and every
+      // placement site skips them without needing to know why.
+      if (spec.reject) return;
       try {
         const gltf = await this.loader.loadAsync(`${MODEL_DIR}${spec.file ?? `${key}.glb`}`);
         this.entries.set(key, normalize(gltf.scene, spec));
@@ -45,10 +53,15 @@ export class ModelLibrary {
 
   // A fresh instance, ready to position. Geometry and materials are shared with
   // the prototype, so clones are cheap.
+  //
+  // The animals are SkinnedMeshes: Object3D.clone() would leave the copy bound to
+  // the PROTOTYPE's skeleton, so every cow in the world would silently draw back at
+  // the origin. SkeletonUtils.clone() rebinds each copy to its own bones, so it is
+  // what every clone goes through — it is a plain deep clone for unskinned models.
   create(key) {
     const e = this.entries.get(key);
     if (!e) return null;
-    return e.proto.clone(true);
+    return e.skinned ? cloneSkinned(e.proto) : e.proto.clone(true);
   }
 
   // Instance placed on the ground at (x, z), turned `yaw` radians and optionally
@@ -78,25 +91,31 @@ export class ModelLibrary {
 }
 
 // Rotate → uniform-scale to the target dimension → seat on the origin.
+//
+// Both Box3 measurements pass `precise = true`. The cheap path only transforms each
+// child's own bounding box, which over-reports anything rotated — that is what left
+// the cart declaring a 2 m height it did not have and floating 0.76 m off the ground.
 function normalize(scene, spec) {
   const proto = new THREE.Group();
   scene.rotation.y = spec.yaw ?? 0;
   proto.add(scene);
 
   proto.updateMatrixWorld(true);
-  _box.setFromObject(scene);
+  _box.setFromObject(scene, true);
   const raw = _box.getSize(new THREE.Vector3());
   const measured = spec.fit === 'length' ? Math.max(raw.x, raw.z) : raw.y;
   const factor = measured > 1e-6 ? spec.size / measured : 1;
   scene.scale.setScalar(factor);
 
   proto.updateMatrixWorld(true);
-  _box.setFromObject(scene);
+  _box.setFromObject(scene, true);
   scene.position.x -= (_box.min.x + _box.max.x) / 2;
   scene.position.z -= (_box.min.z + _box.max.z) / 2;
   scene.position.y -= _box.min.y;
 
+  let skinned = false;
   scene.traverse((o) => {
+    if (o.isSkinnedMesh) skinned = true;
     if (!o.isMesh) return;
     o.castShadow = true;
     o.receiveShadow = true;
@@ -106,5 +125,5 @@ function normalize(scene, spec) {
   });
 
   proto.updateMatrixWorld(true);
-  return { proto, size: raw.multiplyScalar(factor) };
+  return { proto, skinned, size: raw.multiplyScalar(factor) };
 }

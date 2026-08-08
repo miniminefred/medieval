@@ -386,8 +386,11 @@ export function buildVillage(scene, library) {
   const dockSize = lib ? lib.size('dock') : new THREE.Vector3();
   const dockLen = Math.max(1.5, Math.max(dockSize.x, dockSize.z));
   const dockYaw = dockSize.x >= dockSize.z ? 0 : Math.PI / 2;   // long axis along X
+  // Sunk so the deck sits one step above the ground: the pieces are ~1 m tall
+  // pier blocks, and only the top ~0.3 m should show above the water.
+  const DOCK_Y = 0.31 - (lib ? lib.size('dock').y : 1);
   for (let i = 0; i < 5; i++) {
-    put('dock', POND.x + POND.rx + 1 - i * dockLen, POND.z, { yaw: dockYaw, y: 0.1, reserve: false });
+    put('dock', POND.x + POND.rx + 1 - i * dockLen, POND.z, { yaw: dockYaw, y: DOCK_Y, reserve: false });
   }
   // Dock-foot clutter sits north of the lane so it neither blocks the walk in nor
   // crowds the castle's south-west tower.

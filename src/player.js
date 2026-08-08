@@ -9,7 +9,8 @@ const ACCEL = 12;          // how fast walk velocity chases the input
 const GRAVITY = 24;
 const JUMP_SPEED = 7.6;
 const RADIUS = 0.4;        // horizontal collision radius
-const STEP_EPS = 0.25;     // surfaces within this of the feet are stood on, not walls
+const STEP_EPS = 0.35;     // surfaces within this of the feet are stood on, not walls
+                           // — a normal step up, and what lets you walk onto the dock
 
 // First-person walker: pointer-lock camera + WASD + jump, with AABB collision
 // against the world's boxes (walls block you, low steps can be jumped onto).

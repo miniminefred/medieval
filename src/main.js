@@ -22,13 +22,19 @@ const world = buildWorld(scene, library);
 const village = buildVillage(scene, library);
 const colliders = world.colliders.concat(village.colliders);
 
-// Blades follow the player and skip anywhere the village says is built on —
-// roads, the plaza, footprints, the courtyard and the pond.
-const grass = createGrass(scene, { radius: 60, density: 34, exclude: village.isOccupied });
-
 const keys = createInput();
 const player = new Player(camera, renderer.domElement, keys, colliders);
 scene.add(camera);
+
+// Blades follow the player and skip anywhere the village says is built on — roads,
+// the plaza, footprints, the courtyard and the pond. Seeded at the spawn point so
+// the field is already there on the first frame instead of growing in.
+const grass = createGrass(scene, {
+  radius: 60,
+  density: 34,
+  exclude: village.isOccupied,
+  origin: player.object.position,
+});
 
 // The rod rides on the camera. The first click grabs pointer lock (input.js), so
 // only clicks that arrive while already locked are casts.

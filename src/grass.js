@@ -183,6 +183,7 @@ export function createGrass(scene, {
   radius = 60,
   density = 12,
   exclude = () => false,
+  origin = null,          // where the player starts — the first patch is laid there
 } = {}) {
   // The field is a square patch of side 2*half that wraps around the player like
   // a torus. Spreading the blade budget over the full radius would leave grass
@@ -281,11 +282,14 @@ export function createGrass(scene, {
     return true;
   }
 
-  // Initial patch, uniform around the origin; the first few updates wrap it onto
-  // wherever the player actually is.
+  // Initial patch, laid straight around where the player will be standing. Wrapping
+  // it there afterwards would also work, but it takes a fraction of a second and the
+  // player would watch the grass grow in around them on the first frames.
+  const ox = origin ? origin.x : 0;
+  const oz = origin ? origin.z : 0;
   for (let c = 0; c < clumps; c++) {
-    const x = (rng() * 2 - 1) * half;
-    const z = (rng() * 2 - 1) * half;
+    const x = ox + (rng() * 2 - 1) * half;
+    const z = oz + (rng() * 2 - 1) * half;
     if (exclude(x, z)) hideClump(c, x, z);
     else plantClump(c, x, z);
   }

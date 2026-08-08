@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import { createGroundMaterial } from './grass.js';
 
 // Static world geometry: a walled courtyard with corner towers and a keep,
 // standing in open grass. Everything is built procedurally in code.
@@ -15,7 +16,9 @@ const GATE_W = 6;       // gap in the south wall you walk in through
 const YARD_FLOOR_Y = 0.02;   // props sit on the packed-earth floor, not the grass
 
 const MAT = {
-  grass: new THREE.MeshStandardMaterial({ color: 0x5c7a3f, roughness: 1 }),
+  // Procedural grass-and-bare-earth texture; the instanced blades in grass.js
+  // stand on top of it and the two are tuned to the same green.
+  grass: createGroundMaterial({ repeat: 150 }),
   stone: new THREE.MeshStandardMaterial({ color: 0x8d8878, roughness: 0.9 }),
   darkStone: new THREE.MeshStandardMaterial({ color: 0x6f6a5e, roughness: 0.95 }),
   roof: new THREE.MeshStandardMaterial({ color: 0x5a3a2e, roughness: 0.8 }),

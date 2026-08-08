@@ -22,7 +22,8 @@ export class Player {
 
     this.controls = new PointerLockControls(camera, domElement);
     this.object = this.controls.object;
-    this.object.position.set(0, EYE, 26);
+    // Out on the grass, facing the gatehouse (the camera looks down -Z).
+    this.object.position.set(0, EYE, 36);
 
     setupPointerLock(this.controls, domElement);
 

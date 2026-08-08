@@ -19,6 +19,7 @@ export class Player {
     this.colliders = colliders;
     this.velocityY = 0;
     this.canJump = true;
+    this.grounded = true;
 
     this.controls = new PointerLockControls(camera, domElement);
     this.object = this.controls.object;
@@ -35,6 +36,15 @@ export class Player {
 
   setColliders(colliders) {
     this.colliders = colliders;
+  }
+
+  // Horizontal speed in m/s — the held viewmodel bobs in time with it.
+  get speed() {
+    return Math.hypot(this._vel.x, this._vel.z);
+  }
+
+  get isLocked() {
+    return this.controls.isLocked;
   }
 
   update(dt, camera) {
@@ -78,6 +88,9 @@ export class Player {
       pos.y = groundY + EYE;
       this.velocityY = 0;
       this.canJump = true;
+      this.grounded = true;
+    } else {
+      this.grounded = false;
     }
   }
 

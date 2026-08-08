@@ -20,6 +20,61 @@ html, body {
 #app { position: fixed; inset: 0; }
 #app canvas { display: block; }
 
+/* --------------------------------------------------------------- loading */
+
+/* Sits above the click-to-lock overlay so the world can't be entered before the
+   prop models have streamed in. Faded out and removed by main.js. */
+#loading {
+  position: fixed;
+  inset: 0;
+  z-index: 30;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1.1rem;
+  background: #0d0b08;
+  transition: opacity 400ms ease;
+}
+
+#loading.hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+
+#loading .tag {
+  font-size: 0.75rem;
+  letter-spacing: 0.35em;
+  text-transform: uppercase;
+  color: var(--gold);
+}
+
+#loading .bar {
+  width: min(18rem, 60vw);
+  height: 2px;
+  background: rgba(232, 220, 192, 0.15);
+  overflow: hidden;
+}
+
+/* Indeterminate sweep — the loader has no reliable byte total to report. */
+#loading .bar span {
+  display: block;
+  width: 40%;
+  height: 100%;
+  background: var(--gold);
+  animation: sweep 1.4s ease-in-out infinite;
+}
+
+@keyframes sweep {
+  0%   { transform: translateX(-110%); }
+  100% { transform: translateX(310%); }
+}
+
+#loading .note {
+  font-size: 0.85rem;
+  opacity: 0.5;
+}
+
 /* --------------------------------------------------------------- overlay */
 
 /* The one element that must stay clickable — it requests pointer lock. */

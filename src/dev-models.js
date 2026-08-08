@@ -150,7 +150,7 @@ const lib = new ModelLibrary();
     if (e.key === '[') row(current - 1);
   });
   renderer.setAnimationLoop(tick);
-  window.gal = { row, focus, report, view, showAll: () => showOnly(null), rows, cells, riggedKeys, camera, controls };
+  window.gal = { row, flat, focus, report, view, showAll: () => showOnly(null), rows, cells, riggedKeys, camera, controls };
   console.log(`[gallery] ${cells.length} cells in ${rows.length} rows — try gal.report()`);
   console.log('[gallery] rigged (SkinnedMesh) models:', riggedKeys.join(', ') || 'none');
 })();
@@ -226,6 +226,7 @@ function row(i, deg = 8) {
   const dist = Math.max(r.span * 0.78, r.height * 2.6);
   const target = new THREE.Vector3(0, Math.min(r.height * 0.45, 6), r.z);
   const a = (deg * Math.PI) / 180;
+  camera.fov = 50;
   controls.target.copy(target);
   camera.position.set(Math.sin(a) * dist * 0.86, dist * 0.3 + 2, r.z + Math.cos(a) * dist * 0.86);
   camera.updateProjectionMatrix();
@@ -234,6 +235,20 @@ function row(i, deg = 8) {
   showOnly(current);
   sun.target.position.set(0, 0, r.z);
   rowInfo.textContent = `row ${current} / ${rows.length - 1} — ${r.keys.join(', ')}`;
+}
+
+// Near-orthographic elevation of a whole row: a long lens from far away so every
+// cell is seen head-on, which is the only way to judge five models' facing at once.
+function flat(i, deg = 0) {
+  row(i, deg);
+  const r = rows[current];
+  const dist = Math.max(r.span * 0.78, r.height * 2.6) * 6;
+  const a = (deg * Math.PI) / 180;
+  camera.fov = 9;
+  camera.position.set(Math.sin(a) * dist, r.height * 0.55 + dist * 0.06, r.z + Math.cos(a) * dist);
+  camera.updateProjectionMatrix();
+  controls.target.set(0, r.height * 0.45, r.z);
+  controls.update();
 }
 
 function focus(key) {

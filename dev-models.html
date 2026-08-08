@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Medieval — model gallery (dev)</title>
+    <style>
+      html, body { margin: 0; height: 100%; overflow: hidden; background: #8fa3b0;
+        font: 13px/1.35 ui-monospace, "Cascadia Mono", Consolas, monospace; color: #12181d; }
+      canvas { display: block; }
+      #labels { position: fixed; inset: 0; pointer-events: none; }
+      .lbl { position: absolute; transform: translate(-50%, 0); text-align: center;
+        background: rgba(255,255,255,.88); border: 1px solid rgba(0,0,0,.35);
+        border-radius: 3px; padding: 2px 5px; white-space: nowrap; }
+      .lbl b { font-size: 14px; }
+      .lbl span { display: block; font-size: 11px; color: #444; }
+      .lbl.bad { background: rgba(255, 205, 205, .94); border-color: #b00; }
+      #hud { position: fixed; left: 10px; top: 10px; background: rgba(255,255,255,.92);
+        border: 1px solid #0004; border-radius: 4px; padding: 8px 10px; max-width: 46vw; }
+      #hud h1 { font-size: 14px; margin: 0 0 6px; }
+      #hud button { font: inherit; margin: 1px; padding: 1px 6px; cursor: pointer; }
+      #rows { max-height: 30vh; overflow: auto; }
+      #hud .hint { color: #555; margin-top: 6px; }
+    </style>
+  </head>
+  <body>
+    <div id="hud">
+      <h1>Model gallery — <span id="rowinfo">…</span></h1>
+      <div id="rows"></div>
+      <div class="hint">
+        [ / ] prev/next row &nbsp;·&nbsp; drag = orbit, right-drag = pan, wheel = zoom<br />
+        grey block = 1.8 m human · pole rings = 1 m · red arrow = +Z
+      </div>
+    </div>
+    <div id="labels"></div>
+    <script type="module" src="/src/dev-models.js"></script>
+  </body>
+</html>

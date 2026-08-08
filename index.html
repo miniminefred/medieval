@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Alfred — Medieval</title>
+  <link rel="stylesheet" href="/src/style.css" />
+</head>
+<body>
+  <div id="app"></div>
+
+  <!-- Click-to-lock overlay (must stay clickable) -->
+  <div id="overlay">
+    <div class="tag">First person &middot; Medieval</div>
+    <h1>MEDIEVAL</h1>
+    <p>A keep, a courtyard, and the long grass beyond the walls.</p>
+    <div class="cta">Click to enter</div>
+    <div class="keys">
+      <kbd>W</kbd> <kbd>A</kbd> <kbd>S</kbd> <kbd>D</kbd> walk &nbsp;·&nbsp;
+      <kbd>Shift</kbd> run &nbsp;·&nbsp; <kbd>Space</kbd> jump &nbsp;·&nbsp;
+      <kbd>Mouse</kbd> look &nbsp;·&nbsp; <kbd>Esc</kbd> release
+    </div>
+  </div>
+
+  <!-- HUD layer: pointer-events: none throughout so it can never swallow the
+       click that grabs pointer lock. -->
+  <div id="hud">
+    <div id="vignette"></div>
+    <div id="crosshair"></div>
+  </div>
+
+  <script type="module" src="/src/main.js"></script>
+</body>
+</html>

@@ -66,15 +66,28 @@ green (it catches import mistakes HMR can hide).
 ## Project layout
 
 ```
-index.html        Thin entry shell (overlay markup + <script src="/src/main.js">)
+index.html        Thin entry shell (loading + overlay markup + <script src="/src/main.js">)
 vite.config.js    Dev/preview server pinned to port 8091
 src/
-  main.js         Bootstrap: wires modules, runs the render loop
+  main.js         Bootstrap: loads models, wires modules, runs the render loop
   scene.js        Renderer, scene, camera, daylight, resize handling
-  world.js        Static world geometry (ground, curtain wall, towers, keep, props)
+  world.js        The castle: ground, curtain wall, towers, keep, courtyard props
+  village.js      Everything outside the walls: roads, village, farm, pasture, pond, woods
+  grass.js        Instanced wind-blown grass field + the procedural ground material
+  models.js       ModelLibrary: loads the prop GLBs and normalises them
+  model-table.js  Per-model real-world size / orientation / collision settings
+  viewmodel.js    The fishing rod held in first person (bob, sway, casting)
   input.js        Keyboard state + pointer-lock overlay wiring
   player.js       Player class: PointerLockControls + movement + jump + AABB collision
   style.css       All UI/overlay/crosshair styling
+tools/
+  poly.mjs           Poly Pizza scraper (search / info / download one model)
+  fetch-props.mjs    The model shopping list — downloads them + writes manifest & credits
+  measure-models.mjs Prints each GLB's raw bounding box (input for model-table.js)
+public/models/medieval/
+  *.glb              70 CC0 low-poly props by Quaternius
+  manifest.json      key -> title/author/licence/source
+  CREDITS.md         attribution table
 ```
 
 ## Tech stack
@@ -85,7 +98,29 @@ src/
 - **Camera:** `PerspectiveCamera` driven by `PointerLockControls`
 - **Input:** Pointer Lock API — click to grab the mouse, `Esc` to release
 - **Physics:** hand-rolled (gravity + per-axis AABB resolution); no physics library
-- **Assets:** none — geometry and materials are created procedurally in code
+- **Assets:** CC0 low-poly GLBs from [Poly Pizza](https://poly.pizza) (all Quaternius), plus
+  procedural geometry for the castle, ground and grass
+
+## Assets — where props come from
+
+The same source as the sibling `fpsgame`: **Poly Pizza**, which hosts Quaternius' CC0
+low-poly packs. There is no public download API without a key, so `tools/poly.mjs` scrapes
+the server-rendered pages (`/search/<term>` for candidates, `/m/<id>` for the embedded JSON
+with the asset's `ResourceID`, then `https://static.poly.pizza/<ResourceID>.glb`).
+
+Adding a prop is three steps, all in code:
+
+1. `node tools/poly.mjs search "hay bale"` — find a candidate, note its id.
+2. Add `['hay', '<id>']` to `WANTED` in `tools/fetch-props.mjs`, then run it. It downloads
+   into `public/models/medieval/` and regenerates `manifest.json` + `CREDITS.md`.
+3. Add an entry to `MODELS` in `src/model-table.js` saying how big the thing is in the real
+   world. `node tools/measure-models.mjs` prints the raw box to base that on.
+
+Raw models arrive at wildly inconsistent scales, so nothing is placed at its native size:
+`model-table.js` states one real-world dimension per model (`fit: 'height' | 'length'`) and
+`models.js` scales uniformly to hit it, then centres the model on X/Z and seats its base at
+y = 0. Placement code therefore only ever deals in metres. **Never hard-code a per-model
+scale fudge at a call site** — fix the table instead.
 
 ## Controls
 
@@ -96,7 +131,7 @@ src/
 | Shift | Run |
 | Space | Jump |
 | Esc | Release the mouse |
-| Click | Grab the mouse (lock pointer) |
+| Click | Grab the mouse (lock pointer); once locked, cast the fishing rod |
 
 ## Key systems
 

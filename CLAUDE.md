@@ -84,8 +84,9 @@ tools/
   poly.mjs           Poly Pizza scraper (search / info / download one model)
   fetch-props.mjs    The model shopping list — downloads them + writes manifest & credits
   measure-models.mjs Prints each GLB's raw bounding box (input for model-table.js)
+dev-models.html   Dev-only model gallery (http://localhost:8091/dev-models.html)
 public/models/medieval/
-  *.glb              70 CC0 low-poly props by Quaternius
+  *.glb              77 CC0 low-poly props, almost all by Quaternius
   manifest.json      key -> title/author/licence/source
   CREDITS.md         attribution table
 ```
@@ -116,11 +117,25 @@ Adding a prop is three steps, all in code:
 3. Add an entry to `MODELS` in `src/model-table.js` saying how big the thing is in the real
    world. `node tools/measure-models.mjs` prints the raw box to base that on.
 
+**Always look at a model before shipping it.** Open `/dev-models.html` — a grid of every
+model beside a 1.8 m human reference, with its key, measured size and a +Z facing arrow.
+Titles lie: a search for "town sign" returned a modern steel motorway gantry, and every
+Quaternius "barn" is a red American gambrel barn. Four assets were thrown out this way;
+`REJECTED` in `tools/fetch-props.mjs` records them so nobody re-shops the same mistake.
+
 Raw models arrive at wildly inconsistent scales, so nothing is placed at its native size:
 `model-table.js` states one real-world dimension per model (`fit: 'height' | 'length'`) and
 `models.js` scales uniformly to hit it, then centres the model on X/Z and seats its base at
 y = 0. Placement code therefore only ever deals in metres. **Never hard-code a per-model
 scale fudge at a call site** — fix the table instead.
+
+Two loader details that are easy to break and hard to spot:
+- Clones go through `SkeletonUtils.clone()`, not `Object3D.clone()`. The animals are
+  SkinnedMeshes, and a plain clone stays bound to the *prototype's* skeleton — every cow
+  in the world silently draws back at the origin instead of in the field.
+- Both `Box3.setFromObject` calls pass `precise = true`. The cheap path inflates the bounds
+  of rotated child nodes, which made the cart claim a height it did not have and float
+  0.76 m off the ground.
 
 ## Controls
 

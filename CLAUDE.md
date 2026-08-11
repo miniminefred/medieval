@@ -48,6 +48,15 @@ git commit -m "<short description of what changed>"
 One logical change = one commit. Never batch multiple changes into one commit, and never
 leave changes uncommitted at the end of a session. This is the rollback safety net.
 
+**Every commit is `miniminefred` and nothing else** —
+`miniminefred <315911906+miniminefred@users.noreply.github.com>`, which is set globally
+in `~/.gitconfig` and again as this repo's local config. Never commit as `Oyvind
+<oyvhvi@attensi.com>`, never as `Alfred Hvidsten <alfred@cathedral-networks.org>` (two
+early commits here were his, and were rewritten), and never add a `Co-Authored-By:
+Claude ...` trailer or a "Generated with Claude Code" line. This repo is **public**, so a
+commit under the work address publishes it in permanent history: the whole history was
+rewritten and force-pushed on 2026-08-11 to get it out again. See `~/.claude/CLAUDE.md`.
+
 ### 2. Start the dev server on session start
 Check if already running; start if not:
 ```powershell
@@ -62,6 +71,33 @@ First time on a fresh clone: `npm install`.
 ### 3. Test after every change
 Verify in the browser before considering the task done. `npm run build` must also stay
 green (it catches import mistakes HMR can hide).
+
+## Publishing — GitHub Pages
+
+Public at **github.com/miniminefred/medieval**, live at
+**https://miniminefred.github.io/medieval/**. `.github/workflows/deploy.yml` builds and
+publishes on every push to `master`, plus manual dispatch. Three things in it are
+load-bearing:
+
+- **The Pages base path is passed on the command line, not set in `vite.config.js`** —
+  `npm run build -- --base=/medieval/`. Pages serves from a subpath and Vite writes asset
+  URLs at build time, so without it every script and every GLB resolves to `/assets/...`
+  and 404s. Keeping it in the workflow is what lets `npm run dev` and `npm run preview` go
+  on serving from `/` exactly as before — local development is untouched by any of this.
+- **`pages: write` and `id-token: write`** are both required: `deploy-pages` authenticates
+  to Pages with an OIDC token, so a job holding only `contents: read` builds fine and then
+  fails on the last step.
+- **The `github-pages` environment carries a deployment branch allowlist**, built from
+  whatever the default branch was *when Pages was first enabled*. This repo is on `master`
+  but Pages was enabled while the fresh empty repo still defaulted to `main`, so the very
+  first deploy was rejected — a green build and a failed deploy, which is a confusing way
+  to find out. `master` was added to the allowlist to fix it; rename the branch and it will
+  need doing again.
+
+One trap when running the build by hand in **Git Bash**: MSYS path conversion rewrites
+`--base=/medieval/` into `--base=/Program Files/Git/medieval/`. It builds green and emits a
+bundle whose asset paths cannot resolve. `MSYS_NO_PATHCONV=1` prevents it; PowerShell and
+the Ubuntu runner do not have the problem.
 
 ## Project layout
 

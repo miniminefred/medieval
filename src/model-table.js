@@ -19,7 +19,13 @@
 // still listed so the audit is not lost, but placement code must not use it until a
 // replacement is sourced. Run the dev gallery (/dev-models.html) to re-check.
 
-export const MODEL_DIR = '/models/medieval/';
+// Built from a string at runtime, so Vite does not rewrite it and it has to ask
+// for the base itself. Root-absolute, this pointed at the domain root on GitHub
+// Pages (the game is served from /medieval/) and every model 404ed, which is why
+// the deployed village came up empty while the dev server was perfect.
+//
+// `?? '/'` keeps it safe outside Vite, where `import.meta.env` does not exist.
+export const MODEL_DIR = (import.meta.env?.BASE_URL ?? '/') + 'models/medieval/';
 
 export const MODELS = {
   // ------------------------------------------------------------- buildings

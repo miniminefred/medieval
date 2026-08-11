@@ -94,6 +94,19 @@ load-bearing:
   to find out. `master` was added to the allowlist to fix it; rename the branch and it will
   need doing again.
 
+**Any asset URL built from a string at runtime must ask for the base itself**, and this is
+the trap that actually shipped. Vite rewrites the asset references it can *see* — a static
+import, an `href`, a `url()` — and a prefix that a path is concatenated onto is none of
+those. `src/model-table.js` held `MODEL_DIR = '/models/medieval/'`: root-absolute, perfect
+on the dev server, and on Pages it asked `miniminefred.github.io` for files that live under
+`/medieval/`. Every model 404ed, so the deployed village came up bare while local was
+fine. It now reads `(import.meta.env?.BASE_URL ?? '/') + 'models/medieval/'`, the `?? '/'`
+keeping it safe anywhere `import.meta.env` does not exist.
+
+The failure is quiet — a model that will not load leaves the prop to its fallback rather
+than throwing — so prefer *relative* asset paths, which resolve against the document and
+pick the subpath up for free, and derive anything that must be absolute from `BASE_URL`.
+
 One trap when running the build by hand in **Git Bash**: MSYS path conversion rewrites
 `--base=/medieval/` into `--base=/Program Files/Git/medieval/`. It builds green and emits a
 bundle whose asset paths cannot resolve. `MSYS_NO_PATHCONV=1` prevents it; PowerShell and

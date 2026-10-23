@@ -4,7 +4,8 @@
 //   node tools/shot.mjs <realm>,<x>,<z>,<yawDeg>,<pitchDeg>,<out.png> [more...]
 //   node tools/shot.mjs wasteland,0,0,180,-5,shots/spawn.png castle,0,36,0,0,shots/gate.png
 //
-// yaw 0 looks north (-Z), 180 south (+Z). Prints any page errors it sees.
+// yaw 0 looks north (-Z), 180 south (+Z), 90 west (-X), -90 east (+X).
+// Prints any page errors it sees.
 // SHOT_EVAL="<js>" runs in the page (with `m` = window.__medieval) before each
 // shot — e.g. to hide one object and see whether an artifact goes with it.
 

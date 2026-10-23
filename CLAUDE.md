@@ -119,8 +119,17 @@ the Ubuntu runner do not have the problem.
 index.html        Thin entry shell (loading + overlay markup + <script src="/src/main.js">)
 vite.config.js    Dev/preview server pinned to port 8091
 src/
-  main.js         Bootstrap: loads models, wires modules, runs the render loop
-  scene.js        Renderer, scene, camera, daylight, resize handling
+  main.js         Bootstrap, realm switching (portals, fade, F2 dev hop), render loop
+  scene.js        Renderer, scene, camera, castle daylight, resize handling
+  castle.js       The castle realm: world + village + grass + portal to World 1
+  portal.js       Standing stone portal with a light sheet; isInside(feet) triggers travel
+  sky.js          Sky dome whose horizon colour is driven to match the fog
+  noise.js        Seeded Perlin noise, fbm, ridged — the source of all procedural land
+  wasteland/      World 1 realm (see docs/DESIGN.md)
+    index.js        The realm: lights, HDRI, area moods, portal home
+    terrain.js      3 km heightfield + ground-type weights (pure functions of x, z)
+    terrain-material.js  Blends five Poly Haven textures by splat, slope and altitude
+    sandstorm.js    Wind-blown dust/snow points; thick in the rim storm
   world.js        The castle: ground, curtain wall, towers, keep, courtyard props
   village.js      Everything outside the walls: roads, village, farm, pasture, pond, woods
   grass.js        Instanced wind-blown grass field + the procedural ground material
@@ -134,11 +143,16 @@ tools/
   poly.mjs           Poly Pizza scraper (search / info / download one model)
   fetch-props.mjs    The model shopping list — downloads them + writes manifest & credits
   measure-models.mjs Prints each GLB's raw bounding box (input for model-table.js)
+  polyhaven.mjs      Downloads the realistic textures + HDRI from Poly Haven
+  shot.mjs           Screenshots the running game via headless Chrome (needs npm run dev)
+docs/DESIGN.md    The game plan: worlds, clans, the Lava King. Read before adding features.
 dev-models.html   Dev-only model gallery (http://localhost:8091/dev-models.html)
 public/models/medieval/
   *.glb              77 CC0 low-poly props, almost all by Quaternius
   manifest.json      key -> title/author/licence/source
   CREDITS.md         attribution table
+public/textures/<key>/{diff,nor}.jpg  CC0 photo-scanned ground (sand, dry, burned, rock, snow)
+public/hdri/*.hdr                     CC0 sky light
 ```
 
 ## Tech stack
@@ -197,6 +211,7 @@ Two loader details that are easy to break and hard to spot:
 | Space | Jump |
 | Esc | Release the mouse |
 | Click | Grab the mouse (lock pointer); once locked, cast the fishing rod |
+| F2 | Dev server only: hop between the castle and the wasteland |
 
 ## Key systems
 
@@ -209,8 +224,36 @@ WASD sets a wish-velocity in camera-local space each frame, projected onto the h
 plane so pitch doesn't affect walk speed, then eased toward with an exponential so starting
 and stopping have weight. Movement resolves one axis at a time against the world's collider
 AABBs: boxes taller than the feet (plus a small step epsilon) block, lower ones are stood
-on. Space jumps only when grounded. `dt` is clamped to 50 ms to avoid tunneling on lag
+on. The floor is `groundAt(x, z)` (0 in the castle, terrain in the wasteland); terrain
+steeper than 45° blocks like a wall, `canStand` is the hard world edge, and walking
+downhill snaps to the ground rather than falling step by step. Space jumps only when grounded. `dt` is clamped to 50 ms to avoid tunneling on lag
 spikes.
+
+### Realms (`main.js`, `castle.js`, `wasteland/`)
+Each world is a *realm*: built once on first visit into its own `THREE.Group`, then
+attached and detached as the player travels. `enter(ctx)` adds the group and owns the
+scene-wide settings it needs (background, fog, environment, tone mapping, camera far,
+and the player's `setWorld({ colliders, groundAt, canStand })`); `exit` removes it.
+Each realm lists `portals`; walking into one fades to black and calls `travel(target)`.
+The game currently **starts in the wasteland** (`START` in `main.js`).
+
+### Wasteland (`wasteland/`)
+The land is a pure function of (x, z) from one noise seed: `biomeAt` gives sand / dry /
+burned / snow weights (snow across the south, +Z), `shapeAt` stacks swells, wind-shaped
+dunes, burned lumps, snowy hills and a varied mountain massif at the rim. The mesh is a
+640² grid and `heightAt` interpolates **that grid's triangles**, not the analytic shape, so
+feet match the drawn ground exactly. The ground shader sticks to `MeshStandardMaterial` via
+`onBeforeCompile` (keeping lights, shadows, fog, HDRI) and only colour/normal/roughness
+are replaced; each texture is sampled at two scales to hide tiling, rock is projected
+from the side on steep faces. Only diffuse + normal maps are used: 5 surfaces × 3 maps
+would blow the 16 texture units WebGL guarantees.
+
+Mood follows the player: `MOODS` (desert, burned, snow, storm, blizzard) are blended by
+the biome and storm weights under the player and eased toward each frame. Fog is
+`FogExp2` and the sky dome's horizon is always the fog colour, so far land dissolves into
+the sky. Two traps found the hard way: a dust puff larger than the GPU's max point size
+gets clipped into a hard disc, so puffs fade by *on-screen* size; and a two-stop CSS
+vignette draws a visible ring over a flat storm sky — it is eased over many stops now.
 
 ### World (`world.js`)
 The castle is still pure procedural geometry: ground plane, courtyard floor, a curtain wall

@@ -56,7 +56,8 @@ export function biomeAt(x, z) {
   // No snow drifts inside the city: the snow line is just south of its wall.
   const snow = smoothstep(560, 760, z + fbm(x / 380, z / 380, 3) * 140) * (1 - cityMask(x, z));
   const burnRaw = smoothstep(0.12, 0.3, fbm(x / 520 + 31, z / 520 - 17, 4));
-  const sandRaw = smoothstep(-0.05, 0.2, fbm(x / 650 - 71, z / 650 + 43, 3));
+  // Yards inside the city are trodden earth, not dune sand.
+  const sandRaw = smoothstep(-0.05, 0.2, fbm(x / 650 - 71, z / 650 + 43, 3)) * (1 - cityMask(x, z));
   const rest = (1 - snow) * (1 - burnRaw);
   return { sand: rest * sandRaw, dry: rest * (1 - sandRaw), burned: burnRaw * (1 - snow), snow };
 }

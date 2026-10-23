@@ -31,7 +31,8 @@ const TEXTURES = [
 
   // The cyborg city.
   ['citywall', 'castle_wall_slates', '1k', BUILD],     // the curtain wall
-  ['steel', 'metal_plate', '1k', BUILD],               // plating on wall, roofs, machines
+  ['steel', 'metal_plate_02', '1k', BUILD],            // riveted plates bolted onto stone
+  ['tin', 'corrugated_iron_02', '1k', BUILD],          // metal-plated roofs and sheds
   ['rust', 'rusty_metal_02', '1k', BUILD],             // older, weathered plates
   ['plaster', 'plastered_wall_02', '1k', BUILD],       // house walls
   ['timber', 'weathered_brown_planks', '1k', BUILD],   // beams, doors, shutters

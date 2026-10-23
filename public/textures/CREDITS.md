@@ -11,7 +11,8 @@ All CC0 (public domain) from [Poly Haven](https://polyhaven.com). Downloaded by
 | `textures/rock` | Rock Face | Greg Zaal, Dario Barresi | https://polyhaven.com/a/rock_face |
 | `textures/snow` | Snow 02 | Rob Tuytel | https://polyhaven.com/a/snow_02 |
 | `textures/citywall` | Castle Wall Slates | Rob Tuytel | https://polyhaven.com/a/castle_wall_slates |
-| `textures/steel` | Metal Plate | Rob Tuytel | https://polyhaven.com/a/metal_plate |
+| `textures/steel` | Metal Plate 02 | Rob Tuytel | https://polyhaven.com/a/metal_plate_02 |
+| `textures/tin` | Corrugated Iron 02 | Jenelle van Heerden, Sergej Majboroda | https://polyhaven.com/a/corrugated_iron_02 |
 | `textures/rust` | Rusty Metal 02 | Rob Tuytel | https://polyhaven.com/a/rusty_metal_02 |
 | `textures/plaster` | Plastered Wall 02 | Charlotte Baglioni | https://polyhaven.com/a/plastered_wall_02 |
 | `textures/timber` | Weathered Brown Planks | Dimitrios Savva, Rico Cilliers | https://polyhaven.com/a/weathered_brown_planks |

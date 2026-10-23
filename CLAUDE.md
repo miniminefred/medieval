@@ -130,6 +130,11 @@ src/
     terrain.js      3 km heightfield + ground-type weights (pure functions of x, z)
     terrain-material.js  Blends five Poly Haven textures by splat, slope and altitude
     sandstorm.js    Wind-blown dust/snow points; thick in the rim storm
+    city/           The cyborg city (east, above the snow line)
+      builder.js      CityBuilder: metre-true UVs, per-chunk merged meshes, haze culling
+      wall.js         Stone + steel curtain wall, towers, west gatehouse
+      streets.js      Street plan (STREETS, BLOCKS, MARKET) and cobbles
+      houses.js       Half-timbered houses round every block; ~30% cyborg-touched
   world.js        The castle: ground, curtain wall, towers, keep, courtyard props
   village.js      Everything outside the walls: roads, village, farm, pasture, pond, woods
   grass.js        Instanced wind-blown grass field + the procedural ground material
@@ -261,6 +266,23 @@ gets both, and skipping it left every peak as a dark ghost against the sky.
 Two more traps found the hard way: a dust puff larger than the GPU's max point size
 gets clipped into a hard disc, so puffs fade by *on-screen* size; and a two-stop CSS
 vignette draws a visible ring over a flat storm sky — it is eased over many stops now.
+
+### Cyborg city (`wasteland/city/`)
+Built from boxes, gable roofs and gable-end triangles through `CityBuilder`. UVs are
+in **metres** and each material's textures repeat once per real-world size of the
+photo (`SURFACES` in `builder.js`), so a stone or roof tile is life-size on any box.
+Pieces merge into one mesh per material **per 100 m chunk**: whole chunks are hidden
+past the haze's reach, and `DETAIL` materials (glass, timber, steel, rust) past
+160 m. Pieces longer than half a chunk (wall runs) go in an `always` chunk instead,
+or culling a far chunk would delete a side of the wall. City materials get
+`detile()` — a *mirrored* second texture sample in world-space patches plus slow
+light/dark blotches; mirrored, never rotated, or stone courses go diagonal. The
+terrain is levelled under the city (`CITY`, `cityMask` in `terrain.js`), with no
+snow or dune sand inside. Houses are axis-aligned, so each is one AABB collider.
+
+Texture traps found the hard way: Poly Haven's `metal_plate` is a near-black oily
+tread plate (now `metal_plate_02`), and metals at full metalness only mirror the
+hazy sky — steel and tin have `metal` and `gain` overrides to read as metal.
 
 ### World (`world.js`)
 The castle is still pure procedural geometry: ground plane, courtyard floor, a curtain wall

@@ -5,6 +5,7 @@ import { createTerrainMaterial } from './terrain-material.js';
 import { createSandstorm } from './sandstorm.js';
 import { createSky } from '../sky.js';
 import { createPortal } from '../portal.js';
+import { buildCity } from './city/index.js';
 
 // World 1 — the Wasteland. See docs/DESIGN.md.
 //
@@ -15,7 +16,9 @@ import { createPortal } from '../portal.js';
 // the mountains behind it.
 
 const HDRI = (import.meta.env?.BASE_URL ?? '/') + 'hdri/desert_noon.hdr';
-const SUN_DIR = new THREE.Vector3(0.45, 0.72, 0.38).normalize();
+// Afternoon sun in the south-west, so the city gate (which faces west, toward
+// where travellers arrive) is lit as you approach it.
+const SUN_DIR = new THREE.Vector3(-0.5, 0.68, 0.42).normalize();
 
 // One mood per kind of place. fog = FogExp2 density; dust = sandstorm intensity.
 const MOODS = {
@@ -61,7 +64,8 @@ export function createWastelandRealm(renderer) {
   cam.far = 500;
   group.add(sun, sun.target);
 
-  const hemi = new THREE.HemisphereLight(0xbfd4ee, 0x8a6a48, 0.35);
+  // Sky fill above, and the bright sand bouncing warm light up into every shadow.
+  const hemi = new THREE.HemisphereLight(0xbfd4ee, 0xcaa77c, 0.9);
   group.add(hemi);
 
   // Real sky light from a photographed HDRI, for reflections and soft fill. It
@@ -88,6 +92,11 @@ export function createWastelandRealm(renderer) {
     yaw: 0, color: 0x6fb6ff, target: 'castle',
   });
   group.add(portal.object);
+
+  // ----------------------------------------------------------------- city
+  const city = buildCity(renderer);
+  group.add(city.group);
+  const colliders = portal.colliders.concat(city.colliders);
 
   const fog = new THREE.FogExp2(MOODS.desert.horizon, MOODS.desert.fog);
   const mood = MOOD_VECS.desert.slice();
@@ -153,7 +162,7 @@ export function createWastelandRealm(renderer) {
       camera.far = 6000;
       camera.updateProjectionMatrix();
       player.setWorld({
-        colliders: portal.colliders,
+        colliders,
         groundAt: terrain.heightAt,
         canStand: (x, z) => edgeAt(x, z) < WALK_LIMIT,
       });

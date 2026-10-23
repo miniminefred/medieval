@@ -65,6 +65,8 @@ Each world has **a boss who serves the Lava King**.
 ## World 1 — The Wasteland
 
 - **Big: ~3 km across.**
+- **The edge:** first a band of some metres of **huge sandstorm** (you can barely see),
+  then **tall mountains** you cannot cross.
 - Mostly **dry desert/dust** and **ruined, burned land**.
 - **The bottom (south) of the map is snowy**, with its own enemies, places and
   secrets, and a **snow city**.

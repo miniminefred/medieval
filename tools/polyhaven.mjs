@@ -4,31 +4,46 @@
 //   node tools/polyhaven.mjs
 //
 // Poly Haven has a public JSON API: /files/<id> lists every map of an asset at
-// every resolution. We take colour + OpenGL normal only: the terrain shader blends
-// five of these at once, and with ARM maps too it would need more than the 16
-// texture units WebGL guarantees, so roughness is a constant per surface instead.
+// every resolution. Ground textures get colour + OpenGL normal only: the terrain
+// shader blends five of them at once, and with ARM maps too it would need more
+// than the 16 texture units WebGL guarantees.
 // One .hdr per sky. Existing files are skipped.
 
 import { mkdir, writeFile, access } from 'node:fs/promises';
 import path from 'node:path';
 
 const ROOT = path.resolve(import.meta.dirname, '..', 'public');
-const RES = '2k';
 
-// key -> Poly Haven asset id. The key is what game code refers to.
+// [key, Poly Haven asset id, resolution, maps]. The key is what game code refers to.
+const GROUND = { Diffuse: 'diff', nor_gl: 'nor' };
+// Buildings use one material per surface, so they can afford the ARM map too
+// (AO / roughness / metalness in R/G/B — exactly what three's aoMap,
+// roughnessMap and metalnessMap read). 1k keeps the download sane; walls are
+// seen up close but tile every couple of metres.
+const BUILD = { Diffuse: 'diff', nor_gl: 'nor', arm: 'arm' };
+
 const TEXTURES = [
-  ['sand', 'aerial_beach_01'],    // wind-rippled dune sand
-  ['dry', 'dry_ground_01'],       // cracked desert earth
-  ['burned', 'burned_ground_01'], // burned ground and ash
-  ['rock', 'rock_face'],          // cliffs and mountain faces
-  ['snow', 'snow_02'],            // the snowy south
+  ['sand', 'aerial_beach_01', '2k', GROUND],    // wind-rippled dune sand
+  ['dry', 'dry_ground_01', '2k', GROUND],       // cracked desert earth
+  ['burned', 'burned_ground_01', '2k', GROUND], // burned ground and ash
+  ['rock', 'rock_face', '2k', GROUND],          // cliffs and mountain faces
+  ['snow', 'snow_02', '2k', GROUND],            // the snowy south
+
+  // The cyborg city.
+  ['citywall', 'castle_wall_slates', '1k', BUILD],     // the curtain wall
+  ['steel', 'metal_plate', '1k', BUILD],               // plating on wall, roofs, machines
+  ['rust', 'rusty_metal_02', '1k', BUILD],             // older, weathered plates
+  ['plaster', 'plastered_wall_02', '1k', BUILD],       // house walls
+  ['timber', 'weathered_brown_planks', '1k', BUILD],   // beams, doors, shutters
+  ['housestone', 'rustic_stone_wall', '1k', BUILD],    // house plinths, ground floors
+  ['rooftiles', 'clay_roof_tiles', '1k', BUILD],       // roofs
+  ['cobble', 'cobblestone_floor_01', '1k', BUILD],     // streets and squares
 ];
 
 const HDRIS = [
   ['desert_noon', 'qwantani_noon_puresky'], // clear sky only, no ground in it
 ];
 
-const MAPS = { Diffuse: 'diff', nor_gl: 'nor' };
 
 async function exists(p) {
   try { await access(p); return true; } catch { return false; }
@@ -51,7 +66,7 @@ async function download(url, file) {
 
 const credits = [];
 
-for (const [key, id] of TEXTURES) {
+for (const [key, id, RES, MAPS] of TEXTURES) {
   const files = await getJson(`https://api.polyhaven.com/files/${id}`);
   const info = await getJson(`https://api.polyhaven.com/info/${id}`);
   for (const [map, suffix] of Object.entries(MAPS)) {

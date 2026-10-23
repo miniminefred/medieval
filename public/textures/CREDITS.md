@@ -10,4 +10,12 @@ All CC0 (public domain) from [Poly Haven](https://polyhaven.com). Downloaded by
 | `textures/burned` | Burned Ground 01 | Rob Tuytel | https://polyhaven.com/a/burned_ground_01 |
 | `textures/rock` | Rock Face | Greg Zaal, Dario Barresi | https://polyhaven.com/a/rock_face |
 | `textures/snow` | Snow 02 | Rob Tuytel | https://polyhaven.com/a/snow_02 |
+| `textures/citywall` | Castle Wall Slates | Rob Tuytel | https://polyhaven.com/a/castle_wall_slates |
+| `textures/steel` | Metal Plate | Rob Tuytel | https://polyhaven.com/a/metal_plate |
+| `textures/rust` | Rusty Metal 02 | Rob Tuytel | https://polyhaven.com/a/rusty_metal_02 |
+| `textures/plaster` | Plastered Wall 02 | Charlotte Baglioni | https://polyhaven.com/a/plastered_wall_02 |
+| `textures/timber` | Weathered Brown Planks | Dimitrios Savva, Rico Cilliers | https://polyhaven.com/a/weathered_brown_planks |
+| `textures/housestone` | Rustic Stone Wall | Dimitrios Savva | https://polyhaven.com/a/rustic_stone_wall |
+| `textures/rooftiles` | Clay Roof Tiles | Amal Kumar | https://polyhaven.com/a/clay_roof_tiles |
+| `textures/cobble` | Cobblestone Floor 01 | Rob Tuytel | https://polyhaven.com/a/cobblestone_floor_01 |
 | `hdri/desert_noon.hdr` | Qwantani Noon (Pure Sky) | Greg Zaal, Jarod Guest | https://polyhaven.com/a/qwantani_noon_puresky |

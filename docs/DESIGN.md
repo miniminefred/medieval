@@ -81,6 +81,27 @@ Each world has **a boss who serves the Lava King**.
 - **Scorpions:** small like real ones, poisonous, live in flocks and nest in old
   ruins.
 
+### Map (owner's sketch, 2026-10-23)
+
+North is up, the bottom (+Z, south) is snow.
+
+```
+_____________________________
+|                           |
+|         desert            |
+|                           |
+|                  _________|
+|                 | cyborg  |
+|                 |  city   |
+|---------------------------|   <- snow line
+|          snow             |
+|___________________________|
+```
+
+- **Cyborg city:** east side, just north of the snow line. Roughly x +280..+1060,
+  z +60..+530 of the walkable area (which runs about ±1060 m).
+- **Snow line:** about three quarters of the way down (z ≈ +530..+760 today).
+
 ## Build order
 
 1. ~~Design doc~~ (this file)

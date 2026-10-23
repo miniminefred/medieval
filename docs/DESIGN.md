@@ -52,6 +52,9 @@ exception to "no guns": it belongs to the cyborg clan, not a general shooter loo
 
 ## Structure
 
+*For now the game starts in World 1 (owner's request, 2026-10-23); the castle is
+reached through the blue portal at the arrival point.*
+
 0. **Intro — the castle.** The current castle + village. You pick your clan here,
    then step through **a portal in the castle** into World 1.
 1. **The Wasteland** — see below.

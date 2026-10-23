@@ -4,9 +4,10 @@
 //   node tools/polyhaven.mjs
 //
 // Poly Haven has a public JSON API: /files/<id> lists every map of an asset at
-// every resolution. We take colour + OpenGL normal + ARM (AO/roughness/metal
-// packed in R/G/B, which is exactly what three's aoMap/roughnessMap/metalnessMap
-// read) for each texture, and one .hdr per sky. Existing files are skipped.
+// every resolution. We take colour + OpenGL normal only: the terrain shader blends
+// five of these at once, and with ARM maps too it would need more than the 16
+// texture units WebGL guarantees, so roughness is a constant per surface instead.
+// One .hdr per sky. Existing files are skipped.
 
 import { mkdir, writeFile, access } from 'node:fs/promises';
 import path from 'node:path';
@@ -27,7 +28,7 @@ const HDRIS = [
   ['desert_noon', 'qwantani_noon_puresky'], // clear sky only, no ground in it
 ];
 
-const MAPS = { Diffuse: 'diff', nor_gl: 'nor', arm: 'arm' };
+const MAPS = { Diffuse: 'diff', nor_gl: 'nor' };
 
 async function exists(p) {
   try { await access(p); return true; } catch { return false; }

@@ -4,9 +4,10 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 # Alfred — Medieval
 
-Browser-based 3D **first-person medieval game** built with **Three.js**, bundled by **Vite**.
-It is *not* a shooter — no guns, no crosshair-and-trigger loop. The starting point is a
-walled courtyard you can walk around in; where it goes from there is open.
+Browser-based 3D **first-person fantasy/medieval adventure** built with **Three.js**,
+bundled by **Vite**. It is *not* a shooter — no crosshair-and-trigger loop (the cyborg
+clan's plasma cannon is a deliberate exception). Five worlds, four clans, a Lava King to
+beat: **the full game plan lives in `docs/DESIGN.md` — read it before adding features.**
 
 The code is split into small ES modules under `src/` — **never let a single file grow
 without bound**; when a module gets large or mixes concerns, split it.

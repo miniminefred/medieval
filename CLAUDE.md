@@ -256,7 +256,9 @@ foot)`, so the closer you walk to the rim the thicker the haze, until the storm 
 over. The terrain fogs toward `skyColor(viewDir)` — the sky dome's own GLSL (`SKY_GLSL`
 in `sky.js`) — not a flat colour, so a fogged peak leaves no silhouette. That fog colour
 must be tone-mapped and sRGB-converted by hand: three applies fog *after* both, the sky
-gets both, and skipping it left every peak as a dark ghost against the sky. Two traps found the hard way: a dust puff larger than the GPU's max point size
+gets both, and skipping it left every peak as a dark ghost against the sky.
+
+Two more traps found the hard way: a dust puff larger than the GPU's max point size
 gets clipped into a hard disc, so puffs fade by *on-screen* size; and a two-stop CSS
 vignette draws a visible ring over a flat storm sky — it is eased over many stops now.
 

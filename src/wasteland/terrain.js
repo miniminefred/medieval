@@ -23,6 +23,19 @@ export const WALK_LIMIT = 1320;        // a hard stop well up the mountain foot
 
 export const SPAWN = { x: 0, z: 0 };
 
+// The cyborg city (docs/DESIGN.md): east, just north of the snow line. The land
+// inside is levelled to one height, and blends back to the wild over FLATTEN m.
+// The east wall stops well short of the storm band, so the city stays in the open.
+export const CITY = { minX: 280, maxX: 1000, minZ: 60, maxZ: 520, y: 1.0 };
+const FLATTEN = 45;
+
+// 1 inside the city rectangle, falling smoothly to 0 FLATTEN metres outside it.
+export function cityMask(x, z) {
+  const dx = Math.max(CITY.minX - x, 0, x - CITY.maxX);
+  const dz = Math.max(CITY.minZ - z, 0, z - CITY.maxZ);
+  return 1 - smoothstep(0, FLATTEN, Math.hypot(dx, dz));
+}
+
 const noise = createNoise(1066);
 const { fbm, ridged } = noise;
 
@@ -40,7 +53,8 @@ export function stormAt(x, z) {
 
 // How much of each ground type is at (x, z). The four always sum to 1.
 export function biomeAt(x, z) {
-  const snow = smoothstep(560, 760, z + fbm(x / 380, z / 380, 3) * 140);
+  // No snow drifts inside the city: the snow line is just south of its wall.
+  const snow = smoothstep(560, 760, z + fbm(x / 380, z / 380, 3) * 140) * (1 - cityMask(x, z));
   const burnRaw = smoothstep(0.12, 0.3, fbm(x / 520 + 31, z / 520 - 17, 4));
   const sandRaw = smoothstep(-0.05, 0.2, fbm(x / 650 - 71, z / 650 + 43, 3));
   const rest = (1 - snow) * (1 - burnRaw);
@@ -72,6 +86,10 @@ function shapeAt(x, z) {
   // Level ground around the arrival point so the portal stands on something flat.
   const r = Math.hypot(x - SPAWN.x, z - SPAWN.z);
   h *= smoothstep(30, 110, r);
+
+  // The city sits on levelled ground.
+  const c = cityMask(x, z);
+  h += (CITY.y - h) * c;
 
   // The mountain wall at the rim. The foot wanders in and out by up to ~90 m and
   // the range swells and sags along its length, so it reads as a real massif with

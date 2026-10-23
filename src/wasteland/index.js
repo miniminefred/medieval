@@ -188,6 +188,8 @@ export function createWastelandRealm(renderer) {
       sun.target.position.copy(p);
       sun.position.copy(p).addScaledVector(SUN_DIR, 250);
 
+      // FogExp2 has swallowed everything by ~2.2 / density.
+      city.update(camera, 2.2 / fog.density);
       sky.update(camera);
       dust.update(dt, camera, dustI, renderer);
       portal.update(dt);

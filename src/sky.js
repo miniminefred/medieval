@@ -8,6 +8,22 @@ import * as THREE from 'three';
 // frame (the wasteland blends them by area), and the dome follows the camera so
 // it is always infinitely far away.
 
+// The sky's colour in direction d, minus the sun disc. Shared with the terrain's
+// fog (terrain-material.js), so land fading into the distance fades into exactly
+// the sky behind it — a fogged peak leaves no silhouette against the sky.
+export const SKY_GLSL = /* glsl */`
+  uniform vec3 uZenith, uHorizon, uSunDir, uSunColor;
+  uniform float uSunStrength, uHaze;
+  vec3 skyColor(vec3 d) {
+    float h = max(d.y, 0.0);
+    // Haze pushes the horizon band up the sky.
+    float t = pow(h, mix(0.6, 2.5, uHaze));
+    vec3 col = mix(uHorizon, uZenith, t);
+    float s = max(dot(d, normalize(uSunDir)), 0.0);
+    float glow = pow(s, 12.0) * 0.35 + pow(s, 400.0) * 0.6;
+    return col + uSunColor * glow * mix(1.0, 0.5, uHaze) * uSunStrength;
+  }`;
+
 export function createSky({ radius = 4000 } = {}) {
   const uniforms = {
     uZenith: { value: new THREE.Color(0x6f9ccf) },
@@ -31,20 +47,14 @@ export function createSky({ radius = 4000 } = {}) {
         gl_Position = p.xyww;   // pinned to the far plane
       }`,
     fragmentShader: /* glsl */`
-      uniform vec3 uZenith, uHorizon, uSunDir, uSunColor;
-      uniform float uSunStrength, uHaze;
+      ${SKY_GLSL}
       varying vec3 vDir;
       void main() {
         vec3 d = normalize(vDir);
-        float h = max(d.y, 0.0);
-        // Haze pushes the horizon band up the sky.
-        float t = pow(h, mix(0.6, 2.5, uHaze));
-        vec3 col = mix(uHorizon, uZenith, t);
-
+        vec3 col = skyColor(d);
         float s = max(dot(d, normalize(uSunDir)), 0.0);
         float disc = smoothstep(0.9995, 0.99975, s) * (1.0 - uHaze);
-        float glow = pow(s, 12.0) * 0.35 + pow(s, 400.0) * 0.6;
-        col += uSunColor * (disc * 6.0 + glow * mix(1.0, 0.5, uHaze)) * uSunStrength;
+        col += uSunColor * disc * 6.0 * uSunStrength;
 
         gl_FragColor = vec4(col, 1.0);
         #include <tonemapping_fragment>

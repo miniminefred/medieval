@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import { HDRLoader } from 'three/addons/loaders/HDRLoader.js';
-import { createWastelandTerrain, biomeAt, stormAt, edgeAt, HALF, SPAWN, WALK_LIMIT } from './terrain.js';
+import { createWastelandTerrain, biomeAt, stormAt, edgeAt, HALF, SPAWN, WALK_LIMIT, MOUNTAIN_NEAREST } from './terrain.js';
 import { createTerrainMaterial } from './terrain-material.js';
 import { createSandstorm } from './sandstorm.js';
 import { createSky } from '../sky.js';
@@ -38,9 +38,13 @@ export function createWastelandRealm(renderer) {
   const group = new THREE.Group();
   group.name = 'wasteland';
 
+  const sky = createSky();
+  sky.uniforms.uSunDir.value.copy(SUN_DIR);
+  group.add(sky.mesh);
+
   // ------------------------------------------------------------------ land
   const terrain = createWastelandTerrain();
-  const ground = new THREE.Mesh(terrain.geometry, createTerrainMaterial(renderer, terrain.splat, HALF));
+  const ground = new THREE.Mesh(terrain.geometry, createTerrainMaterial(renderer, terrain.splat, HALF, sky.uniforms));
   ground.receiveShadow = true;
   group.add(ground);
 
@@ -72,9 +76,6 @@ export function createWastelandRealm(renderer) {
     if (active) active.scene.environment = envMap;
   });
 
-  const sky = createSky();
-  sky.uniforms.uSunDir.value.copy(SUN_DIR);
-  group.add(sky.mesh);
 
   const dust = createSandstorm();
   group.add(dust.object);
@@ -113,11 +114,17 @@ export function createWastelandRealm(renderer) {
   function applyMood(scene) {
     const [hr, hg, hb, zr, zg, zb, density, sunI, sr, sg, sb, env, dustI, dr, dg, db] = mood;
     fog.color.setRGB(hr, hg, hb);
-    fog.density = density;
+    // The mountains must never be seen from inside the map: however close the
+    // player walks to the rim, the haze thickens so the nearest possible mountain
+    // foot is past the point where FogExp2 has swallowed everything (~1.9/density).
+    // In the middle that leaves ~1 km of view; by the storm it is the storm.
+    const p = active?.player.object.position;
+    const toMountain = p ? MOUNTAIN_NEAREST - edgeAt(p.x, p.z) : MOUNTAIN_NEAREST;
+    fog.density = Math.max(density, 1.9 / Math.max(toMountain, 45));
     sky.uniforms.uHorizon.value.setRGB(hr, hg, hb);
     sky.uniforms.uZenith.value.setRGB(zr, zg, zb);
     sky.uniforms.uSunColor.value.setRGB(sr, sg, sb);
-    sky.uniforms.uHaze.value = Math.min(1, density / 0.03);
+    sky.uniforms.uHaze.value = Math.min(1, fog.density / 0.03);
     sun.color.setRGB(sr, sg, sb);
     sun.intensity = sunI;
     hemi.color.setRGB(zr, zg, zb);

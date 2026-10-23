@@ -17,6 +17,8 @@ const SPLAT = 768;                     // ground-type texture resolution
 export const STORM_START = 1060;       // sandstorm starts thickening here...
 export const STORM_FULL = 1190;        // ...and is at its worst from here on
 const MOUNTAIN_START = 1230;           // mountains rise from here to the rim
+const FOOT_WANDER = 90;                // ...give or take this much
+export const MOUNTAIN_NEAREST = MOUNTAIN_START - FOOT_WANDER;
 export const WALK_LIMIT = 1320;        // a hard stop well up the mountain foot
 
 export const SPAWN = { x: 0, z: 0 };
@@ -74,7 +76,7 @@ function shapeAt(x, z) {
   // The mountain wall at the rim. The foot wanders in and out by up to ~90 m and
   // the range swells and sags along its length, so it reads as a real massif with
   // peaks and passes rather than one even wall of spikes.
-  const foot = MOUNTAIN_START + fbm(x / 330 + 9, z / 330 - 4, 3) * 90;
+  const foot = MOUNTAIN_START + fbm(x / 330 + 9, z / 330 - 4, 3) * FOOT_WANDER;
   const m = smoothstep(foot, HALF - 20, edgeAt(x, z));
   const massif = 0.35 + 1.1 * smoothstep(-0.5, 0.6, fbm(x / 520 - 13, z / 520 + 27, 3));
   h += m * m * massif * (160 + ridged(x / 240, z / 240, 6) * 300);

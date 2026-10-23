@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import { SKY_GLSL } from '../sky.js';
 
 // The ground shader: a MeshStandardMaterial (so it keeps real lighting, shadows,
 // fog and the HDRI environment) whose colour, normal and roughness are replaced by
@@ -11,6 +12,9 @@ import * as THREE from 'three';
 // Each texture is sampled at its real-world size *and* again ~3.7x larger, mixed,
 // which breaks up the visible repeat a single tiled photo would have across 3 km.
 // Normals are blended in world space (UDN) and handed to three in view space.
+//
+// Fog fades toward the *sky's* colour in the view direction, not one flat fog
+// colour, using the sky dome's own uniforms (`skyUniforms`).
 
 const BASE = (import.meta.env?.BASE_URL ?? '/') + 'textures/';
 
@@ -23,7 +27,7 @@ const SURFACES = [
   { key: 'rock', size: 12, rough: 0.85, tint: [1.05, 0.95, 0.85] }, // sandstone-ish
 ];
 
-export function createTerrainMaterial(renderer, splat, half) {
+export function createTerrainMaterial(renderer, splat, half, skyUniforms) {
   const loader = new THREE.TextureLoader();
   const aniso = renderer.capabilities.getMaxAnisotropy();
 
@@ -36,6 +40,7 @@ export function createTerrainMaterial(renderer, splat, half) {
   }
 
   const uniforms = {
+    ...skyUniforms,
     tSplat: { value: splat },
     uHalf: { value: half },
   };
@@ -77,6 +82,7 @@ export function createTerrainMaterial(renderer, splat, half) {
         varying vec3 vWNrm;
         uniform sampler2D tSplat;
         uniform float uHalf;
+        ${SKY_GLSL}
         ${samplers}
 
         // Two scales of the same photo, so the repeat never lines up.
@@ -132,6 +138,19 @@ export function createTerrainMaterial(renderer, splat, half) {
         diffuseColor.rgb *= col;
         vec3 terrainN = normalize(gN + bump * 0.9);`)
       .replace('#include <roughnessmap_fragment>', `float roughnessFactor = rough;`)
+      .replace('#include <fog_fragment>', `
+        #ifdef USE_FOG
+          float fogF = 1.0 - exp(-fogDensity * fogDensity * vFogDepth * vFogDepth);
+          // three applies fog *after* tone mapping and the sRGB conversion, while
+          // the sky dome goes through both — so the sky colour must too, or a
+          // fully fogged mountain still shows as a darker silhouette.
+          vec3 fogC = skyColor(normalize(vWPos - cameraPosition));
+          #if defined( TONE_MAPPING )
+            fogC = toneMapping(fogC);
+          #endif
+          fogC = linearToOutputTexel(vec4(fogC, 1.0)).rgb;
+          gl_FragColor.rgb = mix(gl_FragColor.rgb, fogC, fogF);
+        #endif`)
       .replace('#include <normal_fragment_maps>', `
         normal = normalize((viewMatrix * vec4(terrainN, 0.0)).xyz);`);
   };

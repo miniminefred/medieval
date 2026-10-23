@@ -71,9 +71,13 @@ function shapeAt(x, z) {
   const r = Math.hypot(x - SPAWN.x, z - SPAWN.z);
   h *= smoothstep(30, 110, r);
 
-  // The mountain wall at the rim.
-  const m = smoothstep(MOUNTAIN_START, HALF - 20, edgeAt(x, z));
-  h += m * m * (220 + ridged(x / 260, z / 260, 5) * 260);
+  // The mountain wall at the rim. The foot wanders in and out by up to ~90 m and
+  // the range swells and sags along its length, so it reads as a real massif with
+  // peaks and passes rather than one even wall of spikes.
+  const foot = MOUNTAIN_START + fbm(x / 330 + 9, z / 330 - 4, 3) * 90;
+  const m = smoothstep(foot, HALF - 20, edgeAt(x, z));
+  const massif = 0.35 + 1.1 * smoothstep(-0.5, 0.6, fbm(x / 520 - 13, z / 520 + 27, 3));
+  h += m * m * massif * (160 + ridged(x / 240, z / 240, 6) * 300);
 
   return h;
 }

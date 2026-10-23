@@ -250,8 +250,13 @@ would blow the 16 texture units WebGL guarantees.
 
 Mood follows the player: `MOODS` (desert, burned, snow, storm, blizzard) are blended by
 the biome and storm weights under the player and eased toward each frame. Fog is
-`FogExp2` and the sky dome's horizon is always the fog colour, so far land dissolves into
-the sky. Two traps found the hard way: a dust puff larger than the GPU's max point size
+`FogExp2`, and **the mountains are never meant to be seen from inside the map** (owner's
+call): the fog density has a floor of `1.9 / (distance to the nearest possible mountain
+foot)`, so the closer you walk to the rim the thicker the haze, until the storm takes
+over. The terrain fogs toward `skyColor(viewDir)` — the sky dome's own GLSL (`SKY_GLSL`
+in `sky.js`) — not a flat colour, so a fogged peak leaves no silhouette. That fog colour
+must be tone-mapped and sRGB-converted by hand: three applies fog *after* both, the sky
+gets both, and skipping it left every peak as a dark ghost against the sky. Two traps found the hard way: a dust puff larger than the GPU's max point size
 gets clipped into a hard disc, so puffs fade by *on-screen* size; and a two-stop CSS
 vignette draws a visible ring over a flat storm sky — it is eased over many stops now.
 

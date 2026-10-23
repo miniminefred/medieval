@@ -70,6 +70,8 @@ Each world has **a boss who serves the Lava King**.
 - **Big: ~3 km across.**
 - **The edge:** first a band of some metres of **huge sandstorm** (you can barely see),
   then **tall mountains** you cannot cross.
+- **The mountains are hidden**: a distance haze means you never see them from inside the
+  map. They only loom up once you are in the storm.
 - Mostly **dry desert/dust** and **ruined, burned land**.
 - **The bottom (south) of the map is snowy**, with its own enemies, places and
   secrets, and a **snow city**.

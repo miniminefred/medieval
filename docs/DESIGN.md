@@ -13,6 +13,17 @@ bosses who serve him, and free the world from him.
 Focus: **a big story with a ton of side quests**, NPC quests, and exploring for
 secrets. Travel between worlds is driven by quests and story, not a world map.
 
+## Look
+
+**As realistic as possible.** Photo-scanned CC0 textures and HDRI skies (Poly Haven),
+realistic models wherever free ones exist. The 77 low-poly Quaternius props from the
+first version get replaced over time; the intro castle is upgraded *after* the
+wasteland. Accepted trade-off: characters and creatures are the hardest part to make
+realistic with free assets and code alone, and will lag behind the world.
+
+Each area has its own sky/mood: orange dust haze in the desert, darker over the burned
+ruins, white and cold in the snowy south. Place names: decided later.
+
 ## Camera
 
 First-person by default (you see your clan's hands, claws or metal arms holding

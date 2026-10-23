@@ -102,6 +102,21 @@ _____________________________
   z +60..+530 of the walkable area (which runs about ±1060 m).
 - **Snow line:** about three quarters of the way down (z ≈ +530..+760 today).
 
+### The cyborg city
+
+- **Fills the whole box on the map** (~800 × 500 m): a real landmark.
+- A **safe quest town**: walled, NPCs, quests.
+- **Medieval houses, with some parts high-tech**: some roofs and walls plated in
+  metal, and **machines** about the city.
+- **Wall: stone + metal.** A thick medieval stone wall reinforced with steel plates.
+- **One gate, facing west**, toward the middle of the map where you arrive.
+- Inside: **streets and houses**, a **market square where technology is for sale**,
+  **houses you can enter**, **NPCs walking around**, and **realistic lighting**
+  (lamps and lights).
+
+Build order: ground + wall + gate → streets and houses → market → machines →
+lamps and lights → enterable houses → NPCs.
+
 ## Build order
 
 1. ~~Design doc~~ (this file)

@@ -162,7 +162,7 @@ export function createClanStands(scene, places, renderer) {
       <div class="stats">
         <span>Health ${bar(st.health)}</span><span>Strength ${bar(st.strength)}</span>
         <span>Armour ${bar(st.armour)}</span><span>Damage ${bar(st.damage)}</span>
-        <span>Speed ${bar(st.speed)}</span>
+        <span>Speed ${bar(st.speed)}</span><span>Intelligence ${bar(st.intelligence)}</span>
       </div>
       <div class="hint">${armed
         ? `This is final. Press <kbd>E</kbd> again to become a prince of the ${clan.name}.`

@@ -72,8 +72,19 @@ depend on it). **You cannot switch clan**; play another prince in another save s
 | **Dragons** | Dragon-people (dragonkin), not riders | Fire, and can become a dragon |
 | **Apex** | Dinosaur-people | |
 
-**Base stats, classic split:** brutes most health and strength, cyborgs most armour,
-dragons most damage, apex fastest.
+**Base stats** (1–5, set by the owner 2026-10-24):
+
+| Clan | Health | Strength | Armour | Damage | Speed | Intelligence |
+|------|:-:|:-:|:-:|:-:|:-:|:-:|
+| **Brutes** | 4 | 5 | 3 | 4 | 2 | 1 |
+| **Cyborgs** | 3 | 4 | 4 | 3 | 1 | 3 |
+| **Dragons** | 3 | 3 | 2 | 4 | 4 | 3 |
+| **Apex** | 4 | 3 | 2 | 3 | 5 | 2 |
+
+- **Speed** is how fast you run *and* how much (how long) you can run. **Walking is
+  the same for everyone.** Cyborgs are 1: the mech parts are really heavy.
+- **Intelligence** affects **lockpicking** (how easy a lock is), **crafting**, and
+  **some weapons**.
 
 **Abilities: every clan gets them a different way.**
 

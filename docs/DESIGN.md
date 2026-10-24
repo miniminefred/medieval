@@ -57,6 +57,10 @@ weapons, and story/quests** (some quests and NPC reactions depend on it).
   tiredness and sleep in the game.)
 - **Apex find abilities** in **eggs**, **fossils and bones**, and by **beating
   beasts**.
+- **Rest and tiredness (everyone):** all clans get tired; being tired makes you
+  slower and weaker. **Long rest:** sleep in an inn room (costs coins) or make camp
+  anywhere in the wild. **Short rest:** anywhere, restores a bit of health and
+  energy, but only **2–3 short rests per long rest**.
 - **Base stats, classic split:** brutes most health and strength, cyborgs most
   armour, dragons most damage, apex fastest.
 
@@ -81,6 +85,12 @@ reached through the blue portal at the arrival point.*
 
 Each world has **a boss who serves the Lava King**.
 
+### The Lava King
+
+**A figure of lava, wearing a white cape and a power mask.** The mask has lore
+behind it, still to be written. **The more damaged he gets, the harder the fight
+gets.** At the very end, in fear and anger, **he destroys his own castle**.
+
 ## World 1 — The Wasteland
 
 - **Big: ~3 km across.**
@@ -93,7 +103,8 @@ Each world has **a boss who serves the Lava King**.
   secrets, and a **snow city**.
 - **Cities:** walled survivor towns (safe to be in, and the quest hubs), clan cities,
   and ruined ghost cities (dangerous, loot and secrets).
-- **Bandit camps**, several of them, each with a **bandit boss**.
+- **Bandit camps**, several of them. **Bosses: 2 mid bosses, and one big boss in a
+  castle.**
 - **Scorpions:** small like real ones, poisonous, live in flocks and nest in old
   ruins.
 

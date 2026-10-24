@@ -3,6 +3,7 @@ import { createRenderer, createScene, createCamera, handleResize } from './scene
 import { createInput } from './input.js';
 import { ModelLibrary } from './models.js';
 import { createCastleRealm } from './castle.js';
+import { onClanChosen, speedMultiplier } from './clans.js';
 import { Player } from './player.js';
 import { Viewmodel } from './viewmodel.js';
 
@@ -20,15 +21,16 @@ const player = new Player(camera, renderer.domElement, keys);
 scene.add(camera);
 
 const ctx = { scene, renderer, camera, player };
+onClanChosen((id) => { player.speedMul = speedMultiplier(id); });
 
 // ---------------------------------------------------------------- realms
 // Each world is a realm (castle.js, wasteland/): built once on first visit, then
 // attached and detached as the player walks through portals, so a realm nobody
 // has visited yet costs nothing.
 //
-// The game starts in World 1 for now (the owner's call, 2026-10-23); the castle,
-// where clan choice will live, is through the blue portal behind you.
-const START = 'wasteland';
+// Every prince starts at the castle and chooses a clan at the courtyard banners
+// (docs/DESIGN.md); the portal there then opens onto World 1.
+const START = 'castle';
 const realms = {};
 const builders = {
   castle: async () => createCastleRealm(library),

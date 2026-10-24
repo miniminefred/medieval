@@ -6,6 +6,7 @@ import { createSandstorm } from './sandstorm.js';
 import { createSky } from '../sky.js';
 import { createPortal } from '../portal.js';
 import { buildCity } from './city/index.js';
+import { CLANS, currentClan } from '../clans.js';
 
 // World 1 — the Wasteland. See docs/DESIGN.md.
 //
@@ -148,7 +149,11 @@ export function createWastelandRealm(renderer) {
     terrain,
     portals: [portal],
     spawn: { x: SPAWN.x, z: SPAWN.z, yaw: Math.PI },   // facing south, away from the portal
-    arrival: { x: SPAWN.x, z: SPAWN.z, yaw: Math.PI },
+    // Each clan's prince arrives at their clan's home (clans.js); without a clan
+    // (the F2 dev hop), at the map's centre.
+    get arrival() {
+      return CLANS[currentClan()]?.home ?? { x: SPAWN.x, z: SPAWN.z, yaw: Math.PI };
+    },
 
     enter(ctx) {
       const { scene, renderer, camera, player } = ctx;

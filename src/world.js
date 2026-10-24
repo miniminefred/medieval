@@ -167,7 +167,8 @@ export function buildWorld(scene, library = null) {
     addProp('cauldron', -6.4, 7.0, 0.9);
 
     // Chickens loose in the yard — small, non-solid, pure atmosphere.
-    for (const [cx, cz, cy] of [[-6.5, 14.5, 0.8], [-5.2, 15.4, 2.1], [9.2, 15.8, 3.4], [10.6, 14.6, 5.0]]) {
+    // (Kept clear of the clan banners, which stand in a row across the yard at z = 15.)
+    for (const [cx, cz, cy] of [[11.0, 2.0, 0.8], [12.2, 0.6, 2.1], [-11.5, -2.0, 3.4], [-10.4, -3.6, 5.0]]) {
       addProp('chicken', cx, cz, cy);
     }
 

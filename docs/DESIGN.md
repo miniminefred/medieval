@@ -102,9 +102,15 @@ the quest to kill him and free the world.
 are no dragons in World 1. **Freeing them is main quest**, and it is **the way into
 World 3**.
 
+**Where you start:** everyone starts at the castle and picks their clan there.
+A **dragon prince** then **wakes up hurt in the haunted dragon city** and must walk to
+**Farmville** or another city.
+
 **Clan cities:**
 - **Cyborg city:** World 1, east (built).
-- **Apex city:** World 1, **destroyed and being rebuilt**. An apex player starts there.
+- **Brute city:** World 1, **across from the cyborg city** (west side).
+- **Apex city:** World 1, **between the brute city and the cyborg city**.
+  **Destroyed and being rebuilt.**
 - **Dragon city:** **not in World 1**. It was destroyed, and you reach it **from the
   dragon cave in World 2**.
 

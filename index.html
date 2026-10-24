@@ -25,7 +25,7 @@
     <div class="keys">
       <kbd>W</kbd> <kbd>A</kbd> <kbd>S</kbd> <kbd>D</kbd> walk &nbsp;·&nbsp;
       <kbd>Shift</kbd> run &nbsp;·&nbsp; <kbd>Space</kbd> jump &nbsp;·&nbsp;
-      <kbd>E</kbd> choose &nbsp;·&nbsp; <kbd>Click</kbd> cast &nbsp;·&nbsp;
+      <kbd>E</kbd> use &nbsp;·&nbsp; <kbd>Tab</kbd> journal &amp; map &nbsp;·&nbsp; <kbd>Click</kbd> cast &nbsp;·&nbsp;
       <kbd>Mouse</kbd> look &nbsp;·&nbsp; <kbd>Esc</kbd> release
     </div>
   </div>
@@ -44,6 +44,23 @@
     <!-- Minimap (top right) with the purse under it; quests.js / minimap.js draw. -->
     <canvas id="minimap" width="200" height="200"></canvas>
     <div id="gold"></div>
+  </div>
+
+  <!-- Tab: the quest journal, what you carry, and the map of World 1 (journal.js). -->
+  <div id="journal">
+    <div class="page">
+      <div class="side">
+        <h2>Quests</h2>
+        <div id="journal-quests"></div>
+        <h2>Carried</h2>
+        <div id="journal-bag"></div>
+      </div>
+      <div class="side map">
+        <h2>The Wasteland</h2>
+        <canvas id="journal-map" width="640" height="640"></canvas>
+      </div>
+    </div>
+    <div class="hint"><kbd>Tab</kbd> close</div>
   </div>
 
   <!-- Black curtain drawn while travelling between worlds. -->

@@ -126,6 +126,12 @@ Decided 2026-10-24:
 - **Almost every house can be entered**, plus shops and an inn/tavern. Some doors
   are blocked by crates, and some are locked (like hotel rooms). Some locks can be
   **lockpicked**, and people may get angry if they catch you.
+- **Vehicles:** hover-bikes and buggies, airships and boats. **Airships and boats are
+  only sold in the worlds that need them** (boats in the Islands, airships in the
+  Skylands).
+- **Locks:** some are pin locks (lockpick), some are electronic (hack).
+- **Caught breaking in:** your reputation drops.
+- **Money:** both. Gold coins in most places, credits in tech shops.
 
 ## Build order
 

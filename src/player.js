@@ -5,6 +5,8 @@ import { setupPointerLock } from './input.js';
 const EYE = 1.7;           // eye height above the player's feet (units)
 const WALK_SPEED = 4.2;    // a person in boots, not a sprinter
 const RUN_SPEED = 7.0;
+const STAMINA_REFILL = 8;  // seconds for an empty stamina bar to fill again
+const RECOVER = 0.3;       // share of the bar back before a winded prince can run
 const ACCEL = 12;          // how fast walk velocity chases the input
 const GRAVITY = 24;
 const JUMP_SPEED = 7.6;
@@ -27,6 +29,10 @@ export class Player {
     this.velocityY = 0;
     this.groundAt = () => 0;
     this.runMul = 1;              // from the clan's speed stat: apex run fastest
+    this.staminaMax = 10;         // seconds of running on a full bar (clan's speed stat)
+    this.stamina = this.staminaMax;
+    this.winded = false;          // ran the bar dry: walk until it refills a bit
+    this.running = false;
     this.canStand = () => true;
     this.canJump = true;
     this.grounded = true;
@@ -93,9 +99,20 @@ export class Player {
       if (this.keys.right) this._wish.add(this._right);
       if (this.keys.left) this._wish.sub(this._right);
 
-      // Everyone walks alike; the clan's speed stat only changes running.
-      const speed = this.keys.sprint ? RUN_SPEED * this.runMul : WALK_SPEED;
-      if (this._wish.lengthSq() > 0) this._wish.normalize().multiplyScalar(speed);
+      // Everyone walks alike; the clan's speed stat only changes running — how
+      // fast, and (through staminaMax) for how long. Spent stamina means walking
+      // until it has refilled to RECOVER of the bar.
+      const moving = this._wish.lengthSq() > 0;
+      this.running = this.keys.sprint && moving && !this.winded;
+      if (this.running) {
+        this.stamina = Math.max(0, this.stamina - dt);
+        if (this.stamina === 0) this.winded = true;
+      } else {
+        this.stamina = Math.min(this.staminaMax, this.stamina + dt * this.staminaMax / STAMINA_REFILL);
+        if (this.winded && this.stamina >= this.staminaMax * RECOVER) this.winded = false;
+      }
+      const speed = this.running ? RUN_SPEED * this.runMul : WALK_SPEED;
+      if (moving) this._wish.normalize().multiplyScalar(speed);
 
       // Ease into the target velocity so starting and stopping has some weight.
       const k = 1 - Math.exp(-ACCEL * dt);

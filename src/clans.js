@@ -45,6 +45,12 @@ export const CLANS = {
   },
 };
 
+// Seconds of running on a full stamina bar: speed 1 = 6 s, speed 5 = 14 s.
+export function staminaSeconds(clanId) {
+  const s = CLANS[clanId]?.stats.speed ?? 3;
+  return 4 + s * 2;
+}
+
 // Running-speed multiplier from the speed stat: 3 is the everyday pace, each
 // point either side is 12% (so speed 1 runs at 76%, speed 5 at 124%).
 export function runMultiplier(clanId) {

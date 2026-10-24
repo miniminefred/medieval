@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import { CLANS, chooseClan, currentClan } from './clans.js';
 import { cityMaterial } from './builder.js';
+import { hud } from './hud.js';
 
 // The clan banners in the castle courtyard, where every prince chooses a clan.
 //
@@ -143,7 +144,6 @@ export function createClanStands(scene, places, renderer) {
   for (const s of stands) scene.add(s.group);
 
   const panel = document.getElementById('clan-panel');
-  const toast = document.getElementById('toast');
   let focused = null;
   let armedAt = -Infinity;     // when E was first pressed on `focused`
   let clock = 0;
@@ -170,19 +170,12 @@ export function createClanStands(scene, places, renderer) {
     panel.classList.add('visible');
   }
 
-  function message(text) {
-    if (!toast) return;
-    toast.textContent = text;
-    toast.classList.add('visible');
-    setTimeout(() => toast.classList.remove('visible'), 5000);
-  }
-
   addEventListener('keydown', (e) => {
     if (e.code !== 'KeyE' || !focused || currentClan()) return;
     if (clock - armedAt < CONFIRM_WINDOW) {
       const clan = CLANS[focused.id];
       if (chooseClan(focused.id)) {
-        message(`You are a prince of the ${clan.name}. The portal is open.`);
+        hud.toast(`You are a prince of the ${clan.name}.`);
         focused = null;
         show(null);
       }

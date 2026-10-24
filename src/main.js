@@ -3,9 +3,11 @@ import { createRenderer, createScene, createCamera, handleResize } from './scene
 import { createInput } from './input.js';
 import { ModelLibrary } from './models.js';
 import { createCastleRealm } from './castle.js';
-import { onClanChosen, runMultiplier } from './clans.js';
+import { onClanChosen, runMultiplier, staminaSeconds } from './clans.js';
 import { Player } from './player.js';
 import { Viewmodel } from './viewmodel.js';
+import { hud } from './hud.js';
+import { inventory } from './inventory.js';
 
 const renderer = createRenderer();
 const scene = createScene();
@@ -21,7 +23,10 @@ const player = new Player(camera, renderer.domElement, keys);
 scene.add(camera);
 
 const ctx = { scene, renderer, camera, player };
-onClanChosen((id) => { player.runMul = runMultiplier(id); });
+onClanChosen((id) => {
+  player.runMul = runMultiplier(id);
+  player.staminaMax = player.stamina = staminaSeconds(id);
+});
 
 // ---------------------------------------------------------------- realms
 // Each world is a realm (castle.js, wasteland/): built once on first visit, then
@@ -74,6 +79,7 @@ renderer.domElement.addEventListener('mousedown', (e) => {
   if (e.button === 0 && player.isLocked) viewmodel.cast();
 });
 
+inventory.refresh();
 document.getElementById('loading')?.classList.add('hidden');
 
 // Dev-only handle so the world can be flown around and inspected from the console
@@ -91,6 +97,7 @@ function animate() {
   const dt = Math.min(timer.getDelta(), 0.05); // clamp so a lag spike can't tunnel
 
   player.update(dt, camera);
+  hud.stamina(player.stamina / player.staminaMax, player.running, player.winded, dt);
   realm.update(dt, ctx);
   if (!travelling) {
     const portal = realm.portals.find((p) => p.isInside(player.feet));

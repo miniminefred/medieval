@@ -23,14 +23,21 @@ const JET = 0.35;  // how far the upper floors overhang front and back
 
 // One house. (x, z) is the centre of its ground-floor footprint, w along the
 // street, d back from it; `yaw` turns its front (local +z) toward the street.
-function house(b, x, z, w, d, yaw, floors) {
-  const y = CITY.y;
+//
+// Exported for other towns (the castle village): `y` is the ground it stands
+// on, `tech` the share of houses the cyborgs have touched, and `rng` the caller's
+// own seeded random — so one town's houses never shift because another town
+// happened to be built first.
+export function buildHouse(b, x, z, w, d, yaw, floors, { y = CITY.y, tech: techShare = 0.3, rng = rand } = {}) {
+  // Shadow the module helpers with ones on the caller's random stream.
+  const rand = rng;
+  const between = (a, c) => a + rng() * (c - a);
   const c = Math.cos(yaw), s = Math.sin(yaw);
   // A box in house-local coordinates.
   const put = (key, lx, ly, lz, bw, bh, bd, roll = 0) =>
     b.box(key, x + lx * c + lz * s, y + ly, z - lx * s + lz * c, bw, bh, bd, { yaw, roll });
 
-  const tech = rand() < 0.3;           // touched by the cyborgs
+  const tech = rand() < techShare;     // touched by the cyborgs
   const upper = floors - 1;
   const top = G + F * upper;
   const D = d + 2 * JET;               // upper-floor depth
@@ -149,19 +156,19 @@ export function buildHouses(b) {
     const depthNS = Math.min(11, bd / 2 - 0.5);
     let usedN = 0, usedS = 0;
     row(k.minX, k.maxX, depthNS, (a, w, d) => {
-      house(b, a, k.minZ + d / 2, w, d, Math.PI, floors()); usedN = Math.max(usedN, d); count++;
+      buildHouse(b, a, k.minZ + d / 2, w, d, Math.PI, floors()); usedN = Math.max(usedN, d); count++;
     });
     row(k.minX, k.maxX, depthNS, (a, w, d) => {
-      house(b, a, k.maxZ - d / 2, w, d, 0, floors()); usedS = Math.max(usedS, d); count++;
+      buildHouse(b, a, k.maxZ - d / 2, w, d, 0, floors()); usedS = Math.max(usedS, d); count++;
     });
     const z0 = k.minZ + usedN + JET + 0.6, z1 = k.maxZ - usedS - JET - 0.6;
     if (z1 - z0 > 7) {
       const depthEW = Math.min(11, bw / 2 - 0.5);
       row(z0, z1, depthEW, (a, w, d) => {
-        house(b, k.minX + d / 2, a, w, d, -Math.PI / 2, floors()); count++;
+        buildHouse(b, k.minX + d / 2, a, w, d, -Math.PI / 2, floors()); count++;
       });
       row(z0, z1, depthEW, (a, w, d) => {
-        house(b, k.maxX - d / 2, a, w, d, Math.PI / 2, floors()); count++;
+        buildHouse(b, k.maxX - d / 2, a, w, d, Math.PI / 2, floors()); count++;
       });
     }
   }

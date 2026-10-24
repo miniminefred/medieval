@@ -95,8 +95,15 @@ when the dragons lost, he captured them and **locked them away in a cave in Worl
 (in World 3 the dragons are still free). Now he rules everything with an iron hand,
 **but he cannot enter the safe cities**.
 
-**The story:** you are **a prince** who is given the quest to kill him and free the
-world.
+**The story:** you are **a prince of your own clan** (whichever you chose), given
+the quest to kill him and free the world.
+
+**The captured dragons are both real dragons and dragon-people.** That is why there
+are no dragons in World 1. **Freeing them is main quest**, and it is **the way into
+World 3**.
+
+**Why he cannot enter the safe cities is a mystery.** Nobody knows; finding out is
+part of the story.
 
 **The ending:** when he falls, the world heals, **but not for long**. All his
 leftover enemies start a **huge war**. Survive it and beat them, and the world

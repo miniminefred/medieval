@@ -117,6 +117,16 @@ _____________________________
 Build order: ground + wall + gate → streets and houses → market → machines →
 lamps and lights → enterable houses → NPCs.
 
+Decided 2026-10-24:
+- **The market sells:** weapons, cyborg body parts, gadgets and tools, junk and scrap,
+  and **modules for vehicles and gear**. So the game has vehicles; details not
+  decided yet.
+- **Day/night cycle.** The sun goes down, it gets dark, and the city's lamps and
+  windows light up.
+- **Almost every house can be entered**, plus shops and an inn/tavern. Some doors
+  are blocked by crates, and some are locked (like hotel rooms). Some locks can be
+  **lockpicked**, and people may get angry if they catch you.
+
 ## Build order
 
 1. ~~Design doc~~ (this file)

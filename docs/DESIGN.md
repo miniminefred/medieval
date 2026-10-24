@@ -129,9 +129,13 @@ Decided 2026-10-24:
 - **Vehicles:** hover-bikes and buggies, airships and boats. **Airships and boats are
   only sold in the worlds that need them** (boats in the Islands, airships in the
   Skylands).
-- **Locks:** some are pin locks (lockpick), some are electronic (hack).
-- **Caught breaking in:** your reputation drops.
-- **Money:** both. Gold coins in most places, credits in tech shops.
+  **Mammoths stay:** brutes ride them.
+- **Locks:** some are pin locks (lockpick), some are electronic (hack). **Cyborgs hack
+  for free; other clans need a hacking gadget** from the market.
+- **Caught breaking in:** your reputation drops. **Reputation is per city**: each
+  town remembers you separately.
+- **Money:** both. Gold coins in most places, credits in tech shops. Earned from
+  **quests, selling items and looting**.
 
 ## Build order
 

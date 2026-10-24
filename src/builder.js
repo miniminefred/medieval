@@ -42,6 +42,9 @@ const SURFACES = {
   linen: { size: 0.5 },
   caban: { size: 0.5 },
   hessian: { size: 0.5 },
+  meadow: { size: 2.0 },              // leafy grass round the castle
+  castlestone: { size: 2.0 },         // the castle's old, weathered walls
+  mossystone: { size: 2.0 },          // moss at the foot of them
   // Old window glass: dark, a little green, reflecting the sky.
   glass: { color: 0x1d2522, roughness: 0.08, metalness: 0.0, envMapIntensity: 1.6 },
   // Machined cyborg parts: blades, barrels, limbs.

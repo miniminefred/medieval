@@ -1,8 +1,11 @@
-import * as THREE from 'three';
-import { createGroundMaterial } from './grass.js';
+import { CityBuilder } from './builder.js';
+import { mulberry32 } from './noise.js';
 
-// Static world geometry: a walled courtyard with corner towers and a keep,
-// standing in open grass. Everything is built procedurally in code.
+// The castle: a walled courtyard with round corner towers, a gatehouse in the
+// south wall and a keep, standing in a meadow. Built in code from photo-scanned
+// materials (builder.js) — weathered stone with moss creeping up its feet, roof
+// tiles, timber and cobbles, all at their real-world size. It is old: a few
+// battlements have crumbled away (docs/DESIGN.md).
 //
 // Returns collider AABBs (world space, resting on the ground) so the player can
 // walk into them and jump onto the low ones, plus the meshes.
@@ -10,24 +13,21 @@ import { createGroundMaterial } from './grass.js';
 const GROUND_SIZE = 600;
 
 const YARD = 20;        // courtyard half-extent — walls sit on ±YARD
-const WALL_H = 6;
-const WALL_T = 1.6;
+const WALL_H = 7.5;
+const WALL_T = 2;
 const GATE_W = 6;       // gap in the south wall you walk in through
-const YARD_FLOOR_Y = 0.02;   // props sit on the packed-earth floor, not the grass
+const YARD_FLOOR_Y = 0.02;   // props sit on the cobbled floor, not the grass
 
-const MAT = {
-  // Procedural grass-and-bare-earth texture; the instanced blades in grass.js
-  // stand on top of it and the two are tuned to the same green.
-  grass: createGroundMaterial({ repeat: 150 }),
-  stone: new THREE.MeshStandardMaterial({ color: 0x8d8878, roughness: 0.9 }),
-  darkStone: new THREE.MeshStandardMaterial({ color: 0x6f6a5e, roughness: 0.95 }),
-  roof: new THREE.MeshStandardMaterial({ color: 0x5a3a2e, roughness: 0.8 }),
-  wood: new THREE.MeshStandardMaterial({ color: 0x6b4a2c, roughness: 0.85 }),
-};
+const TOWER_R = 3.4;
+const TOWER_H = 12;
 
-export function buildWorld(scene, library = null) {
+const rand = mulberry32(1199);
+const crumbled = () => rand() < 0.12;   // a merlon that fell long ago
+
+export function buildWorld(scene, library = null, renderer) {
   const colliders = [];
   const meshes = [];
+  const b = new CityBuilder(renderer);
 
   // Drops a loaded prop model on the courtyard floor. No-ops when the library is
   // absent or the model failed to load, so the castle always stands regardless.
@@ -41,95 +41,124 @@ export function buildWorld(scene, library = null) {
     return object;
   }
 
-  // Adds a box resting on the ground (bottom at y = base) and records its AABB.
-  function addBox(x, z, w, h, d, material, base = 0) {
-    const mesh = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), material);
-    mesh.position.set(x, base + h / 2, z);
-    mesh.castShadow = true;
-    mesh.receiveShadow = true;
-    scene.add(mesh);
-    meshes.push(mesh);
-    colliders.push({
-      minX: x - w / 2, maxX: x + w / 2,
-      minZ: z - d / 2, maxZ: z + d / 2,
-      top: base + h,
-    });
-    return mesh;
-  }
-
-  // Round tower: cylinder mesh, square collider (close enough at this scale).
-  function addTower(x, z, radius, height) {
-    const mesh = new THREE.Mesh(new THREE.CylinderGeometry(radius, radius * 1.1, height, 16), MAT.stone);
-    mesh.position.set(x, height / 2, z);
-    mesh.castShadow = true;
-    mesh.receiveShadow = true;
-    scene.add(mesh);
-    meshes.push(mesh);
-
-    const cone = new THREE.Mesh(new THREE.ConeGeometry(radius * 1.25, radius * 1.6, 16), MAT.roof);
-    cone.position.set(x, height + radius * 0.8, z);
-    cone.castShadow = true;
-    scene.add(cone);
-    meshes.push(cone);
-
-    const r = radius * 0.92;
-    colliders.push({ minX: x - r, maxX: x + r, minZ: z - r, maxZ: z + r, top: height });
-  }
-
   // ----------------------------------------------------------------- ground
-  const ground = new THREE.Mesh(new THREE.PlaneGeometry(GROUND_SIZE, GROUND_SIZE), MAT.grass);
-  ground.rotation.x = -Math.PI / 2;
-  ground.receiveShadow = true;
-  scene.add(ground);
-  meshes.push(ground);
-
-  // Packed-earth courtyard floor, a hair above the grass to avoid z-fighting.
-  const yardFloor = new THREE.Mesh(
-    new THREE.PlaneGeometry(YARD * 2, YARD * 2),
-    new THREE.MeshStandardMaterial({ color: 0x7a6b53, roughness: 1 })
-  );
-  yardFloor.rotation.x = -Math.PI / 2;
-  yardFloor.position.y = 0.01;
-  yardFloor.receiveShadow = true;
-  scene.add(yardFloor);
-  meshes.push(yardFloor);
+  // Meadow all round (its top is y = 0, the player's floor), cobbles inside.
+  b.box('meadow', 0, -0.3, 0, GROUND_SIZE, 0.3, GROUND_SIZE);
+  b.box('cobble', 0, -0.28, 0, YARD * 2, 0.3, YARD * 2);
 
   // ------------------------------------------------------------ curtain wall
-  const span = YARD * 2;
-  addBox(0, -YARD, span, WALL_H, WALL_T, MAT.stone);          // north
-  addBox(-YARD, 0, WALL_T, WALL_H, span, MAT.stone);          // west
-  addBox(YARD, 0, WALL_T, WALL_H, span, MAT.stone);           // east
-
-  // South wall, split around the gate.
-  const segment = (span - GATE_W) / 2;
-  const offset = (GATE_W + segment) / 2;
-  addBox(-offset, YARD, segment, WALL_H, WALL_T, MAT.stone);
-  addBox(offset, YARD, segment, WALL_H, WALL_T, MAT.stone);
-  // Lintel over the gateway — floats above head height, so no collider needed
-  // beyond the two towers flanking it.
-  const lintel = new THREE.Mesh(new THREE.BoxGeometry(GATE_W + 2, 1.4, WALL_T + 0.4), MAT.darkStone);
-  lintel.position.set(0, WALL_H - 0.7, YARD);
-  lintel.castShadow = true;
-  scene.add(lintel);
-  meshes.push(lintel);
-
-  // ---------------------------------------------------------------- towers
-  for (const [tx, tz] of [[-YARD, -YARD], [YARD, -YARD], [-YARD, YARD], [YARD, YARD]]) {
-    addTower(tx, tz, 3, WALL_H + 3);
+  // A run of wall centred on (x, z), `len` long along X (alongX) or along Z,
+  // with its battlements on the outer side `out` (+1 / -1 across the wall).
+  function wallRun(x, z, len, alongX, out) {
+    const box = (key, across, y0, w, h, d, o) => alongX
+      ? b.box(key, x, y0, z + across * out, w, h, d, o)
+      : b.box(key, x + across * out, y0, z, d, h, w, o);
+    box('castlestone', 0, -0.5, len, WALL_H + 0.5, WALL_T, { collide: true });
+    box('mossystone', 0.3, -0.5, len, 1.8, WALL_T + 0.8);                 // battered foot
+    box('castlestone', 0, WALL_H - 0.45, len, 0.45, WALL_T + 0.35);       // a projecting course
+    box('castlestone', -WALL_T / 2 + 0.25, WALL_H, len, 0.9, 0.5);        // inner parapet
+    for (let a = -len / 2 + 0.9; a < len / 2 - 0.6; a += 2.6) {           // merlons
+      if (crumbled()) continue;
+      if (alongX) b.box('castlestone', x + a + 0.65, WALL_H, z + (WALL_T / 2 - 0.3) * out, 1.3, 1.6, 0.6);
+      else b.box('castlestone', x + (WALL_T / 2 - 0.3) * out, WALL_H, z + a + 0.65, 0.6, 1.6, 1.3);
+    }
   }
 
-  // ------------------------------------------------------------------ keep
-  addBox(0, -6, 13, 11, 11, MAT.darkStone);
-  const keepRoof = new THREE.Mesh(new THREE.ConeGeometry(10.5, 5, 4), MAT.roof);
-  keepRoof.position.set(0, 13.5, -6);
-  keepRoof.rotation.y = Math.PI / 4;
-  keepRoof.castShadow = true;
-  scene.add(keepRoof);
-  meshes.push(keepRoof);
+  wallRun(0, -YARD, YARD * 2, true, -1);       // north
+  wallRun(-YARD, 0, YARD * 2, false, -1);      // west
+  wallRun(YARD, 0, YARD * 2, false, 1);        // east
+  const seg = YARD - GATE_W / 2;               // south, either side of the gate
+  wallRun(-(GATE_W / 2 + seg / 2), YARD, seg, true, 1);
+  wallRun(GATE_W / 2 + seg / 2, YARD, seg, true, 1);
+
+  // ------------------------------------------------------------- the towers
+  function roundTower(x, z, r, h) {
+    b.cylinder('castlestone', x, -0.5, z, r, h + 0.5, { sides: 28, collide: true });
+    b.cylinder('mossystone', x, -0.5, z, r + 0.5, 2.2, { sides: 28, rTop: r + 0.1 });  // foot
+    b.cylinder('castlestone', x, h - 0.7, z, r + 0.35, 0.7, { sides: 28 });           // corbels
+    b.cylinder('rooftiles', x, h, z, r + 0.6, r * 1.9, { sides: 28, rTop: 0.05 });    // cone roof
+    b.cylinder('rust', x, h + r * 1.9 - 0.1, z, 0.06, 1.4, { sides: 6 });             // finial
+    // Arrow slits all round, two storeys of them.
+    for (let i = 0; i < 6; i++) {
+      const a = (i / 6) * Math.PI * 2 + 0.3;
+      for (const sy of [3.5, 7.5]) {
+        b.box('housestone', x + Math.sin(a) * (r - 0.05), sy, z + Math.cos(a) * (r - 0.05), 0.55, 1.7, 0.2, { yaw: a });
+        b.box('glass', x + Math.sin(a) * (r + 0.07), sy + 0.15, z + Math.cos(a) * (r + 0.07), 0.18, 1.4, 0.06, { yaw: a });
+      }
+    }
+  }
+  for (const [tx, tz] of [[-YARD, -YARD], [YARD, -YARD], [-YARD, YARD], [YARD, YARD]]) {
+    roundTower(tx, tz, TOWER_R, TOWER_H);
+  }
+
+  // ------------------------------------------------------------ the gatehouse
+  // Two square towers either side of the opening, stone bridged over it, and
+  // the gates swung open against the passage walls.
+  for (const side of [-1, 1]) {
+    const gx = side * (GATE_W / 2 + 2.4);
+    b.box('castlestone', gx, -0.5, YARD, 4.8, 10.5, 5, { collide: true });
+    b.box('mossystone', gx, -0.5, YARD, 5.4, 2, 5.6);
+    b.box('castlestone', gx, 9.6, YARD, 5.2, 0.5, 5.4);
+    for (const mx of [-1.7, 0, 1.7]) if (!crumbled()) b.box('castlestone', gx + mx, 10, YARD + 2.3, 1.1, 1.5, 0.6);
+    b.box('housestone', gx, 5.5, YARD + 2.5, 0.6, 1.6, 0.2);            // a window over the road
+    b.box('glass', gx, 5.65, YARD + 2.62, 0.25, 1.3, 0.06);
+    b.box('timber', side * (GATE_W / 2 - 0.3), 0, YARD - 1.2, 0.2, 4.2, 2.8, { collide: true }); // open gate leaf
+    for (const hy of [0.8, 3.2]) b.box('rust', side * (GATE_W / 2 - 0.42), hy, YARD - 1.2, 0.05, 0.16, 2.8);
+  }
+  b.box('castlestone', 0, 4.8, YARD, GATE_W + 0.2, 5.2, 5);              // over the opening
+  b.box('housestone', 0, 4.4, YARD + 2.45, GATE_W + 0.6, 0.5, 0.3);      // lintel
+  for (const mx of [-2, 0, 2]) b.box('castlestone', mx, 10, YARD + 2.3, 1.1, 1.5, 0.6);
+
+  // ------------------------------------------------------------------- keep
+  const KX = 0, KZ = -6, KW = 13, KD = 11, KH = 13;
+  const front = KZ + KD / 2;
+  b.box('castlestone', KX, -0.5, KZ, KW, KH + 0.5, KD, { collide: true });
+  b.box('mossystone', KX, -0.5, KZ, KW + 0.8, 1.9, KD + 0.8);           // plinth
+  for (const sy of [5, 9.4]) b.box('housestone', KX, sy, KZ, KW + 0.3, 0.3, KD + 0.3); // string courses
+  b.box('castlestone', KX, KH - 0.6, KZ, KW + 0.8, 0.7, KD + 0.8);      // corbelled parapet
+  for (let a = -KW / 2 + 0.6; a <= KW / 2 - 0.5; a += 2.2) {
+    if (!crumbled()) b.box('castlestone', KX + a, KH + 0.1, KZ - KD / 2 - 0.1, 1.2, 1.5, 0.6);
+    if (!crumbled()) b.box('castlestone', KX + a, KH + 0.1, front + 0.1, 1.2, 1.5, 0.6);
+  }
+  for (let a = -KD / 2 + 0.6; a <= KD / 2 - 0.5; a += 2.2) {
+    if (!crumbled()) b.box('castlestone', KX - KW / 2 - 0.1, KH + 0.1, KZ + a, 0.6, 1.5, 1.2);
+    if (!crumbled()) b.box('castlestone', KX + KW / 2 + 0.1, KH + 0.1, KZ + a, 0.6, 1.5, 1.2);
+  }
+  b.roof('rooftiles', 'castlestone', KX, KH + 0.1, KZ, KW - 1.6, KD - 1.6, 4.6, { over: 0.1 });
+  // Corner turrets, corbelled out from the top of the walls.
+  for (const sx of [-1, 1]) {
+    for (const sz of [-1, 1]) {
+      const tx = KX + sx * KW / 2, tz = KZ + sz * KD / 2;
+      b.cylinder('castlestone', tx, 8.5, tz, 1.1, 1.0, { sides: 16, rTop: 1.5 });
+      b.cylinder('castlestone', tx, 9.5, tz, 1.5, KH - 9.5 + 2.2, { sides: 16 });
+      b.cylinder('rooftiles', tx, KH + 2.2, tz, 1.85, 3.6, { sides: 16, rTop: 0.04 });
+    }
+  }
+  // The door at the head of the steps, and tall windows on every face.
+  b.box('housestone', KX, 1.9, front + 0.08, 3.2, 4.2, 0.3);             // door surround
+  b.box('timber', KX, 2.0, front + 0.24, 2.2, 3.5, 0.12);
+  for (const hy of [2.6, 4.4]) b.box('rust', KX, hy, front + 0.31, 2.25, 0.16, 0.05);  // iron straps
+  for (const wy of [6.2, 10.3]) {
+    for (let i = 0; i < 4; i++) {
+      const lx = -4.5 + i * 3;
+      if (wy < 7 && Math.abs(lx) < 2) continue;                          // not over the door
+      for (const [fz, gz] of [[front + 0.06, front + 0.17], [KZ - KD / 2 - 0.06, KZ - KD / 2 - 0.17]]) {
+        b.box('housestone', KX + lx, wy - 0.15, fz, 1.0, 2.1, 0.2);
+        b.box('glass', KX + lx, wy, gz, 0.62, 1.7, 0.06);
+      }
+    }
+    for (let i = 0; i < 3; i++) {
+      const lz = -3 + i * 3;
+      for (const sx of [-1, 1]) {
+        b.box('housestone', KX + sx * (KW / 2 + 0.06), wy - 0.15, KZ + lz, 0.2, 2.1, 1.0);
+        b.box('glass', KX + sx * (KW / 2 + 0.17), wy, KZ + lz, 0.06, 1.7, 0.62);
+      }
+    }
+  }
 
   // Stone steps up to the keep door — something to walk and jump up.
   for (let i = 0; i < 4; i++) {
-    addBox(0, 1.6 + i * 1.2, 6, 0.5 + (3 - i) * 0.5, 1.2, MAT.stone);
+    b.box('housestone', 0, 0, 1.6 + i * 1.2, 6, 0.5 + (3 - i) * 0.5, 1.2, { collide: true });
   }
 
   // ------------------------------------------------------- courtyard clutter
@@ -185,9 +214,9 @@ export function buildWorld(scene, library = null) {
     for (const [x, z, w, h, d] of [
       [-13, 12, 1.6, 1.6, 1.6], [-11.2, 13.4, 1.3, 1.3, 1.3], [-13.4, 10.2, 1.3, 2.6, 1.3],
       [12.5, 13, 1.8, 1.8, 1.8], [14.2, 11, 1.4, 1.4, 1.4], [12.8, 10.6, 1.4, 2.8, 1.4],
-    ]) addBox(x, z, w, h, d, MAT.wood);
-    addBox(6, 8, 2.6, 1.1, 2.6, MAT.stone);
+    ]) b.box('timber', x, 0, z, w, h, d, { collide: true });
   }
 
-  return { colliders, meshes };
+  b.finish(scene);
+  return { colliders: colliders.concat(b.colliders), meshes };
 }

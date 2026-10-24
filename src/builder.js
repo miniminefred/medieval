@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
 
-// The city's construction kit.
+// The construction kit for realistic buildings (the cyborg city, the castle).
 //
 // Everything is boxes and a few custom shapes whose UVs are in *metres*; each
 // material's textures repeat once per real-world size of the photo they came

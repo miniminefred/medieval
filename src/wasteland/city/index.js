@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { CityBuilder } from './builder.js';
+import { CityBuilder } from '../../builder.js';
 import { buildWall } from './wall.js';
 import { buildStreets } from './streets.js';
 import { buildHouses } from './houses.js';

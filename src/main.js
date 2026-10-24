@@ -8,6 +8,7 @@ import { Player } from './player.js';
 import { Viewmodel } from './viewmodel.js';
 import { hud } from './hud.js';
 import { inventory } from './inventory.js';
+import { createInteraction } from './interact.js';
 
 const renderer = createRenderer();
 const scene = createScene();
@@ -89,6 +90,7 @@ if (import.meta.env.DEV) {
     get realm() { return realm; } };
 }
 
+const interaction = createInteraction();
 const timer = new Timer();
 
 function animate() {
@@ -99,6 +101,7 @@ function animate() {
   player.update(dt, camera);
   hud.stamina(player.stamina / player.staminaMax, player.running, player.winded, dt);
   realm.update(dt, ctx);
+  interaction.update(realm.interactables, camera, player.isLocked);
   if (!travelling) {
     const portal = realm.portals.find((p) => p.isInside(player.feet));
     if (portal) travel(portal.target);

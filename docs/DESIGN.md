@@ -87,8 +87,20 @@ Each world has **a boss who serves the Lava King**.
 
 ### The Lava King
 
-**A figure of lava, wearing a white cape and a power mask.** The mask has lore
-behind it, still to be written. **The more damaged he gets, the harder the fight
+**A figure of lava, wearing a white cape and a power mask.**
+
+**Who he was:** a lava creature who found an old mask and put it on, and became the
+Lava King. **The mask is an ancient artifact.** He started **the great dragon war**;
+when the dragons lost, he captured them and **locked them away in a cave in World 2**
+(in World 3 the dragons are still free). Now he rules everything with an iron hand,
+**but he cannot enter the safe cities**.
+
+**The story:** you are **a prince** who is given the quest to kill him and free the
+world.
+
+**The ending:** when he falls, the world heals, **but not for long**. All his
+leftover enemies start a **huge war**. Survive it and beat them, and the world
+finally has peace. **The more damaged he gets, the harder the fight
 gets.** At the very end, in fear and anger, **he destroys his own castle**.
 
 ## World 1 — The Wasteland

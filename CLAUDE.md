@@ -120,8 +120,11 @@ index.html        Thin entry shell (loading + overlay markup + <script src="/src
 vite.config.js    Dev/preview server pinned to port 8091
 src/
   main.js         Bootstrap, realm switching (portals, fade, F2 dev hop), render loop
-  scene.js        Renderer, scene, camera, castle daylight, resize handling
-  castle.js       The castle realm: world + village + grass + portal to World 1
+  scene.js        Renderer, scene, camera, resize handling
+  builder.js      CityBuilder: the realistic building kit (castle, village, cyborg city)
+  clans.js        The four clans: stats, blurbs, World 1 homes, the one-time choice
+  clan-stands.js  The clan banners in the castle courtyard (look, E, E to join)
+  castle.js       The castle realm: photo sky + matching sun, world, village, banners, portal
   portal.js       Standing stone portal with a light sheet; isInside(feet) triggers travel
   sky.js          Sky dome whose horizon colour is driven to match the fog
   noise.js        Seeded Perlin noise, fbm, ridged — the source of all procedural land
@@ -131,13 +134,12 @@ src/
     terrain-material.js  Blends five Poly Haven textures by splat, slope and altitude
     sandstorm.js    Wind-blown dust/snow points; thick in the rim storm
     city/           The cyborg city (east, above the snow line)
-      builder.js      CityBuilder: metre-true UVs, per-chunk merged meshes, haze culling
       wall.js         Stone + steel curtain wall, towers, west gatehouse
       streets.js      Street plan (STREETS, BLOCKS, MARKET) and cobbles
       houses.js       Half-timbered houses round every block; ~30% cyborg-touched
       market.js       Tech market: four trade quarters of stalls, the glowing pillar
-  world.js        The castle: ground, curtain wall, towers, keep, courtyard props
-  village.js      Everything outside the walls: roads, village, farm, pasture, pond, woods
+  world.js        The castle: weathered stone walls, round towers, gatehouse, keep, props
+  village.js      Outside the walls: realistic houses, roads, farm, pond, woods (some props still low-poly)
   grass.js        Instanced wind-blown grass field + the procedural ground material
   models.js       ModelLibrary: loads the prop GLBs and normalises them
   model-table.js  Per-model real-world size / orientation / collision settings
@@ -158,7 +160,8 @@ public/models/medieval/
   manifest.json      key -> title/author/licence/source
   CREDITS.md         attribution table
 public/textures/<key>/{diff,nor[,arm]}.jpg  CC0 Poly Haven textures (ground, city, fabrics)
-public/hdri/*.hdr                     CC0 sky light
+public/hdri/*.hdr                     CC0 sky light (1k, to light by)
+public/hdri/*.jpg                     4k tonemapped skies that are *seen* (castle)
 ```
 
 ## Tech stack
@@ -217,6 +220,7 @@ Two loader details that are easy to break and hard to spot:
 | Space | Jump |
 | Esc | Release the mouse |
 | Click | Grab the mouse (lock pointer); once locked, cast the fishing rod |
+| E | At a clan banner: read about the clan; E again to join (final) |
 | F2 | Dev server only: hop between the castle and the wasteland |
 
 ## Key systems
@@ -235,13 +239,31 @@ steeper than 45° blocks like a wall, `canStand` is the hard world edge, and wal
 downhill snaps to the ground rather than falling step by step. Space jumps only when grounded. `dt` is clamped to 50 ms to avoid tunneling on lag
 spikes.
 
+### Castle and clan choice (`castle.js`, `world.js`, `clan-stands.js`, `clans.js`)
+The game **starts at the castle** (`START` in `main.js`). Four clan banners stand
+across the courtyard; look at one within reach and a panel describes the clan, E arms
+the choice and E again within 4 s makes it — final, as the design says. Until then
+the courtyard portal is dark (`createPortal({ active: false })`, `setActive`). The
+wasteland's `arrival` is a getter returning the chosen clan's `home`. The clan's speed
+stat scales `player.speedMul`; the other stats wait for combat.
+
+The castle and the village houses are built with `CityBuilder` (`builder.js`, shared
+with the cyborg city): weathered `castlestone` with `mossystone` feet, tiled cone
+roofs, a cobbled yard, a photo meadow. Lighting is a real photographed sky: the 4k
+tonemapped JPG is the visible background, the 1k HDR lights the scene, and the sun's
+direction is read off where the sun sits in that photo. Village houses come from
+`buildHouse()` (exported from `wasteland/city/houses.js`) **with the village's own
+random stream** — sharing the city's would make the village change depending on
+whether the wasteland had been visited first. The blacksmith, sawmill, stable,
+windmill, barn, towers, trees and small props are still low-poly models.
+
 ### Realms (`main.js`, `castle.js`, `wasteland/`)
 Each world is a *realm*: built once on first visit into its own `THREE.Group`, then
 attached and detached as the player travels. `enter(ctx)` adds the group and owns the
 scene-wide settings it needs (background, fog, environment, tone mapping, camera far,
 and the player's `setWorld({ colliders, groundAt, canStand })`); `exit` removes it.
 Each realm lists `portals`; walking into one fades to black and calls `travel(target)`.
-The game currently **starts in the wasteland** (`START` in `main.js`).
+The game **starts at the castle** (`START` in `main.js`).
 
 ### Wasteland (`wasteland/`)
 The land is a pure function of (x, z) from one noise seed: `biomeAt` gives sand / dry /

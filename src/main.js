@@ -3,7 +3,7 @@ import { createRenderer, createScene, createCamera, handleResize } from './scene
 import { createInput } from './input.js';
 import { ModelLibrary } from './models.js';
 import { createCastleRealm } from './castle.js';
-import { onClanChosen, speedMultiplier } from './clans.js';
+import { onClanChosen, runMultiplier } from './clans.js';
 import { Player } from './player.js';
 import { Viewmodel } from './viewmodel.js';
 
@@ -21,7 +21,7 @@ const player = new Player(camera, renderer.domElement, keys);
 scene.add(camera);
 
 const ctx = { scene, renderer, camera, player };
-onClanChosen((id) => { player.speedMul = speedMultiplier(id); });
+onClanChosen((id) => { player.runMul = runMultiplier(id); });
 
 // ---------------------------------------------------------------- realms
 // Each world is a realm (castle.js, wasteland/): built once on first visit, then

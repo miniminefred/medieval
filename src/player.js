@@ -26,7 +26,7 @@ export class Player {
     this.colliders = colliders;
     this.velocityY = 0;
     this.groundAt = () => 0;
-    this.speedMul = 1;            // from the clan: apex run fastest
+    this.runMul = 1;              // from the clan's speed stat: apex run fastest
     this.canStand = () => true;
     this.canJump = true;
     this.grounded = true;
@@ -93,7 +93,8 @@ export class Player {
       if (this.keys.right) this._wish.add(this._right);
       if (this.keys.left) this._wish.sub(this._right);
 
-      const speed = (this.keys.sprint ? RUN_SPEED : WALK_SPEED) * this.speedMul;
+      // Everyone walks alike; the clan's speed stat only changes running.
+      const speed = this.keys.sprint ? RUN_SPEED * this.runMul : WALK_SPEED;
       if (this._wish.lengthSq() > 0) this._wish.normalize().multiplyScalar(speed);
 
       // Ease into the target velocity so starting and stopping has some weight.

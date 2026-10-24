@@ -5,7 +5,7 @@ import { buildVillage } from './village.js';
 import { createGrass } from './grass.js';
 import { createPortal } from './portal.js';
 import { createClanStands } from './clan-stands.js';
-import { currentClan, onClanChosen } from './clans.js';
+import { currentClan } from './clans.js';
 import { createChest } from './chest.js';
 
 // The intro realm: the castle, its village and the grass around them — where the
@@ -67,7 +67,6 @@ export function createCastleRealm(library, renderer) {
     x: 10, z: -12, yaw: 0, color: 0xff8a3a, target: 'wasteland', active: currentClan() !== null,
   });
   group.add(portal.object);
-  onClanChosen(() => portal.setActive(true));
 
   // The clan banners: a row across the yard between the gate and the keep,
   // facing the gate, leaving the walk up the middle clear.
@@ -98,6 +97,7 @@ export function createCastleRealm(library, renderer) {
     world,
     village,
     grass,
+    portal,
     portals: [portal],
     stands,
     interactables: chests,

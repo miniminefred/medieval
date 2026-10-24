@@ -50,6 +50,16 @@ weapons, and story/quests** (some quests and NPC reactions depend on it).
 | **Dragons** | Born with **fire breath** and **turning into a dragon** |
 | **Apex** | **Find** their abilities out in the world |
 
+- **Brute training:** abilities get stronger the more you use them, *and* brute
+  trainers teach new ones.
+- **Dragon form needs rest:** how long you can stay a dragon depends on how well
+  rested you are. Not rested enough, and you cannot transform at all. (So there is
+  tiredness and sleep in the game.)
+- **Apex find abilities** in **eggs**, **fossils and bones**, and by **beating
+  beasts**.
+- **Base stats, classic split:** brutes most health and strength, cyborgs most
+  armour, dragons most damage, apex fastest.
+
 ## Combat
 
 Melee (swords, axes), magic/spells, bows, and **special weapons** you find or earn

@@ -122,7 +122,17 @@ exception to "no guns": it belongs to the cyborg clan, not a general shooter loo
 
 ## The worlds
 
-0. **Intro: the castle.** The current castle and village. You pick your clan here.
+0. **Intro: the castle.** You pick your clan here, at four clan banners in the
+   courtyard (walk up, read, press E; final at once). The portal to World 1 stays
+   dark until you have chosen, and each prince arrives at their clan's home.
+   - **A special place that shows the world before the war**: green, peaceful, the
+     clans together. A memory of better times.
+   - **Old and weathered**: moss, cracks, a little damage. The village around it
+     gets realistic houses too.
+   - **A magical orb follows you.** It **talks to you** (tells the story, explains
+     the clans), **points the way** to the banners, and **opens the portal** once
+     you have chosen.
+   - **You can go inside the keep: a throne room.**
 1. **The Wasteland.** See below. **The portal to World 2** is at the top end of the
    Y road, on the north edge of the map.
 2. **The Islands.** Ferries until you have a boat. **Freeing the dragons opens a

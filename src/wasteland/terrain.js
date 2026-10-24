@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import { createNoise, smoothstep } from '../noise.js';
+import { roadDistance, FLATS } from './places.js';
 
 // The shape of World 1: a 3 km square of wasteland. Desert sand and cracked dry
 // earth in the middle, burned patches scattered through it, snowy hills across the
@@ -66,8 +67,11 @@ export function biomeAt(x, z) {
 function shapeAt(x, z) {
   const b = biomeAt(x, z);
 
-  // Long low swells everywhere, with a little surface wobble on top.
-  let h = fbm(x / 700, z / 700, 4) * 14 + fbm(x / 160, z / 160, 3) * 2.5;
+  // Long low swells everywhere — the road rides these, everything rougher below
+  // is smoothed out of its way.
+  let h = fbm(x / 700, z / 700, 4) * 14;
+  const swells = h;
+  h += fbm(x / 160, z / 160, 3) * 2.5;
 
   // Dunes: parallel ridges, wind-swept so the gentle side is long and the slip
   // face short, bent by noise so they never line up like a ploughed field.
@@ -83,6 +87,22 @@ function shapeAt(x, z) {
 
   // The snowy south climbs into real hills.
   h += b.snow * (ridged(x / 350, z / 350, 4) * 45 + fbm(x / 90, z / 90, 3) * 4);
+
+  // Under the road: dunes, lumps and snowy hills give way to the bare swells,
+  // over a shoulder either side, so it runs like a real graded track.
+  const road = 1 - smoothstep(4, 20, roadDistance(x, z));
+  h += (swells - h) * road;
+
+  // Farmville and the bandit camps stand on level patches, at the height of the
+  // swells under their centres.
+  for (const f of FLATS) {
+    const d = Math.hypot(x - f.x, z - f.z);
+    if (d < f.r + 30) {
+      const k = 1 - smoothstep(f.r * 0.6, f.r + 30, d);
+      const fy = fbm(f.x / 700, f.z / 700, 4) * 14;
+      h += (fy - h) * k;
+    }
+  }
 
   // Level ground around the arrival point so the portal stands on something flat.
   const r = Math.hypot(x - SPAWN.x, z - SPAWN.z);

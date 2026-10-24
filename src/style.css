@@ -255,3 +255,85 @@ kbd {
 }
 
 #toast.visible { opacity: 1; }
+
+/* --------------------------------------------------------------- stamina */
+
+/* Under the crosshair, only while running and refilling (hud.js). */
+#stamina {
+  position: absolute;
+  left: 50%;
+  top: calc(50% + 2.2rem);
+  width: 9rem;
+  height: 4px;
+  margin-left: -4.5rem;
+  background: rgba(0, 0, 0, 0.45);
+  border-radius: 2px;
+  overflow: hidden;
+  opacity: 0;
+  transition: opacity 300ms ease;
+}
+
+#stamina.visible { opacity: 1; }
+#stamina span { display: block; height: 100%; width: 100%; background: var(--parchment); }
+#stamina.winded span { background: #c0563d; }
+
+/* "Press E to …" */
+#prompt {
+  position: absolute;
+  left: 50%;
+  top: calc(50% + 3.4rem);
+  transform: translateX(-50%);
+  font-size: 0.9rem;
+  color: var(--parchment);
+  text-shadow: 0 1px 3px #000;
+  opacity: 0;
+  transition: opacity 150ms ease;
+  white-space: nowrap;
+}
+
+#prompt.visible { opacity: 1; }
+
+/* The orb's words, along the bottom; the game keeps running. */
+#subtitle {
+  position: absolute;
+  left: 50%;
+  bottom: 4.5vh;
+  transform: translateX(-50%);
+  max-width: min(46rem, 90vw);
+  padding: 0.5rem 1.1rem;
+  background: rgba(10, 12, 18, 0.62);
+  border-left: 2px solid #9fd8ff;
+  color: #e6f1ff;
+  font-style: italic;
+  line-height: 1.45;
+  opacity: 0;
+  transition: opacity 350ms ease;
+}
+
+#subtitle.visible { opacity: 1; }
+
+/* ------------------------------------------------------ minimap and gold */
+
+#minimap {
+  position: absolute;
+  right: 1.2rem;
+  top: 1.2rem;
+  width: 170px;
+  height: 170px;
+  border-radius: 50%;
+  border: 2px solid rgba(201, 162, 39, 0.6);
+  box-shadow: 0 0 12px rgba(0, 0, 0, 0.5);
+  background: rgba(0, 0, 0, 0.35);
+}
+
+#gold {
+  position: absolute;
+  right: 1.2rem;
+  top: calc(1.2rem + 178px);
+  width: 170px;
+  text-align: center;
+  color: var(--gold);
+  font-size: 0.9rem;
+  letter-spacing: 0.08em;
+  text-shadow: 0 1px 3px #000;
+}

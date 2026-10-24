@@ -20,8 +20,11 @@ const LANE = 7;
 
 export const MAIN = { z: WALL.gateZ, width: 12 };
 
-// The market square, on the main street halfway into the city.
-export const MARKET = { minX: 590, maxX: 690, minZ: MAIN.z - 38, maxZ: MAIN.z + 38 };
+// The market square, on the main street halfway into the city. This is where it
+// is *asked* for; every block it touches is cleared, and MARKET is then widened to
+// exactly the cleared ground (below), so the square runs right up to the houses.
+const WANT = { minX: 590, maxX: 690, minZ: MAIN.z - 38, maxZ: MAIN.z + 38 };
+export const MARKET = { ...WANT };
 
 // Cross streets: [centre, width]. Spacings vary so no two blocks are alike.
 function lines(from, to, step, jitter, width, keep = []) {
@@ -32,7 +35,7 @@ function lines(from, to, step, jitter, width, keep = []) {
   return out.concat(keep).sort((a, b) => a[0] - b[0]);
 }
 
-const xs = lines(IN.minX + LANE, IN.maxX - LANE, 58, 8, 6, [[(MARKET.minX + MARKET.maxX) / 2, 10]])
+const xs = lines(IN.minX + LANE, IN.maxX - LANE, 58, 8, 6, [[(WANT.minX + WANT.maxX) / 2, 10]])
   .filter(([v], i, a) => i === 0 || v - a[i - 1][0] > 30);
 const zs = lines(IN.minZ + LANE, IN.maxZ - LANE, 52, 6, 6, [[MAIN.z, MAIN.width]])
   .filter(([v], i, a) => i === 0 || Math.abs(v - MAIN.z) > 25 || v === MAIN.z)
@@ -55,8 +58,13 @@ export const BLOCKS = [];
 for (let i = 0; i + 1 < xEdges.length; i++) {
   for (let j = 0; j + 1 < zEdges.length; j++) {
     const b = { minX: xEdges[i][1], maxX: xEdges[i + 1][0], minZ: zEdges[j][1], maxZ: zEdges[j + 1][0] };
-    const inMarket = b.maxX > MARKET.minX && b.minX < MARKET.maxX && b.maxZ > MARKET.minZ && b.minZ < MARKET.maxZ;
-    if (!inMarket && b.maxX - b.minX > 12 && b.maxZ - b.minZ > 12) BLOCKS.push(b);
+    const inMarket = b.maxX > WANT.minX && b.minX < WANT.maxX && b.maxZ > WANT.minZ && b.minZ < WANT.maxZ;
+    if (inMarket) {
+      MARKET.minX = Math.min(MARKET.minX, b.minX); MARKET.maxX = Math.max(MARKET.maxX, b.maxX);
+      MARKET.minZ = Math.min(MARKET.minZ, b.minZ); MARKET.maxZ = Math.max(MARKET.maxZ, b.maxZ);
+    } else if (b.maxX - b.minX > 12 && b.maxZ - b.minZ > 12) {
+      BLOCKS.push(b);
+    }
   }
 }
 

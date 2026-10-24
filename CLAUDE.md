@@ -125,6 +125,16 @@ src/
   clans.js        The four clans: stats, blurbs, World 1 homes, the one-time choice
   clan-stands.js  The clan banners in the castle courtyard (look, E, E to join)
   castle.js       The castle realm: photo sky + matching sun, world, village, banners, portal
+  orb.js          The guiding orb: crystal sphere that follows you, talks, points (beam)
+  story.js        What the orb says when, and the first quest
+  quests.js       Quest state: give, complete (+gold), the active goal
+  journal.js      Tab: quests, what you carry, the map of World 1
+  minimap.js      Rotating corner minimap
+  explored.js     Fog of war: maps show only explored ground
+  hud.js          Stamina bar, gold, orb subtitles, "press E" prompt, news toasts
+  inventory.js    Gold (25 to start) and items; sellAll() for traders
+  interact.js     "Press E" for chests, traders…; realms list `interactables`
+  chest.js        Lootable chest with an opening lid (gold + items)
   portal.js       Standing stone portal with a light sheet; isInside(feet) triggers travel
   sky.js          Sky dome whose horizon colour is driven to match the fog
   noise.js        Seeded Perlin noise, fbm, ridged — the source of all procedural land
@@ -133,6 +143,11 @@ src/
     terrain.js      3 km heightfield + ground-type weights (pure functions of x, z)
     terrain-material.js  Blends five Poly Haven textures by splat, slope and altitude
     sandstorm.js    Wind-blown dust/snow points; thick in the rim storm
+    places.js       World 1's places, camps and the upside-down Y road (pure data)
+    road.js         The road surface: cobbles near cities, dirt track between
+    camps.js        Six bandit camps (one big, walled) with fires, tents, loot
+    bandits.js      Hooded figures: sit, guard, patrol (no fighting yet); traders too
+    farmville.js    The farming village at the road's fork
     city/           The cyborg city (east, above the snow line)
       wall.js         Stone + steel curtain wall, towers, west gatehouse
       streets.js      Street plan (STREETS, BLOCKS, MARKET) and cobbles
@@ -220,7 +235,9 @@ Two loader details that are easy to break and hard to spot:
 | Space | Jump |
 | Esc | Release the mouse |
 | Click | Grab the mouse (lock pointer); once locked, cast the fishing rod |
-| E | At a clan banner: read about the clan; E again to join (final) |
+| E | Use: open a chest, sell to a trader; at a clan banner, E twice to join |
+| Tab | Journal and map (releases the mouse; Tab again to return) |
+| Shift | Run — drains stamina; spent, you walk until it refills |
 | F2 | Dev server only: hop between the castle and the wasteland |
 
 ## Key systems
@@ -256,6 +273,18 @@ direction is read off where the sun sits in that photo. Village houses come from
 random stream** — sharing the city's would make the village change depending on
 whether the wasteland had been visited first. The blacksmith, sawmill, stable,
 windmill, barn, towers, trees and small props are still low-poly models.
+
+### Orb, quests, HUD (`orb.js`, `story.js`, `quests.js`, `hud.js`, …)
+The orb is attached to whichever realm's scene is current (`orb.attach` on travel)
+and trails a point off the camera's shoulder. `orb.point(pos)` stands a light beam
+over a goal. `story.js` queues the orb's lines and reacts to the clan choice (opens
+the castle portal, gives `first-steps`) and to quests finishing (`story.questDone`,
+fired from main.js's `onQuestsChanged`). A quest's `goal` is `{ realm, x, z, r }`;
+`checkQuests` completes it when you stand inside. Stamina lives on the player
+(`stamina`, `staminaMax` from the clan, `winded`); the bar shows only while running.
+Exploration is a 10 m grid (`explored.js`) revealed within 70 m of you in World 1;
+both maps draw its fog image over everything except the quest goal. Neither
+exploration nor gold is saved between sessions yet.
 
 ### Realms (`main.js`, `castle.js`, `wasteland/`)
 Each world is a *realm*: built once on first visit into its own `THREE.Group`, then

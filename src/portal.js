@@ -9,7 +9,9 @@ import * as THREE from 'three';
 
 const RADIUS = 1.7;
 
-export function createPortal({ x, z, baseY = 0, yaw = 0, color = 0xff8a3a, target }) {
+// `active: false` builds it dark and closed (the castle portal, until a clan is
+// chosen); `setActive(true)` lights it.
+export function createPortal({ x, z, baseY = 0, yaw = 0, color = 0xff8a3a, target, active = true }) {
   const group = new THREE.Group();
   group.position.set(x, baseY, z);
   group.rotation.y = yaw;
@@ -79,16 +81,27 @@ export function createPortal({ x, z, baseY = 0, yaw = 0, color = 0xff8a3a, targe
   const normal = new THREE.Vector3(Math.sin(yaw), 0, Math.cos(yaw));
   const _d = new THREE.Vector3();
 
+  let isActive = active;
+  function setActive(on) {
+    isActive = on;
+    sheet.visible = on;
+    light.visible = on;
+  }
+  setActive(active);
+
   return {
     object: group,
     colliders,
     target,
+    setActive,
+    get active() { return isActive; },
     update(dt) {
       uniforms.uTime.value += dt;
       light.intensity = 7 + Math.sin(uniforms.uTime.value * 2.3) * 1.2;
     },
     // True once the player's feet are inside the ring's sheet of light.
     isInside(feet) {
+      if (!isActive) return false;
       _d.subVectors(feet, center);
       const across = Math.abs(_d.dot(normal));
       _d.y = 0;

@@ -42,10 +42,17 @@ const TEXTURES = [
   ['linen', 'rough_linen', '1k', BUILD],               // blue market awnings
   ['caban', 'caban', '1k', BUILD],                     // orange market awnings
   ['hessian', 'hessian_230', '1k', BUILD],             // sacking on the scrap stalls
+
+  // The castle.
+  ['meadow', 'leafy_grass', '2k', BUILD],              // grass and leaf litter round the castle
 ];
 
+// [key, id, seen]. Every sky gets a 1k .hdr, which is plenty to *light* by. A sky
+// that is also *seen* (seen: true) gets a 4096×2048 JPG of Poly Haven's
+// tonemapped render as well: a 4k .hdr is 20 MB, the JPG about 2.
 const HDRIS = [
-  ['desert_noon', 'qwantani_noon_puresky'], // clear sky only, no ground in it
+  ['desert_noon', 'qwantani_noon_puresky', false],              // clear sky only, no ground in it
+  ['castle_day', 'kloofendal_48d_partly_cloudy_puresky', true], // the castle's visible sky
 ];
 
 
@@ -82,12 +89,21 @@ for (const [key, id, RES, MAPS] of TEXTURES) {
   credits.push([`textures/${key}`, info.name, Object.keys(info.authors).join(', '), id]);
 }
 
-for (const [key, id] of HDRIS) {
+for (const [key, id, seen] of HDRIS) {
   const files = await getJson(`https://api.polyhaven.com/files/${id}`);
   const info = await getJson(`https://api.polyhaven.com/info/${id}`);
-  const url = files.hdri['1k'].hdr.url; // lighting only, 1k is plenty
+  const url = files.hdri['1k'].hdr.url;
   const got = await download(url, path.join(ROOT, 'hdri', `${key}.hdr`));
   console.log(`${got ? 'downloaded' : 'have'} hdri/${key}.hdr`);
+  const jpg = path.join(ROOT, 'hdri', `${key}.jpg`);
+  if (seen && !(await exists(jpg))) {
+    const res = await fetch(files.tonemapped.url);
+    if (!res.ok) throw new Error(`${files.tonemapped.url}: ${res.status}`);
+    const sharp = (await import('sharp')).default;
+    await sharp(Buffer.from(await res.arrayBuffer()), { limitInputPixels: false })
+      .resize(4096, 2048).jpeg({ quality: 86 }).toFile(jpg);
+    console.log(`downloaded hdri/${key}.jpg`);
+  }
   credits.push([`hdri/${key}.hdr`, info.name, Object.keys(info.authors).join(', '), id]);
 }
 

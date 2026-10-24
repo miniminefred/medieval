@@ -22,4 +22,6 @@ All CC0 (public domain) from [Poly Haven](https://polyhaven.com). Downloaded by
 | `textures/linen` | Rough Linen | colormass, Rico Cilliers | https://polyhaven.com/a/rough_linen |
 | `textures/caban` | Caban | colormass, Rico Cilliers | https://polyhaven.com/a/caban |
 | `textures/hessian` | Hessian 230 | colormass, Rico Cilliers | https://polyhaven.com/a/hessian_230 |
+| `textures/meadow` | Leafy Grass | Charlotte Baglioni | https://polyhaven.com/a/leafy_grass |
 | `hdri/desert_noon.hdr` | Qwantani Noon (Pure Sky) | Greg Zaal, Jarod Guest | https://polyhaven.com/a/qwantani_noon_puresky |
+| `hdri/castle_day.hdr` | Kloofendal 48d Partly Cloudy (Pure Sky) | Greg Zaal, Jarod Guest | https://polyhaven.com/a/kloofendal_48d_partly_cloudy_puresky |

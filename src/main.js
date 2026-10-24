@@ -1,4 +1,4 @@
-import { Timer } from 'three';
+import { Timer, Vector3 } from 'three';
 import { createRenderer, createScene, createCamera, handleResize } from './scene.js';
 import { createInput } from './input.js';
 import { ModelLibrary } from './models.js';
@@ -9,6 +9,11 @@ import { Viewmodel } from './viewmodel.js';
 import { hud } from './hud.js';
 import { inventory } from './inventory.js';
 import { createInteraction } from './interact.js';
+import { createOrb } from './orb.js';
+import { createStory } from './story.js';
+import { checkQuests, onQuestsChanged, allQuests } from './quests.js';
+import { createJournal } from './journal.js';
+import { createMinimap } from './minimap.js';
 
 const renderer = createRenderer();
 const scene = createScene();
@@ -48,6 +53,23 @@ let realm = realms[START];
 realm.enter(ctx);
 player.teleport(realm.spawn.x, realm.spawn.z, realm.spawn.yaw);
 
+// The orb follows the prince from realm to realm, and tells the story.
+const orb = createOrb();
+orb.attach(scene);
+const story = createStory({ orb, castle: realms.castle });
+story.arrived(realm.name, () => 0);
+
+const journal = createJournal(player.controls);
+const minimap = createMinimap();
+// When a quest is finished, let the story react to it.
+const done = new Set();
+onQuestsChanged(() => {
+  journal.refresh();
+  for (const q of allQuests()) {
+    if (q.done && !done.has(q.id)) { done.add(q.id); story.questDone(q.id); }
+  }
+});
+
 const fade = document.getElementById('fade');
 let travelling = false;
 
@@ -62,6 +84,8 @@ async function travel(name) {
   realm = realms[name];
   realm.enter(ctx);
   player.teleport(realm.arrival.x, realm.arrival.z, realm.arrival.yaw);
+  orb.attach(scene);
+  story.arrived(realm.name, realm.terrain?.heightAt ?? (() => 0));
   fade.classList.remove('on');
   travelling = false;
 }
@@ -86,11 +110,12 @@ document.getElementById('loading')?.classList.add('hidden');
 // Dev-only handle so the world can be flown around and inspected from the console
 // (there is no scene editor by design — this is how we look at what we built).
 if (import.meta.env.DEV) {
-  window.__medieval = { renderer, scene, camera, library, realms, viewmodel, player, travel,
+  window.__medieval = { renderer, scene, camera, library, realms, viewmodel, player, travel, orb, inventory,
     get realm() { return realm; } };
 }
 
 const interaction = createInteraction();
+const _dir = new Vector3();
 const timer = new Timer();
 
 function animate() {
@@ -102,6 +127,13 @@ function animate() {
   hud.stamina(player.stamina / player.staminaMax, player.running, player.winded, dt);
   realm.update(dt, ctx);
   interaction.update(realm.interactables, camera, player.isLocked);
+  orb.update(dt, camera);
+  story.update(dt);
+  checkQuests(realm.name, player.object.position);
+  journal.update(realm.name, player.object.position);
+  camera.getWorldDirection(_dir);
+  minimap.update(realm.name, player.object.position, Math.atan2(_dir.x, -_dir.z),
+    realm.name === 'castle' ? realm.portal.object.position : null);
   if (!travelling) {
     const portal = realm.portals.find((p) => p.isInside(player.feet));
     if (portal) travel(portal.target);

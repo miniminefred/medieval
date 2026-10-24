@@ -47,6 +47,9 @@ const TEXTURES = [
   ['meadow', 'leafy_grass', '2k', BUILD],              // grass and leaf litter round the castle
   ['castlestone', 'castle_wall_varriation', '1k', BUILD], // the castle's old, weathered walls
   ['mossystone', 'mossy_stone_wall', '1k', BUILD],     // moss creeping up their feet
+  ['dirtroad', 'dry_mud_field_001', '1k', BUILD],      // the village's trodden roads
+  ['soil', 'farm_soil', '1k', BUILD],                  // the ploughed field
+  ['mud', 'brown_mud_02', '1k', BUILD],                // the pond's shore
 ];
 
 // [key, id, seen]. Every sky gets a 1k .hdr, which is plenty to *light* by. A sky

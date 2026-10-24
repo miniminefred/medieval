@@ -1,10 +1,12 @@
 import { ROADS, CAMPS } from './wasteland/places.js';
 import { CITY } from './wasteland/terrain.js';
 import { activeQuest } from './quests.js';
+import { explored } from './explored.js';
 
 // The round minimap in the top-right corner: 160 m across, turned so the way you
-// face is always up. Roads, the cyborg city, camps and the quest goal (pinned to
-// the rim when it is out of range). In the castle it just shows the arrow and a
+// face is always up. Roads, the cyborg city and camps show only where you have
+// explored (explored.js); the quest goal always shows, pinned to the rim when it
+// is out of range. In the castle it just shows the arrow and a
 // marker toward the portal.
 
 const RANGE = 80;   // metres from the centre to the rim
@@ -51,9 +53,18 @@ export function createMinimap() {
         g.fill();
         g.fillStyle = '#8a1d14';
         for (const camp of CAMPS) {
+          if (!explored.has(camp.x, camp.z)) continue;
           const [mx, my] = to(camp.x, camp.z);
           g.beginPath(); g.arc(mx, my, camp.big ? 5 : 3.5, 0, Math.PI * 2); g.fill();
         }
+
+        // Fog over everything not yet explored, in the same rotated frame.
+        g.save();
+        g.setTransform(cos * scale, -sin * scale, sin * scale, cos * scale,
+          R - (cos * pos.x + sin * pos.z) * scale, R - (-sin * pos.x + cos * pos.z) * scale);
+        g.imageSmoothingEnabled = true;
+        g.drawImage(explored.fogImage(), -explored.HALF, -explored.HALF, explored.HALF * 2, explored.HALF * 2);
+        g.restore();
       }
 
       // The goal: the active quest's (in this realm) or one the realm supplies.

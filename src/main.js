@@ -14,6 +14,7 @@ import { createStory } from './story.js';
 import { checkQuests, onQuestsChanged, allQuests } from './quests.js';
 import { createJournal } from './journal.js';
 import { createMinimap } from './minimap.js';
+import { explored } from './explored.js';
 
 const renderer = createRenderer();
 const scene = createScene();
@@ -130,6 +131,7 @@ function animate() {
   orb.update(dt, camera);
   story.update(dt);
   checkQuests(realm.name, player.object.position);
+  if (realm.name === 'wasteland') explored.reveal(player.object.position.x, player.object.position.z);
   journal.update(realm.name, player.object.position);
   camera.getWorldDirection(_dir);
   minimap.update(realm.name, player.object.position, Math.atan2(_dir.x, -_dir.z),

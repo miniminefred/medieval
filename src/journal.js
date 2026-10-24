@@ -2,9 +2,10 @@ import { allQuests, activeQuest } from './quests.js';
 import { inventory, ITEMS } from './inventory.js';
 import { PLACES, ROADS, CAMPS } from './wasteland/places.js';
 import { CITY } from './wasteland/terrain.js';
+import { explored } from './explored.js';
 
 // Tab: one screen with the quest journal on the left and the map of World 1 on
-// the right (docs/DESIGN.md). Opening it releases the mouse so it can be read in
+// the right (docs/DESIGN.md). The map only shows what you have explored. Opening it releases the mouse so it can be read in
 // peace; closing it (Tab or Esc) asks for the mouse back.
 
 const HALF = 1500;
@@ -41,19 +42,24 @@ export function createJournal(controls) {
     g.fillStyle = '#6f6a62'; g.strokeStyle = '#3b3833'; g.lineWidth = 2;
     g.fillRect(px(CITY.minX), px(CITY.minZ), px(CITY.maxX) - px(CITY.minX), px(CITY.maxZ) - px(CITY.minZ));
     g.strokeRect(px(CITY.minX), px(CITY.minZ), px(CITY.maxX) - px(CITY.minX), px(CITY.maxZ) - px(CITY.minZ));
-    // Places and camps.
+    // Fog over the unexplored: everything above this line is hidden under it.
+    g.imageSmoothingEnabled = true;
+    g.drawImage(explored.fogImage('rgb(58, 46, 34)'), 0, 0, S, S);
+
+    // Places and camps — named only once you have been there.
     const label = (x, z, text, color = '#2a1f14') => {
+      if (!explored.has(x, z + (text === 'Cyborg city' ? 0 : 20))) return;
       g.fillStyle = color; g.font = `bold ${Math.round(S / 46)}px Georgia`; g.textAlign = 'center';
       g.fillText(text, px(x), px(z));
     };
-    label(640, 395, 'Cyborg city', '#1d1b18');
+    label(640, 395, 'Cyborg city', '#e8dcc0');
     label(PLACES.farmville.x, PLACES.farmville.z - 18, 'Farmville');
     label(PLACES.bruteCity.x, PLACES.bruteCity.z - 22, 'Brute city');
     label(PLACES.apexCity.x, PLACES.apexCity.z + 34, 'Apex city (ruins)');
     label(PLACES.dragonCity.x, PLACES.dragonCity.z - 22, 'Dragon city (ruins)');
     label(PLACES.portalW2.x, PLACES.portalW2.z + 40, 'Portal to World 2');
     g.fillStyle = '#8a1d14';
-    for (const c of CAMPS) { g.beginPath(); g.arc(px(c.x), px(c.z), c.big ? 6 : 4, 0, Math.PI * 2); g.fill(); }
+    for (const c of CAMPS) { if (!explored.has(c.x, c.z)) continue; g.beginPath(); g.arc(px(c.x), px(c.z), c.big ? 6 : 4, 0, Math.PI * 2); g.fill(); }
     // The quest goal.
     const q = activeQuest();
     if (q?.goal?.realm === 'wasteland') {

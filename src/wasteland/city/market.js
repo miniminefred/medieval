@@ -18,6 +18,9 @@ const rand = mulberry32(3301);
 const between = (a, b) => a + rand() * (b - a);
 const pick = (a) => a[Math.floor(rand() * a.length)];
 
+// Where a trader can stand: every stall's counter, behind it (filled in as built).
+export const COUNTERS = [];
+
 const STALL_W = 4.6;
 const STALL_D = 3.0;
 const AISLE = 6.5;
@@ -54,6 +57,9 @@ function stall(b, x, z, yaw, cloth, goods) {
   if (cloth !== 'hessian') put('glow', 0, 1.98, D / 2 + 0.23, 1.6, 0.05, 0.03);
 
   goods({ put, cyl, top: 0.98, cz, back: -D / 2 + 0.3 });
+
+  // Behind the counter (local z = 0.05), facing out over it.
+  COUNTERS.push({ x: x + 0.05 * s, z: z + 0.05 * c, yaw, front: { x: x + (D / 2 + 0.6) * s, z: z + (D / 2 + 0.6) * c } });
 }
 
 // AABB of a rectangle w × d offset `lz` forward from (x, z), at yaw 0/90/180/270.

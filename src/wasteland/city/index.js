@@ -3,7 +3,12 @@ import { CityBuilder } from '../../builder.js';
 import { buildWall } from './wall.js';
 import { buildStreets } from './streets.js';
 import { buildHouses } from './houses.js';
-import { buildMarket } from './market.js';
+import { buildMarket, COUNTERS } from './market.js';
+import { createBandit } from '../bandits.js';
+import { inventory } from '../../inventory.js';
+import { hud } from '../../hud.js';
+import { mulberry32 } from '../../noise.js';
+import { CITY } from '../terrain.js';
 
 // The cyborg city — a safe quest town in the east of World 1. See docs/DESIGN.md
 // for what it is meant to become; each part lives in its own module here.
@@ -19,10 +24,28 @@ export function buildCity(renderer) {
   buildMarket(b);
 
   b.finish(group);
+
+  // Traders behind some of the market's counters. You can sell them what you
+  // carry (docs/DESIGN.md). Hooded, like everyone for now, but in their own cloth.
+  const rng = mulberry32(4242);
+  const traders = COUNTERS.filter((_, i) => i % 6 === 2).map((c) => {
+    const t = createBandit(group, renderer, rng, { x: c.x, z: c.z, yaw: c.yaw, heightAt: () => CITY.y + 0.09, trader: true });
+    return {
+      update: t.update,
+      pos: new THREE.Vector3(c.front.x, CITY.y + 1.5, c.front.z),
+      reach: 2.2,
+      label: 'sell your goods',
+      use() {
+        const earned = inventory.sellAll();
+        hud.toast(earned ? `The trader pays you ${earned} gold.` : 'You have nothing the trader wants.');
+      },
+    };
+  });
   return {
     group,
     colliders: b.colliders,
     houses,
+    traders,
     // Skip whole chunks the haze has already hidden.
     update(camera, viewDistance) {
       b.updateVisibility(camera.position, viewDistance);

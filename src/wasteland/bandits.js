@@ -19,9 +19,16 @@ function materials(renderer) {
   return mats;
 }
 
+let traderMat = null;
+function traderCloak(renderer) {
+  const linen = cityMaterial('linen', renderer);
+  traderMat ??= new THREE.MeshStandardMaterial({ map: linen.map, normalMap: linen.normalMap, color: 0x7d97b8, roughness: 1 });
+  return traderMat;
+}
+
 // One figure, feet at the group's origin, facing +z. `pose`: 'stand' | 'sit'.
-function figure(renderer, pose, rng) {
-  const m = materials(renderer);
+function figure(renderer, pose, rng, trader = false) {
+  const m = trader ? { ...materials(renderer), cloak: traderCloak(renderer) } : materials(renderer);
   const g = new THREE.Group();
   const add = (geo, mat, x, y, z) => {
     const mesh = new THREE.Mesh(geo, mat);
@@ -56,8 +63,9 @@ function figure(renderer, pose, rng) {
 }
 
 // A bandit: a figure plus how it behaves. `heightAt` keeps walkers on the ground.
-export function createBandit(parent, renderer, rng, { x, z, yaw = 0, pose = 'stand', patrol = null, heightAt }) {
-  const g = figure(renderer, pose, rng);
+// `trader: true` dresses the same figure in a merchant's blue and leaves off the spear.
+export function createBandit(parent, renderer, rng, { x, z, yaw = 0, pose = 'stand', patrol = null, heightAt, trader = false }) {
+  const g = figure(renderer, pose, trader ? () => 0.99 : rng, trader);
   g.position.set(x, heightAt(x, z), z);
   g.rotation.y = yaw;
   parent.add(g);

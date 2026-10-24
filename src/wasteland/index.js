@@ -168,7 +168,7 @@ export function createWastelandRealm(renderer) {
     group,
     terrain,
     portals: [portal],
-    interactables: camps.chests.concat(desertChests),
+    interactables: camps.chests.concat(desertChests, city.traders),
     spawn: { x: SPAWN.x, z: SPAWN.z, yaw: Math.PI },   // facing south, away from the portal
     // Each clan's prince arrives at their clan's home (clans.js); without a clan
     // (the F2 dev hop), at the map's centre.
@@ -215,6 +215,7 @@ export function createWastelandRealm(renderer) {
       sun.position.copy(p).addScaledVector(SUN_DIR, 250);
 
       camps.update(dt, p);
+      for (const t of city.traders) t.update(dt);
       for (const c of desertChests) c.update(dt);
 
       // FogExp2 has swallowed everything by ~2.2 / density.

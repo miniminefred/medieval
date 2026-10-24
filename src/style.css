@@ -201,3 +201,57 @@ kbd {
 }
 
 #crosshair.visible { opacity: 1; }
+
+/* ------------------------------------------------------------ clan panel */
+
+/* Shown at a clan banner in the castle courtyard. */
+#clan-panel {
+  position: absolute;
+  left: 50%;
+  bottom: 9vh;
+  width: min(34rem, 90vw);
+  transform: translate(-50%, 12px);
+  padding: 1rem 1.3rem 1.1rem;
+  background: rgba(14, 11, 7, 0.82);
+  border: 1px solid rgba(201, 162, 39, 0.45);
+  border-radius: 3px;
+  opacity: 0;
+  transition: opacity 200ms ease, transform 200ms ease;
+}
+
+#clan-panel.visible { opacity: 1; transform: translate(-50%, 0); }
+
+#clan-panel .name {
+  font-size: 1.6rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+#clan-panel p { margin: 0.4rem 0 0.7rem; line-height: 1.45; opacity: 0.9; }
+
+#clan-panel .stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.2rem 1.2rem;
+  font-size: 0.82rem;
+  opacity: 0.85;
+}
+
+#clan-panel .hint { margin-top: 0.8rem; color: var(--gold); font-size: 0.9rem; }
+
+/* A line of news across the top of the screen. */
+#toast {
+  position: absolute;
+  left: 50%;
+  top: 12vh;
+  transform: translateX(-50%);
+  padding: 0.6rem 1.4rem;
+  background: rgba(14, 11, 7, 0.78);
+  border: 1px solid rgba(201, 162, 39, 0.45);
+  color: var(--parchment);
+  letter-spacing: 0.05em;
+  opacity: 0;
+  transition: opacity 400ms ease;
+}
+
+#toast.visible { opacity: 1; }

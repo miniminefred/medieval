@@ -33,7 +33,7 @@ onClanChosen((id) => { player.speedMul = speedMultiplier(id); });
 const START = 'castle';
 const realms = {};
 const builders = {
-  castle: async () => createCastleRealm(library),
+  castle: async () => createCastleRealm(library, renderer),
   wasteland: async () => (await import('./wasteland/index.js')).createWastelandRealm(renderer),
 };
 

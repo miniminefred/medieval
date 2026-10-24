@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { createLighting } from './scene.js';
+import { HDRLoader } from 'three/addons/loaders/HDRLoader.js';
 import { buildWorld } from './world.js';
 import { buildVillage } from './village.js';
 import { createGrass } from './grass.js';
@@ -15,14 +15,50 @@ import { currentClan, onClanChosen } from './clans.js';
 // player travels: `enter` puts it in the scene and sets the sky/fog/exposure it
 // wants, `exit` takes it out again. See main.js.
 
-const SKY = 0xa8b6c4;   // pale overcast, the same colour as the fog
+const BASE = import.meta.env?.BASE_URL ?? '/';
 
-export function createCastleRealm(library) {
+// A photographed partly-cloudy sky (Poly Haven): the JPG is what you see, the
+// small HDR is what lights the scene. The sunlight comes from where the sun is in
+// that photo, so shadows fall the way the sky says they should.
+const SKY_JPG = BASE + 'hdri/castle_day.jpg';
+const SKY_HDR = BASE + 'hdri/castle_day.hdr';
+const SUN_DIR = new THREE.Vector3(0.55, 0.75, 0.35).normalize();
+const HAZE = 0xc4cfdc;   // the photo's pale horizon; distant meadow fades into it
+
+export function createCastleRealm(library, renderer) {
   const group = new THREE.Group();
   group.name = 'castle';
-  createLighting(group);
 
-  const world = buildWorld(group, library);
+  // ----------------------------------------------------------------- light
+  const sun = new THREE.DirectionalLight(0xfff3e2, 2.6);
+  sun.castShadow = true;
+  sun.shadow.mapSize.set(2048, 2048);
+  sun.shadow.bias = -0.0004;
+  sun.shadow.normalBias = 0.4;
+  sun.shadow.radius = 3;
+  const cam = sun.shadow.camera;
+  cam.left = cam.bottom = -60;
+  cam.right = cam.top = 60;
+  cam.near = 1;
+  cam.far = 300;
+  group.add(sun, sun.target);
+  group.add(new THREE.HemisphereLight(0xb8cde6, 0x5d6b3a, 0.35));   // sky above, meadow below
+
+  const background = new THREE.TextureLoader().load(SKY_JPG);
+  background.mapping = THREE.EquirectangularReflectionMapping;
+  background.colorSpace = THREE.SRGBColorSpace;
+  let envMap = null;
+  let active = null;
+  new HDRLoader().load(SKY_HDR, (hdr) => {
+    const pmrem = new THREE.PMREMGenerator(renderer);
+    envMap = pmrem.fromEquirectangular(hdr).texture;
+    hdr.dispose();
+    pmrem.dispose();
+    if (active) active.environment = envMap;
+  });
+  const fog = new THREE.FogExp2(HAZE, 0.0055);
+
+  const world = buildWorld(group, library, renderer);
   const village = buildVillage(group, library);
 
   // Out in the courtyard's north-east corner, beside the keep, facing the gate.
@@ -37,7 +73,7 @@ export function createCastleRealm(library) {
   const stands = createClanStands(group, [
     { x: -12, z: 15, yaw: 0 }, { x: -6.5, z: 15, yaw: 0 },
     { x: 6.5, z: 15, yaw: 0 }, { x: 12, z: 15, yaw: 0 },
-  ]);
+  ], renderer);
 
   const colliders = world.colliders.concat(village.colliders, portal.colliders, stands.colliders);
 
@@ -64,21 +100,30 @@ export function createCastleRealm(library) {
     arrival: { x: 10, z: -9, yaw: Math.PI },
 
     enter({ scene, renderer, camera, player }) {
+      active = scene;
       scene.add(group);
-      scene.background = new THREE.Color(SKY);
-      scene.fog = new THREE.Fog(SKY, 40, 220);
-      scene.environment = null;
-      renderer.toneMapping = THREE.NoToneMapping;
-      camera.far = 600;
+      scene.background = background;
+      scene.backgroundIntensity = 1;
+      scene.fog = fog;
+      scene.environment = envMap;
+      scene.environmentIntensity = 0.8;
+      renderer.toneMapping = THREE.ACESFilmicToneMapping;
+      renderer.toneMappingExposure = 1.0;
+      camera.far = 1200;
       camera.updateProjectionMatrix();
       player.setWorld({ colliders });
     },
 
     exit({ scene }) {
+      active = null;
       scene.remove(group);
     },
 
     update(dt, { player, camera }) {
+      // Keep the shadow map centred on the player; the sun is effectively infinite.
+      const p = player.object.position;
+      sun.target.position.copy(p);
+      sun.position.copy(p).addScaledVector(SUN_DIR, 150);
       stands.update(dt, camera, player.isLocked);
       grass.update(dt, player.object.position);
       village.update(dt);

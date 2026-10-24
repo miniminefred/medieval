@@ -135,6 +135,7 @@ src/
       wall.js         Stone + steel curtain wall, towers, west gatehouse
       streets.js      Street plan (STREETS, BLOCKS, MARKET) and cobbles
       houses.js       Half-timbered houses round every block; ~30% cyborg-touched
+      market.js       Tech market: four trade quarters of stalls, the glowing pillar
   world.js        The castle: ground, curtain wall, towers, keep, courtyard props
   village.js      Everything outside the walls: roads, village, farm, pasture, pond, woods
   grass.js        Instanced wind-blown grass field + the procedural ground material
@@ -156,7 +157,7 @@ public/models/medieval/
   *.glb              77 CC0 low-poly props, almost all by Quaternius
   manifest.json      key -> title/author/licence/source
   CREDITS.md         attribution table
-public/textures/<key>/{diff,nor}.jpg  CC0 photo-scanned ground (sand, dry, burned, rock, snow)
+public/textures/<key>/{diff,nor[,arm]}.jpg  CC0 Poly Haven textures (ground, city, fabrics)
 public/hdri/*.hdr                     CC0 sky light
 ```
 

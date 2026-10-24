@@ -206,7 +206,7 @@ _____________________________
   gear), **houses you can enter**, **NPCs walking around**, and **realistic lighting**
   (lamps and lights).
 
-Build order: ~~ground + wall + gate~~ → ~~streets and houses~~ → market → machines →
+Build order: ~~ground + wall + gate~~ → ~~streets and houses~~ → ~~market~~ → machines →
 lamps and lights (with the day/night cycle) → enterable houses → NPCs.
 
 ## World 2: The Islands

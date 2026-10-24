@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import { CLANS, chooseClan, currentClan } from './clans.js';
+import { cityMaterial } from './builder.js';
 
 // The clan banners in the castle courtyard, where every prince chooses a clan.
 //
@@ -103,13 +104,14 @@ function bannerTexture(id, clan) {
   return t;
 }
 
-function buildStand(id, clan, x, z, yaw) {
+function buildStand(id, clan, x, z, yaw, renderer) {
   const group = new THREE.Group();
   group.position.set(x, 0, z);
   group.rotation.y = yaw;
 
-  const wood = new THREE.MeshStandardMaterial({ color: 0x5a4027, roughness: 0.85 });
-  const stone = new THREE.MeshStandardMaterial({ color: 0x8a857a, roughness: 0.95 });
+  // The same photo-scanned stone and timber as the castle around them.
+  const wood = cityMaterial('timber', renderer);
+  const stone = cityMaterial('mossystone', renderer);
   const iron = new THREE.MeshStandardMaterial({ color: 0x3a3a3a, roughness: 0.5, metalness: 0.7 });
 
   const add = (geo, mat, px, py, pz) => {
@@ -135,9 +137,9 @@ function buildStand(id, clan, x, z, yaw) {
 
 // ---------------------------------------------------------------- the stands
 
-export function createClanStands(scene, places) {
+export function createClanStands(scene, places, renderer) {
   const stands = Object.entries(CLANS).map(([id, clan], i) =>
-    buildStand(id, clan, places[i].x, places[i].z, places[i].yaw));
+    buildStand(id, clan, places[i].x, places[i].z, places[i].yaw, renderer));
   for (const s of stands) scene.add(s.group);
 
   const panel = document.getElementById('clan-panel');

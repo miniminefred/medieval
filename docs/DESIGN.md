@@ -131,6 +131,29 @@ exception to "no guns": it belongs to the cyborg clan, not a general shooter loo
   **airships** (only sold in World 3). Brutes ride **mammoths**. The market sells
   **modules for vehicles and gear**.
 
+### Decided 2026-10-24 (first playable systems)
+
+- **Stamina:** running drains it; your clan's speed stat sets how fast you run and
+  how long. **When it runs out you can't run and must walk** until it has refilled
+  a bit. The stamina bar shows **only while running** (under the crosshair), then
+  fades.
+- **Gold:** every prince starts with **a small purse of 25 gold**. More comes from
+  **quest rewards, bandit camps, chests and selling**.
+- **Chests** give **gold and items**. They are **in bandit camps, hidden in the
+  desert, in ruins, in the castle, and in houses** (stealing).
+- **Selling:** to the **market traders** in the cyborg city.
+- **Bandits:** **5–6 camps spread around World 1**. For now the camps have
+  bandits standing guard, walking and sitting by fires, but **no fighting and they
+  don't chase you yet**; you can take their loot. Bandits are **hooded, cloaked
+  figures** for now.
+- **The Y road is mixed:** paved near the cities, a dirt track in between.
+- **The orb** is a **crystal sphere with swirling light inside**, with **no name**.
+  It talks in **text at the bottom of the screen without pausing** the game.
+- **The first quest** comes from the orb: go to your clan's city. **Reaching it
+  completes the quest and pays 25 gold.**
+- **Tab** opens one menu with the **quest journal and the map**. A **minimap**
+  sits in a corner of the screen.
+
 ## The worlds
 
 0. **Intro: the castle.** You pick your clan here, at four clan banners in the

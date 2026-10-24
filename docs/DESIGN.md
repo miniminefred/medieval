@@ -46,8 +46,8 @@ weapons). **F5** toggles third-person so you can see your character.
 **The Lava King** is **a figure of lava, wearing a white cape and a power mask.**
 He was a lava creature who found an old mask, an **ancient artifact**, put it on, and
 became the Lava King. He started **the great dragon war**. When the dragons lost, he
-captured them, both **real dragons and dragon-people**, and **locked them away in a
-cave in World 2**. That is why there are no living dragons in World 1. (In World 3
+captured them, both **real dragons and dragon-people**, and **locked them away in
+the dragon prison in World 2**. That is why there are no living dragons in World 1. (In World 3
 the dragons are still free.) Now he rules everything, **but he cannot enter the safe
 cities. Why is a mystery**; finding out is part of the story.
 
@@ -161,7 +161,7 @@ Each world has **a boss who serves the Lava King**.
 | **Cyborg city** | East, just above the snow line | Safe quest town. **Built.** See below. |
 | **Brute city** | West, across from the cyborg city | Clan city |
 | **Apex city** | Between brute and cyborg cities, toward the south | **Destroyed and being rebuilt**; partly ruins |
-| **Fallen dragon city** | A bit north of the cyborg city | In ruins. A **tunnel** leads to the dragon cave in World 2 (two-way, opened from World 2). |
+| **Fallen dragon city** | A bit north of the cyborg city | In ruins. A **tunnel** leads to the dragon prison in World 2 (two-way, opened from World 2). |
 | **Farmville** | At the fork of the Y road | Small farming village |
 | **Bandit castle** | A bit north of the brute city | The big bandit boss |
 | **Ruined camps** | Around the map | Scorpion nests |
@@ -214,7 +214,7 @@ lamps and lights (with the day/night cycle) → enterable houses → NPCs.
 - A **desert (wasteland-like) apex island**.
 - **Two lonely mountains with a bridge between them.** They are really **the horns of
   a gigantic dead creature**, a **world beast** older than all the clans. **The dragon
-  cave is inside one of them.**
+  prison is inside one of them.**
 - Getting around: **ferries** until you buy a boat (boats are only sold here).
 - **Freeing the dragons** (main quest) **opens the portal to World 3**, and the
   tunnel back to the fallen dragon city in World 1.
@@ -222,8 +222,11 @@ lamps and lights (with the day/night cycle) → enterable houses → NPCs.
 
 ## World 3: The Skylands
 
-- **Villages on big solid sky islands**, **free dragons**, **sky pirates**, and a
-  **dragon cave**.
+- **Villages on big solid sky islands**, **free dragons**, **sky pirates**, and the
+  **dragon cave** (where the free dragons live).
+
+**Dragon places, one per world:** the **fallen dragon city** (ruins) is in World 1,
+the **dragon prison** is in World 2, the **dragon cave** is in World 3.
 - **Falling off:** you land on a dragon (**the dragon rescue service**). It costs
   money, and you arrive very tired and low on health.
 - **Airships** are sold here. An airship takes you on to Worlds 4 and 5.

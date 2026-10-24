@@ -18,7 +18,7 @@ const CHUNK = 100;
 
 // Small things (window glass, timber framing, plates) vanish into the haze long
 // before the buildings do; beyond this they are not drawn at all.
-const DETAIL = new Set(['glass', 'timber', 'steel', 'rust']);
+const DETAIL = new Set(['glass', 'timber', 'steel', 'rust', 'gunmetal']);
 const DETAIL_DIST = 160;
 
 // key -> metres one copy of the photo covers (from Poly Haven's dimensions), and
@@ -37,8 +37,17 @@ const SURFACES = {
   housestone: { size: 1.52 },
   rooftiles: { size: 2.0 },           // 4 m photo; halved so tiles are not twice life-size
   cobble: { size: 1.0 },
+  // Market awnings. The weave is only 0.27 m in the photo; at 0.5 m it still
+  // reads as cloth from across the square.
+  linen: { size: 0.5 },
+  caban: { size: 0.5 },
+  hessian: { size: 0.5 },
   // Old window glass: dark, a little green, reflecting the sky.
   glass: { color: 0x1d2522, roughness: 0.08, metalness: 0.0, envMapIntensity: 1.6 },
+  // Machined cyborg parts: blades, barrels, limbs.
+  gunmetal: { color: 0x34383c, roughness: 0.32, metalness: 0.9 },
+  // The cyan glow of cyborg power cells and screens.
+  glow: { color: 0x0b1418, roughness: 0.3, metalness: 0, emissive: 0x3fd8ff, emissiveIntensity: 3.5 },
 };
 
 const loader = new THREE.TextureLoader();
@@ -96,6 +105,7 @@ export function cityMaterial(key, renderer) {
   if (s.color !== undefined) {
     m = new THREE.MeshStandardMaterial({
       color: s.color, roughness: s.roughness, metalness: s.metalness, envMapIntensity: s.envMapIntensity ?? 1,
+      emissive: s.emissive ?? 0x000000, emissiveIntensity: s.emissiveIntensity ?? 1,
     });
   } else {
     const r = 1 / s.size;
@@ -129,6 +139,16 @@ function metricBox(w, h, d) {
       uv.setXY(i, uv.getX(i) * spans[f][0], uv.getY(i) * spans[f][1]);
     }
   }
+  return g;
+}
+
+// A cylinder standing on its axis, UVs in metres: u round the circumference, v up
+// the side. (The caps keep a stretched 0..1 mapping; they are small.)
+function metricCylinder(rTop, rBottom, h, sides) {
+  const g = new THREE.CylinderGeometry(rTop, rBottom, h, sides);
+  const uv = g.attributes.uv;
+  const around = Math.PI * (rTop + rBottom);
+  for (let i = 0; i < uv.count; i++) uv.setXY(i, uv.getX(i) * around, uv.getY(i) * h);
   return g;
 }
 
@@ -181,11 +201,11 @@ export class CityBuilder {
 
   // `long`: the piece is too big to belong to one chunk (a 700 m wall run), so
   // it goes in a chunk that is never culled.
-  _add(key, geometry, x, y, z, yaw, roll = 0, long = false) {
+  _add(key, geometry, x, y, z, yaw, roll = 0, long = false, pitch = 0) {
     const chunk = long ? 'always' : `${Math.floor(x / CHUNK)},${Math.floor(z / CHUNK)}`;
     const id = `${chunk}|${key}`;
     if (!this.parts.has(id)) this.parts.set(id, { chunk, key, geometries: [] });
-    this._q.setFromEuler(this._e.set(0, yaw, roll, 'YXZ'));
+    this._q.setFromEuler(this._e.set(pitch, yaw, roll, 'YXZ'));
     this._m.compose(this._p.set(x, y, z), this._q, this._s);
     geometry.applyMatrix4(this._m);
     // Shift UVs by world position so neighbouring boxes do not repeat in step.
@@ -195,16 +215,26 @@ export class CityBuilder {
     this.parts.get(id).geometries.push(geometry.index ? geometry.toNonIndexed() : geometry);
   }
 
-  // A box standing on y0 (its bottom), centred on (x, z), turned by yaw (and
-  // tilted by `roll` about its own depth axis — a diagonal brace).
+  // A box standing on y0 (its bottom), centred on (x, z), turned by yaw, tilted
+  // by `roll` about its own depth axis (a diagonal brace) or by `pitch` about
+  // its width axis (an awning sloping forward).
   // collide: also record an AABB (only for yaw 0 / 90°, which is all walls need).
-  box(key, x, y0, z, w, h, d, { yaw = 0, roll = 0, collide = false } = {}) {
-    this._add(key, metricBox(w, h, d), x, y0 + h / 2, z, yaw, roll, Math.max(w, d) > CHUNK / 2);
+  box(key, x, y0, z, w, h, d, { yaw = 0, roll = 0, pitch = 0, collide = false } = {}) {
+    this._add(key, metricBox(w, h, d), x, y0 + h / 2, z, yaw, roll, Math.max(w, d) > CHUNK / 2, pitch);
     if (collide) {
       const swap = Math.abs(Math.sin(yaw)) > 0.5;
       const hw = (swap ? d : w) / 2, hd = (swap ? w : d) / 2;
       this.collider(x - hw, x + hw, z - hd, z + hd, y0 + h);
     }
+  }
+
+  // A cylinder standing on y0, radius r (or rTop/rBottom for a taper). With
+  // `roll` = π/2 it lies on its side along the local X axis (a barrel on its flank,
+  // a pipe) — y0 is then the bottom of its *centre*, so pass the height of the axis.
+  cylinder(key, x, y0, z, r, h, { rTop = r, rBottom = r, sides = 14, yaw = 0, roll = 0, pitch = 0, collide = false } = {}) {
+    const lying = roll !== 0 || pitch !== 0;
+    this._add(key, metricCylinder(rTop, rBottom, h, sides), x, lying ? y0 : y0 + h / 2, z, yaw, roll, false, pitch);
+    if (collide) this.collider(x - r, x + r, z - r, z + r, y0 + (lying ? r : h));
   }
 
   // A gable roof on top of walls w × d whose tops are at y0; ridge along the

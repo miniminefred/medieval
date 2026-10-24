@@ -209,7 +209,6 @@ export function buildWorld(scene, library = null, renderer) {
     }
     addProp('banner', -4.6, 0.6);
     addProp('banner', 4.6, 0.6);
-    addProp('chest', 5.4, 3.2, -0.6);
   } else {
     // Fallback so the courtyard is never bare if the models fail to load.
     for (const [x, z, w, h, d] of [

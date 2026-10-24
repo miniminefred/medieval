@@ -6,6 +6,7 @@ import { createGrass } from './grass.js';
 import { createPortal } from './portal.js';
 import { createClanStands } from './clan-stands.js';
 import { currentClan, onClanChosen } from './clans.js';
+import { createChest } from './chest.js';
 
 // The intro realm: the castle, its village and the grass around them — where the
 // game starts and where you choose your clan, at the four banners across the
@@ -75,7 +76,11 @@ export function createCastleRealm(library, renderer) {
     { x: 6.5, z: 15, yaw: 0 }, { x: 12, z: 15, yaw: 0 },
   ], renderer);
 
-  const colliders = world.colliders.concat(village.colliders, portal.colliders, stands.colliders);
+  // A starter chest by the keep: a little bread and a few coins for the road.
+  const chests = [createChest(group, renderer, { x: 9.5, z: 7.5, yaw: -0.4, gold: 10, items: { bread: 2 } })];
+
+  const colliders = world.colliders.concat(village.colliders, portal.colliders, stands.colliders,
+    chests.map((c) => c.collider));
 
   // Blades follow the player and skip anywhere the village says is built on —
   // roads, the plaza, footprints, the courtyard and the pond. Seeded at the
@@ -95,6 +100,7 @@ export function createCastleRealm(library, renderer) {
     grass,
     portals: [portal],
     stands,
+    interactables: chests,
     // Out on the grass facing the gatehouse; back from a trip, in front of the portal.
     spawn: { x: 0, z: 36, yaw: 0 },
     arrival: { x: 10, z: -9, yaw: Math.PI },
@@ -127,6 +133,7 @@ export function createCastleRealm(library, renderer) {
       stands.update(dt, camera, player.isLocked);
       grass.update(dt, player.object.position);
       village.update(dt);
+      for (const c of chests) c.update(dt);
       portal.update(dt);
     },
   };

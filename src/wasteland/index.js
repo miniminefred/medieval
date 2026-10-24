@@ -7,6 +7,9 @@ import { createSky } from '../sky.js';
 import { createPortal } from '../portal.js';
 import { buildCity } from './city/index.js';
 import { buildRoads } from './road.js';
+import { buildCamps } from './camps.js';
+import { buildFarmville } from './farmville.js';
+import { createChest } from '../chest.js';
 import { CLANS, currentClan } from '../clans.js';
 
 // World 1 — the Wasteland. See docs/DESIGN.md.
@@ -101,7 +104,20 @@ export function createWastelandRealm(renderer) {
   // ----------------------------------------------------------------- city
   const city = buildCity(renderer);
   group.add(city.group);
-  const colliders = portal.colliders.concat(city.colliders);
+  // ------------------------------------------------- Farmville and the camps
+  const farmville = buildFarmville(group, renderer, terrain.heightAt);
+  const camps = buildCamps(group, renderer, terrain.heightAt);
+
+  // Chests half-buried out in the open desert, for whoever goes looking.
+  const desertChests = [
+    [-180, -150, 18, { coin: 1 }], [520, 80, 9, { scrap: 2, wire: 1 }], [-720, 520, 14, { gears: 2 }],
+    [120, -520, 25, { gem: 1 }], [-560, -620, 11, { cell: 1 }], [760, -120, 16, { coin: 1, scrap: 1 }],
+  ].map(([x, z, gold, items]) => createChest(group, renderer, {
+    x, z, y: terrain.heightAt(x, z), yaw: x * 0.01, gold, items, half: true,
+  }));
+
+  const colliders = portal.colliders.concat(city.colliders, farmville.colliders, camps.colliders,
+    desertChests.map((c) => c.collider));
 
   const fog = new THREE.FogExp2(MOODS.desert.horizon, MOODS.desert.fog);
   const mood = MOOD_VECS.desert.slice();
@@ -152,6 +168,7 @@ export function createWastelandRealm(renderer) {
     group,
     terrain,
     portals: [portal],
+    interactables: camps.chests.concat(desertChests),
     spawn: { x: SPAWN.x, z: SPAWN.z, yaw: Math.PI },   // facing south, away from the portal
     // Each clan's prince arrives at their clan's home (clans.js); without a clan
     // (the F2 dev hop), at the map's centre.
@@ -196,6 +213,9 @@ export function createWastelandRealm(renderer) {
       // Keep the shadow map centred on the player; the sun is effectively infinite.
       sun.target.position.copy(p);
       sun.position.copy(p).addScaledVector(SUN_DIR, 250);
+
+      camps.update(dt, p);
+      for (const c of desertChests) c.update(dt);
 
       // FogExp2 has swallowed everything by ~2.2 / density.
       city.update(camera, 2.2 / fog.density);

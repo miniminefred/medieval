@@ -6,6 +6,7 @@ import { createSandstorm } from './sandstorm.js';
 import { createSky } from '../sky.js';
 import { createPortal } from '../portal.js';
 import { buildCity } from './city/index.js';
+import { buildRoads } from './road.js';
 import { CLANS, currentClan } from '../clans.js';
 
 // World 1 — the Wasteland. See docs/DESIGN.md.
@@ -93,6 +94,9 @@ export function createWastelandRealm(renderer) {
     yaw: 0, color: 0x6fb6ff, target: 'castle',
   });
   group.add(portal.object);
+
+  // ----------------------------------------------------------------- road
+  buildRoads(group, renderer, terrain.heightAt);
 
   // ----------------------------------------------------------------- city
   const city = buildCity(renderer);

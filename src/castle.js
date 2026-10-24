@@ -59,7 +59,7 @@ export function createCastleRealm(library, renderer) {
   const fog = new THREE.FogExp2(HAZE, 0.0055);
 
   const world = buildWorld(group, library, renderer);
-  const village = buildVillage(group, library);
+  const village = buildVillage(group, library, renderer);
 
   // Out in the courtyard's north-east corner, beside the keep, facing the gate.
   const portal = createPortal({

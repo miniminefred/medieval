@@ -45,6 +45,9 @@ const SURFACES = {
   meadow: { size: 2.0 },              // leafy grass round the castle
   castlestone: { size: 2.0 },         // the castle's old, weathered walls
   mossystone: { size: 2.0 },          // moss at the foot of them
+  dirtroad: { size: 3.0 },            // the castle village's trodden roads
+  soil: { size: 2.0 },                // its ploughed field
+  mud: { size: 1.3 },                 // the pond's shore
   // Old window glass: dark, a little green, reflecting the sky.
   glass: { color: 0x1d2522, roughness: 0.08, metalness: 0.0, envMapIntensity: 1.6 },
   // Machined cyborg parts: blades, barrels, limbs.

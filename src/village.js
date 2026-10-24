@@ -1,4 +1,6 @@
 import * as THREE from 'three';
+import { CityBuilder, cityMaterial } from './builder.js';
+import { buildHouse } from './wasteland/city/houses.js';
 
 // The settlement that grew up outside the castle gate: a dirt road running south
 // from the gatehouse, a market plaza, a street of houses and workshops, a farm,
@@ -27,11 +29,9 @@ const FIELD = { minX: -56, maxX: -38, minZ: 72, maxZ: 90 };
 // is a plain atan2. Flip this one constant if a future pack faces the other way.
 const MODEL_FRONT = 0;
 
+// Ground surfaces (roads, plaza, field, shore) are photo-scanned materials from
+// the building kit, by key; only the water is its own.
 const MAT = {
-  dirt: new THREE.MeshStandardMaterial({ color: 0x6d5b42, roughness: 1 }),
-  plaza: new THREE.MeshStandardMaterial({ color: 0x7a6b53, roughness: 1 }),
-  soil: new THREE.MeshStandardMaterial({ color: 0x4e3d2b, roughness: 1 }),
-  mud: new THREE.MeshStandardMaterial({ color: 0x6a5f45, roughness: 1 }),
   water: new THREE.MeshStandardMaterial({
     color: 0x2c5c6b, roughness: 0.12, metalness: 0.4,
     transparent: true, opacity: 0.86,
@@ -115,13 +115,16 @@ function faceToward(x, z, tx, tz) { return Math.atan2(tx - x, tz - z) + MODEL_FR
 
 // ============================================================================ build
 
-export function buildVillage(scene, library) {
+export function buildVillage(scene, library, renderer) {
   const rng = mulberry32(0xb1a2c3d4);
   const colliders = [];
   const meshes = [];
   const blockers = new ZoneGrid();   // build-time "don't put anything here"
   const occupied = new ZoneGrid();   // runtime "no grass here"
   const lib = library;
+  // Realistic houses (the same builder and house design as the cyborg city).
+  const houseKit = new CityBuilder(renderer);
+  const houseRng = mulberry32(5150);
 
   const rand = (a, b) => a + rng() * (b - a);
   const pick = (arr) => arr[(rng() * arr.length) | 0];
@@ -151,6 +154,27 @@ export function buildVillage(scene, library) {
     return object;
   }
 
+  // The old low-poly houses, huts and the inn are now built as realistic town
+  // houses facing their street (local +z toward it, `yaw` axis-aligned). Other
+  // keys — blacksmith, sawmill, stable… — are not houses and stay models (false).
+  const HOUSES = {
+    house_a: [9, 8.5, 2], house_b: [8.5, 8, 2], house_c: [10, 8.5, 3], house_d: [8, 8, 2],
+    house_e: [9.5, 9, 3], hut: [6.5, 6, 1], storage_hut: [6, 6.5, 1], inn: [14, 10, 3],
+  };
+  function house(key, x, z, yaw) {
+    const spec = HOUSES[key];
+    if (!spec) return false;
+    const [w, d] = spec;
+    const floors = spec[2] + (spec[2] > 1 && houseRng() < 0.3 ? 1 : 0);
+    buildHouse(houseKit, x, z, w, d, yaw, floors, { y: 0, tech: 0, rng: houseRng });
+    const swap = Math.abs(Math.sin(yaw)) > 0.5;
+    const hw = (swap ? d : w) / 2 + 1.2, hd = (swap ? w : d) / 2 + 1.2;
+    const r = rect(x - hw, x + hw, z - hd, z + hd);
+    blockers.add(r);
+    occupied.add(r);
+    return true;
+  }
+
   // Free-space test for scattered props.
   function free(x, z, half) {
     return !blockers.overlaps(x - half, x + half, z - half, z + half);
@@ -172,8 +196,14 @@ export function buildVillage(scene, library) {
 
   // A flat coloured slab just above the ground. The courtyard floor is at y = 0.01,
   // so ours live at 0.02+ to stay out of its z-fighting range.
-  function slab(cx, cz, w, d, material, y = 0.02) {
-    const mesh = new THREE.Mesh(new THREE.PlaneGeometry(w, d), material);
+  // A flat patch of ground surface `key` (a building-kit material), UVs in
+  // metres so the photo is life-size. Overlapping patches sit at slightly
+  // different heights so they never z-fight.
+  function slab(cx, cz, w, d, key, y = 0.02) {
+    const geometry = new THREE.PlaneGeometry(w, d);
+    const uv = geometry.attributes.uv;
+    for (let i = 0; i < uv.count; i++) uv.setXY(i, uv.getX(i) * w + cx * 0.37, uv.getY(i) * d + cz * 0.29);
+    const mesh = new THREE.Mesh(geometry, cityMaterial(key, renderer));
     mesh.rotation.x = -Math.PI / 2;
     mesh.position.set(cx, y, cz);
     mesh.receiveShadow = true;
@@ -189,17 +219,17 @@ export function buildVillage(scene, library) {
   block(-ROAD_HALF - 1.2, ROAD_HALF + 1.2, 20, ROAD_END);           // keep the road clear
 
   // ------------------------------------------------------------------------- roads
-  slab(0, (22 + ROAD_END) / 2, ROAD_HALF * 2, ROAD_END - 22, MAT.dirt);
+  slab(0, (22 + ROAD_END) / 2, ROAD_HALF * 2, ROAD_END - 22, 'dirtroad', 0.02);
   occupied.add(rect(-ROAD_HALF, ROAD_HALF, 22, ROAD_END));
 
-  slab(0, CROSS_Z, CROSS_X * 2, CROSS_HALF * 2, MAT.dirt);
+  slab(0, CROSS_Z, CROSS_X * 2, CROSS_HALF * 2, 'dirtroad', 0.026);
   occupy(rect(-CROSS_X, CROSS_X, CROSS_Z - CROSS_HALF, CROSS_Z + CROSS_HALF));
 
-  slab(-17, LANE_Z, 24, LANE_HALF * 2, MAT.dirt);                   // lane to the pond
+  slab(-17, LANE_Z, 24, LANE_HALF * 2, 'dirtroad', 0.023);                   // lane to the pond
   occupy(rect(-29, -5, LANE_Z - LANE_HALF, LANE_Z + LANE_HALF));
 
   slab((PLAZA.minX + PLAZA.maxX) / 2, (PLAZA.minZ + PLAZA.maxZ) / 2,
-       PLAZA.maxX - PLAZA.minX, PLAZA.maxZ - PLAZA.minZ, MAT.plaza);
+       PLAZA.maxX - PLAZA.minX, PLAZA.maxZ - PLAZA.minZ, 'cobble', 0.032);
   occupied.add(PLAZA);
 
   // ------------------------------------------------------------------------ market
@@ -252,7 +282,9 @@ export function buildVillage(scene, library) {
     ['hut', 11.5, 105], ['storage_hut', 12.5, 113],
   ];
   for (const [key, x, z] of street) {
-    put(key, x, z, { yaw: faceToward(x, z, 0, z) + rand(-0.05, 0.05), pad: 1.4, noGrass: true });
+    if (!house(key, x, z, x < 0 ? Math.PI / 2 : -Math.PI / 2)) {
+      put(key, x, z, { yaw: faceToward(x, z, 0, z) + rand(-0.05, 0.05), pad: 1.4, noGrass: true });
+    }
   }
 
   // Buildings turned toward the cross street rather than the main road.
@@ -261,7 +293,9 @@ export function buildVillage(scene, library) {
     ['house_a', 27, 55, 0], ['hut', 30, 70, Math.PI],
   ];
   for (const [key, x, z, yaw] of crossStreet) {
-    put(key, x, z, { yaw: yaw + rand(-0.06, 0.06), pad: 1.4, noGrass: true });
+    if (!house(key, x, z, z < CROSS_Z ? 0 : Math.PI)) {
+      put(key, x, z, { yaw: yaw + rand(-0.06, 0.06), pad: 1.4, noGrass: true });
+    }
   }
 
   put('watchtower', -24, 122, { yaw: faceToward(-24, 122, 0, 118), pad: 1.5, noGrass: true });
@@ -335,7 +369,7 @@ export function buildVillage(scene, library) {
   put('barn_timber', -42, 100, { yaw: faceToward(-42, 100, -20, 100), pad: 2, noGrass: true });
 
   slab((FIELD.minX + FIELD.maxX) / 2, (FIELD.minZ + FIELD.maxZ) / 2,
-       FIELD.maxX - FIELD.minX, FIELD.maxZ - FIELD.minZ, MAT.soil);
+       FIELD.maxX - FIELD.minX, FIELD.maxZ - FIELD.minZ, 'soil', 0.02);
   occupy(FIELD);
   fenceRect(FIELD, 'e');
 
@@ -386,7 +420,10 @@ export function buildVillage(scene, library) {
            cx: POND.x, cz: POND.z, rx: POND.rx, rz: POND.rz });
   block(POND.x - POND.rx - 2, POND.x + POND.rx + 2, POND.z - POND.rz - 2, POND.z + POND.rz + 2);
 
-  const shore = new THREE.Mesh(new THREE.CircleGeometry(1, 40), MAT.mud);
+  const shoreGeo = new THREE.CircleGeometry(1, 40);
+  const suv = shoreGeo.attributes.uv;   // a unit disc scaled up below: UVs to metres
+  for (let i = 0; i < suv.count; i++) suv.setXY(i, suv.getX(i) * 2 * (POND.rx + 2.2), suv.getY(i) * 2 * (POND.rz + 2.2));
+  const shore = new THREE.Mesh(shoreGeo, cityMaterial('mud', renderer));
   shore.rotation.x = -Math.PI / 2;
   shore.scale.set(POND.rx + 2.2, POND.rz + 2.2, 1);
   shore.position.set(POND.x, 0.03, POND.z);
@@ -487,5 +524,7 @@ export function buildVillage(scene, library) {
 
   function isOccupied(x, z) { return occupied.contains(x, z); }
 
+  houseKit.finish(scene);
+  colliders.push(...houseKit.colliders);
   return { colliders, meshes, isOccupied, update };
 }

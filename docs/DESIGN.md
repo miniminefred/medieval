@@ -41,8 +41,14 @@ weapons, and story/quests** (some quests and NPC reactions depend on it).
 | **Dragons** | Dragon-people (dragonkin), not riders | Scales, fire |
 | **Apex** | Dinosaur-people | |
 
-Stats/abilities per clan are not decided yet. Ideas so far: brutes tough, dragons
-fire breath/glide, apex fast/charge, cyborgs armour/dash.
+**Abilities: every clan gets them a different way** (decided 2026-10-24):
+
+| Clan | How they get abilities |
+|------|------------------------|
+| **Brutes** | **Train** their abilities (other clans have to buy them), and are **stronger** |
+| **Cyborgs** | **Many electronic abilities**, bought or found |
+| **Dragons** | Born with **fire breath** and **turning into a dragon** |
+| **Apex** | **Find** their abilities out in the world |
 
 ## Combat
 

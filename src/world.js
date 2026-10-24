@@ -106,6 +106,7 @@ export function buildWorld(scene, library = null, renderer) {
     for (const hy of [0.8, 3.2]) b.box('rust', side * (GATE_W / 2 - 0.42), hy, YARD - 1.2, 0.05, 0.16, 2.8);
   }
   b.box('castlestone', 0, 4.8, YARD, GATE_W + 0.2, 5.2, 5);              // over the opening
+  b.box('cobble', 0, -0.27, YARD + 0.5, GATE_W + 0.4, 0.3, 6);           // the passage floor
   b.box('housestone', 0, 4.4, YARD + 2.45, GATE_W + 0.6, 0.5, 0.3);      // lintel
   for (const mx of [-2, 0, 2]) b.box('castlestone', mx, 10, YARD + 2.3, 1.1, 1.5, 0.6);
 

@@ -19,4 +19,7 @@ All CC0 (public domain) from [Poly Haven](https://polyhaven.com). Downloaded by
 | `textures/housestone` | Rustic Stone Wall | Dimitrios Savva | https://polyhaven.com/a/rustic_stone_wall |
 | `textures/rooftiles` | Clay Roof Tiles | Amal Kumar | https://polyhaven.com/a/clay_roof_tiles |
 | `textures/cobble` | Cobblestone Floor 01 | Rob Tuytel | https://polyhaven.com/a/cobblestone_floor_01 |
+| `textures/linen` | Rough Linen | colormass, Rico Cilliers | https://polyhaven.com/a/rough_linen |
+| `textures/caban` | Caban | colormass, Rico Cilliers | https://polyhaven.com/a/caban |
+| `textures/hessian` | Hessian 230 | colormass, Rico Cilliers | https://polyhaven.com/a/hessian_230 |
 | `hdri/desert_noon.hdr` | Qwantani Noon (Pure Sky) | Greg Zaal, Jarod Guest | https://polyhaven.com/a/qwantani_noon_puresky |

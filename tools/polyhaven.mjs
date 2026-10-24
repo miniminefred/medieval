@@ -39,6 +39,9 @@ const TEXTURES = [
   ['housestone', 'rustic_stone_wall', '1k', BUILD],    // house plinths, ground floors
   ['rooftiles', 'clay_roof_tiles', '1k', BUILD],       // roofs
   ['cobble', 'cobblestone_floor_01', '1k', BUILD],     // streets and squares
+  ['linen', 'rough_linen', '1k', BUILD],               // blue market awnings
+  ['caban', 'caban', '1k', BUILD],                     // orange market awnings
+  ['hessian', 'hessian_230', '1k', BUILD],             // sacking on the scrap stalls
 ];
 
 const HDRIS = [

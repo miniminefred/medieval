@@ -20,10 +20,11 @@ const LANE = 7;
 
 export const MAIN = { z: WALL.gateZ, width: 12 };
 
-// The market square, on the main street halfway into the city. This is where it
+// The market square, on the main street a short walk in from the gate (about
+// 100 m, docs/DESIGN.md). This is where it
 // is *asked* for; every block it touches is cleared, and MARKET is then widened to
 // exactly the cleared ground (below), so the square runs right up to the houses.
-const WANT = { minX: 590, maxX: 690, minZ: MAIN.z - 38, maxZ: MAIN.z + 38 };
+const WANT = { minX: 380, maxX: 480, minZ: MAIN.z - 38, maxZ: MAIN.z + 38 };
 export const MARKET = { ...WANT };
 
 // Cross streets: [centre, width]. Spacings vary so no two blocks are alike.

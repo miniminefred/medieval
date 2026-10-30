@@ -9,6 +9,7 @@ import { buildCity } from './city/index.js';
 import { buildRoads } from './road.js';
 import { buildCamps } from './camps.js';
 import { buildFarmville } from './farmville.js';
+import { buildCityFolk, buildFarmFolk } from './townsfolk.js';
 import { createChest } from '../chest.js';
 import { CLANS, currentClan } from '../clans.js';
 
@@ -107,6 +108,8 @@ export function createWastelandRealm(renderer) {
   // ------------------------------------------------- Farmville and the camps
   const farmville = buildFarmville(group, renderer, terrain.heightAt);
   const camps = buildCamps(group, renderer, terrain.heightAt);
+  const cityFolk = buildCityFolk(group, renderer);
+  const farmFolk = buildFarmFolk(group, renderer, terrain.heightAt);
 
   // Chests half-buried out in the open desert, for whoever goes looking.
   const desertChests = [
@@ -216,6 +219,8 @@ export function createWastelandRealm(renderer) {
 
       camps.update(dt, p);
       for (const t of city.traders) t.update(dt);
+      cityFolk.update(dt, p);
+      farmFolk.update(dt, p);
       for (const c of desertChests) c.update(dt);
 
       // FogExp2 has swallowed everything by ~2.2 / density.

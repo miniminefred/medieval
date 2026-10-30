@@ -154,6 +154,15 @@ exception to "no guns": it belongs to the cyborg clan, not a general shooter loo
 - **Tab** opens one menu with the **quest journal and the map**. A **minimap**
   sits in a corner of the screen.
 
+### Decided 2026-10-30
+
+- **The orb appears only when needed:** when it speaks or shows the way, then it
+  fades out. Its light beam over the goal stays.
+- **People** in the cyborg city and Farmville: walking the streets, shopping at the
+  market, standing and chatting, guards (at the gate and on patrol), and people
+  doing jobs.
+- **The market is a short walk in** from the cyborg city's gate (about 100 m).
+
 ## The worlds
 
 0. **Intro: the castle.** You pick your clan here, at four clan banners in the

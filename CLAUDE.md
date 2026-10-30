@@ -135,6 +135,7 @@ src/
   inventory.js    Gold (25 to start) and items; sellAll() for traders
   interact.js     "Press E" for chests, traders…; realms list `interactables`
   chest.js        Lootable chest with an opening lid (gold + items)
+  people.js       Instanced crowd of hooded figures (cloth colour, cyborg eye, helmet, tool)
   portal.js       Standing stone portal with a light sheet; isInside(feet) triggers travel
   sky.js          Sky dome whose horizon colour is driven to match the fog
   noise.js        Seeded Perlin noise, fbm, ridged — the source of all procedural land
@@ -148,6 +149,8 @@ src/
     camps.js        Six bandit camps (one big, walled) with fires, tents, loot
     bandits.js      Hooded figures: sit, guard, patrol (no fighting yet); traders too
     farmville.js    The farming village at the road's fork
+    townsfolk.js    People of the cyborg city and Farmville: walkers on the street graph,
+                    shoppers in market aisles, chatting groups, guards, sweepers, smiths, farmers
     city/           The cyborg city (east, above the snow line)
       wall.js         Stone + steel curtain wall, towers, west gatehouse
       streets.js      Street plan (STREETS, BLOCKS, MARKET) and cobbles
@@ -285,6 +288,16 @@ fired from main.js's `onQuestsChanged`). A quest's `goal` is `{ realm, x, z, r }
 Exploration is a 10 m grid (`explored.js`) revealed within 70 m of you in World 1;
 both maps draw its fog image over everything except the quest goal. Neither
 exploration nor gold is saved between sessions yet.
+
+### Townsfolk (`people.js`, `wasteland/townsfolk.js`)
+All the people of a place are one crowd: an InstancedMesh per part (cloak, hood
+shadow, eye glow, helmet, each tool), so hundreds of people cost a handful of draw
+calls. A person is a plain `{ pos, yaw, bob, lean, toolSwing }` that a `think(dt, t)`
+closure moves; parts a person lacks get a zero-scale matrix. City walkers move node
+to node on a grid of street centrelines (`streetGraph`), skipping stretches that
+would cross market stalls; shoppers stay in one aisle (counters grouped by row).
+A crowd only thinks and draws while you are within range of its town. The orb only
+shows while it speaks or points somewhere new (`shownFor` / `presence` in orb.js).
 
 ### Realms (`main.js`, `castle.js`, `wasteland/`)
 Each world is a *realm*: built once on first visit into its own `THREE.Group`, then

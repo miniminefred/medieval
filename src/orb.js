@@ -2,8 +2,10 @@ import * as THREE from 'three';
 import { hud } from './hud.js';
 
 // The magical orb that guides every prince (docs/DESIGN.md): a floating crystal
-// sphere with swirling light inside. It follows you, off your shoulder, lagging
-// a little like something with weight; it talks in subtitles without stopping the
+// sphere with swirling light inside. It shows itself only when needed — while it
+// speaks, and for a moment when it points somewhere new — then fades away; its
+// beam over the goal stays. When present it follows you, off your shoulder,
+// lagging a little like something with weight; it talks in subtitles without stopping the
 // game, points the way to whatever you should do next, and opens the castle's
 // portal once you have chosen a clan.
 
@@ -79,6 +81,8 @@ export function createOrb() {
   let t = 0;
   let pointAt = null;      // world position to point toward (or null)
   let parent = null;
+  let shownFor = 0;        // seconds left before it fades away
+  let presence = 0;        // 0 gone .. 1 fully here (eased)
 
   return {
     object: group,
@@ -91,9 +95,11 @@ export function createOrb() {
     },
     say(text, seconds) {
       hud.say(text, seconds);
+      shownFor = Math.max(shownFor, (seconds ?? 4) + 1.5);
     },
     // Point the way: the beam stands over `pos` (a Vector3, or null for none).
     point(pos, groundY = 0) {
+      if (pos) shownFor = Math.max(shownFor, 4);   // turns up to show the way
       pointAt = pos ? pos.clone() : null;
       beam.visible = !!pos;
       if (pos) beam.position.set(pos.x, groundY + 60, pos.z);
@@ -115,8 +121,14 @@ export function createOrb() {
       if (target.lengthSq() === 0) target.copy(_goal);
       target.lerp(_goal, k);
       group.position.copy(target);
+
+      // Come and go: grow in from nothing, shrink away when not needed.
+      shownFor = Math.max(0, shownFor - dt);
+      presence += ((shownFor > 0 ? 1 : 0) - presence) * (1 - Math.exp(-dt * 3));
+      group.visible = presence > 0.01;
+      group.scale.setScalar(presence);
       core.rotation.y += dt * 0.6;
-      light.intensity = 1.2 + Math.sin(t * 2.3) * 0.25;
+      light.intensity = (1.2 + Math.sin(t * 2.3) * 0.25) * presence;
       beam.material.opacity = 0.14 + Math.sin(t * 1.8) * 0.04;
     },
   };

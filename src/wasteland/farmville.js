@@ -56,5 +56,5 @@ export function buildFarmville(group, renderer, heightAt) {
   }
 
   b.finish(group);
-  return { colliders: b.colliders };
+  return { colliders: b.colliders, doors: b.doors };
 }

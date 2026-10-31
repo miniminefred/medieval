@@ -526,5 +526,5 @@ export function buildVillage(scene, library, renderer) {
 
   houseKit.finish(scene);
   colliders.push(...houseKit.colliders);
-  return { colliders, meshes, isOccupied, update };
+  return { colliders, meshes, isOccupied, update, doors: houseKit.doors };
 }

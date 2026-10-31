@@ -91,6 +91,12 @@ export function buildHouse(b, x, z, w, d, yaw, floors, { y = CITY.y, tech: techS
       if (side === 1 && i === doorBay) {
         put('timber', bx, 0, gz, 1.15, 2.25, 0.12);
         put('housestone', bx, 2.25, gz, 1.6, 0.32, 0.2);              // stone lintel
+        // Remember the door, so it can be opened and the house walked into
+        // (interiors.js builds the inside from these numbers).
+        b.doors.push({
+          x: x + bx * c + (gz + 0.2) * s, y, z: z - bx * s + (gz + 0.2) * c, yaw,
+          w, d, floors, doorX: bx, tech, seed: Math.floor(rand() * 1e9),
+        });
         if (tech && rand() < 0.6) {                                   // a machine box by the door
           put('steel', bx + 1.2, 0, gz + 0.25, 0.6, 0.9, 0.45);
           put('rust', bx + 1.2, 0.9, gz + 0.1, 0.12, top - 0.9, 0.12);  // its pipe up the wall

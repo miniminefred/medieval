@@ -44,6 +44,7 @@ export function buildCity(renderer) {
   return {
     group,
     colliders: b.colliders,
+    doors: b.doors,
     houses,
     traders,
     // Skip whole chunks the haze has already hidden.

@@ -37,6 +37,8 @@ const ROUTES = [
   [[640, -960], [655, -700], [640, -420], [610, -270], [420, -200], [180, -110], [22, -30], [16, 60], [6, 150], [0, 175]],
   // East branch: fork → cyborg gate → south along the wall into the snow.
   [[0, 175], [90, 215], [190, 268], [268, 290], [240, 420], [250, 560], [300, 720], [330, 860]],
+  // A track off the west branch, south to the ruins of the apex city.
+  [[-120, 215], [-112, 280], [-104, 340], [-100, 362]],
   // West branch: fork → brute city → south into the snow.
   [[0, 175], [-120, 215], [-300, 255], [-480, 280], [-650, 290], [-660, 450], [-640, 620], [-600, 800]],
 ];
@@ -47,6 +49,7 @@ const PAVED = [
   { ...PLACES.bruteCity, r: 170 },
   { ...PLACES.dragonCity, r: 150 },
   { ...PLACES.farmville, r: 60 },
+  { ...PLACES.apexCity, r: 40 },
 ];
 export const ROAD_WIDTH = 6;
 
@@ -99,5 +102,6 @@ export function roadDistance(x, z) {
 // Level ground: Farmville and the bandit camps sit on flat patches.
 export const FLATS = [
   { x: PLACES.farmville.x, z: PLACES.farmville.z, r: 70 },
+  { x: PLACES.apexCity.x, z: PLACES.apexCity.z, r: 90 },
   ...CAMPS.map((c) => ({ x: c.x, z: c.z, r: c.big ? 48 : 30 })),
 ];

@@ -48,6 +48,21 @@ export const hud = {
     sayTimer = setTimeout(() => el.classList.remove('visible'), t * 1000);
   },
 
+  // Health, 0..1.
+  health(frac) {
+    const el = $('health');
+    if (el) el.firstElementChild.style.width = `${(Math.max(0, frac) * 100).toFixed(1)}%`;
+  },
+
+  // A red flash at the screen's edges, 0..1 strong.
+  hurt(strength = 0.6) {
+    const el = $('hurt');
+    if (!el) return;
+    el.style.transition = 'none';
+    el.style.opacity = String(0.35 + strength * 0.65);
+    requestAnimationFrame(() => { el.style.transition = 'opacity 600ms ease'; el.style.opacity = '0'; });
+  },
+
   // The time bar: the hour as a mark along the bar, sun by day, moon by night.
   time(hour, label, night) {
     const bar = $('timebar');

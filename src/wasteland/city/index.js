@@ -25,10 +25,10 @@ export function buildCity(renderer) {
 
   b.finish(group);
 
-  // Traders behind some of the market's counters. You can sell them what you
+  // A trader behind every one of the market's counters. You can sell them what you
   // carry (docs/DESIGN.md). Hooded, like everyone for now, but in their own cloth.
   const rng = mulberry32(4242);
-  const traders = COUNTERS.filter((_, i) => i % 6 === 2).map((c) => {
+  const traders = COUNTERS.map((c) => {
     const t = createBandit(group, renderer, rng, { x: c.x, z: c.z, yaw: c.yaw, heightAt: () => CITY.y + 0.09, trader: true });
     return {
       update: t.update,

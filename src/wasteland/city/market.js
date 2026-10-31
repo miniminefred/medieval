@@ -1,18 +1,11 @@
 import { CITY } from '../terrain.js';
-import { MARKET, MAIN, STREETS } from './streets.js';
+import { MARKET } from './streets.js';
 import { mulberry32 } from '../../noise.js';
 
-// The market square, where the cyborgs sell their technology (docs/DESIGN.md).
-//
-// The main street and one cross street run through it and stay clear; they split
-// the square into four quarters, each with its own trade:
-//
-//   north-west  weapons             north-east  vehicle modules and gear
-//   south-west  cyborg body parts   south-east  gadgets, tools — and scrap
-//
-// Stalls stand in rows: one with its back to the edge of the square, then pairs
-// back to back, with aisles between them to walk down and gaps every few stalls
-// to cut through. A cyborg pillar marks the crossing in the middle.
+// The round market (docs/DESIGN.md): ten stalls in a ring round the town hall
+// tower, facing it across an aisle, with gaps where the streets come in. The
+// stalls sell the cyborgs' technology — weapons, body parts, gadgets, vehicle
+// modules, and scrap — each one staffed by its trader (city/index.js).
 
 const rand = mulberry32(3301);
 const between = (a, b) => a + rand() * (b - a);
@@ -62,11 +55,11 @@ function stall(b, x, z, yaw, cloth, goods) {
   COUNTERS.push({ x: x + 0.05 * s, z: z + 0.05 * c, yaw, front: { x: x + (D / 2 + 0.6) * s, z: z + (D / 2 + 0.6) * c } });
 }
 
-// AABB of a rectangle w × d offset `lz` forward from (x, z), at yaw 0/90/180/270.
+// AABB of a rectangle w × d offset `lz` forward from (x, z), turned by any yaw.
 function footprint(x, z, yaw, w, d, lz) {
-  const c = Math.round(Math.cos(yaw)), s = Math.round(Math.sin(yaw));
+  const c = Math.cos(yaw), s = Math.sin(yaw);
   const cx = x + lz * s, cz = z + lz * c;
-  const hw = (s ? d : w) / 2, hd = (s ? w : d) / 2;
+  const hw = (Math.abs(c) * w + Math.abs(s) * d) / 2, hd = (Math.abs(s) * w + Math.abs(c) * d) / 2;
   return [cx - hw, cx + hw, cz - hd, cz + hd];
 }
 
@@ -123,89 +116,66 @@ function vehicleParts({ put, cyl, top, cz, back }) {
   }
 }
 
-// --------------------------------------------------------------- the square
+// ----------------------------------------------------------- the town hall
 
-function quarter(b, q, inward, trade) {
-  // Rows from the outer edge toward the main street: in, out|in, out|in...
-  const depth = q.maxZ - q.minZ;
-  const sign = inward;                       // +1: rows face +z (south)
-  const edge = inward > 0 ? q.minZ : q.maxZ;
-  let t = 1.5;
-  let facing = 1;                            // 1 = facing inward
-  const rows = [];
-  while (t + STALL_D <= depth - 3) {
-    rows.push({ t: t + STALL_D / 2, facing });
-    t += STALL_D + (facing === 1 ? AISLE : 0.5);
-    facing = -facing;
+// The old glowing pillar, grown into the town hall: a round stone tower with a
+// steel upper storey ringed in light, a glowing crown, and its door facing west,
+// down the main street toward the gate. (Its inside comes with the houses.)
+function townHall(b, x, z) {
+  const y = CITY.y + 0.09;
+  const R = 5.5;
+  b.disc('housestone', x, y, z, R + 1.1, 0.5);
+  b.cylinder('citywall', x, y + 0.5, z, R, 10, { sides: 32 });
+  b.cylinder('steel', x, y + 10.5, z, R - 0.6, 9, { sides: 32 });
+  for (const ry of [11.5, 14.5, 17.5]) b.cylinder('glow', x, y + ry, z, R - 0.45, 0.18, { sides: 32 });
+  b.cylinder('gunmetal', x, y + 19.5, z, R, 0.6, { sides: 32 });
+  b.cylinder('glow', x, y + 20.1, z, 2.4, 2.2, { sides: 24 });
+  b.cylinder('tin', x, y + 22.3, z, R + 0.3, 5, { sides: 32, rTop: 0.15 });
+  b.cylinder('gunmetal', x, y + 27.2, z, 0.08, 3, { sides: 6 });
+  // The door, west, and tall windows round both storeys.
+  const door = (a, y0, w, h, key) => b.box(key, x + Math.sin(a) * (R + 0.04), y + y0, z + Math.cos(a) * (R + 0.04), w, h, 0.2, { yaw: a });
+  door(-Math.PI / 2, 0.5, 2.6, 4.2, 'housestone');
+  b.box('timber', x - R - 0.16, y + 0.6, z, 0.12, 3.6, 2.0);
+  for (let i = 0; i < 8; i++) {
+    const a = (i / 8) * Math.PI * 2 + Math.PI / 8;
+    door(a, 3.8, 1.0, 2.4, 'housestone');
+    b.box('glass', x + Math.sin(a) * (R + 0.16), y + 3.95, z + Math.cos(a) * (R + 0.16), 0.62, 2.0, 0.06, { yaw: a });
+    b.box('glass', x + Math.sin(a) * (R - 0.45), y + 12.4, z + Math.cos(a) * (R - 0.45), 0.7, 1.8, 0.06, { yaw: a });
   }
-  // A row facing away from everything at the end would be a dead end; drop it.
-  if (rows.length && rows[rows.length - 1].facing === -1) rows.pop();
+  b.collider(x - R, x + R, z - R, z + R, y + 27);
+}
 
-  for (const r of rows) {
-    const z = edge + sign * r.t;
-    const yaw = (sign * r.facing > 0) ? 0 : Math.PI;
-    let x = q.minX + 3;
-    let n = 0;
-    while (x + STALL_W <= q.maxX - 3) {
-      const cloth = trade === scrapAndGadgets && rand() < 0.4 ? 'hessian' : pick(['linen', 'caban']);
-      const goods = trade === scrapAndGadgets ? gadgets : trade;
-      stall(b, x + STALL_W / 2, z, yaw, cloth, goods);
-      x += STALL_W + 0.4;
-      if (++n % 4 === 0) x += 3.5;           // a gap to cut through the row
+// ------------------------------------------------------------- the ring
+
+const WARES = [weapons, bodyParts, gadgets, vehicleParts, gadgets];
+
+export function buildMarket(b) {
+  const { x: mx, z: mz } = MARKET;
+  const RING = 12.5;          // stall centres
+  townHall(b, mx, mz);
+
+  // Ten stalls in four arcs of 3, 2, 3, 2 between the streets coming in from
+  // east, south, west and north, each stall turned to face the hall.
+  let n = 0;
+  [3, 2, 3, 2].forEach((count, arc) => {
+    const mid = (arc * Math.PI) / 2 + Math.PI / 4;     // between two streets
+    const step = 0.4;                                   // radians between stalls
+    for (let k = 0; k < count; k++) {
+      const a = mid + (k - (count - 1) / 2) * step;
+      const x = mx + Math.cos(a) * RING, z = mz + Math.sin(a) * RING;
+      const yaw = Math.atan2(mx - x, mz - z);
+      const cloth = n % 5 === 4 ? 'hessian' : (n % 2 ? 'linen' : 'caban');
+      stall(b, x, z, yaw, cloth, WARES[n % WARES.length]);
+      n++;
     }
-  }
-  // Barrels and crates in the corners of the quarter.
-  for (let i = 0; i < 6; i++) {
-    const cx = rand() < 0.5 ? q.minX + between(0.8, 2.2) : q.maxX - between(0.8, 2.2);
-    const cz = between(q.minZ + 1, q.maxZ - 1);
+  });
+
+  // A few barrels and crates round the edge.
+  for (let i = 0; i < 8; i++) {
+    const a = between(0, Math.PI * 2), r = between(15.5, 17.5);
+    const cx = mx + Math.cos(a) * r, cz = mz + Math.sin(a) * r;
+    if (Math.abs(Math.sin(2 * a)) < 0.25) continue;    // not in the street mouths
     if (rand() < 0.5) b.cylinder('timber', cx, CITY.y + 0.09, cz, 0.38, 0.95, { rTop: 0.33, collide: true });
     else b.box('timber', cx, CITY.y + 0.09, cz, 0.8, 0.8, 0.8, { yaw: between(0, 1.5), collide: true });
   }
-  if (trade === scrapAndGadgets) scrapHeaps(b, q);
-}
-
-// The scrap quarter gets heaps of junk along its outer edge.
-function scrapAndGadgets() {}
-function scrapHeaps(b, q) {
-  for (let h = 0; h < 4; h++) {
-    const hx = between(q.minX + 4, q.maxX - 4), hz = q.maxZ - 1.2;
-    for (let i = 0; i < 14; i++) {
-      const key = pick(['rust', 'rust', 'steel', 'gunmetal']);
-      const w = between(0.3, 1.2), hgt = between(0.1, 0.5), d = between(0.3, 1.0);
-      b.box(key, hx + between(-1.4, 1.4), CITY.y + 0.09 + between(0, 0.5) * (1 - i / 14), hz + between(-0.8, 0.5),
-        w, hgt, d, { yaw: between(0, 3.1), roll: between(-0.3, 0.3) });
-    }
-    b.cylinder('rust', hx + 1.6, CITY.y + 0.09 + 0.45, hz, 0.45, 0.25, { pitch: Math.PI / 2 }); // an old wheel
-    b.collider(hx - 1.6, hx + 1.6, hz - 1, hz + 0.6, CITY.y + 0.7);
-  }
-}
-
-// The pillar at the crossing: a stone plinth, a steel column ringed with light,
-// and a glowing core on top — visible down both streets.
-function pillar(b, x, z) {
-  const y = CITY.y + 0.09;
-  b.box('housestone', x, y, z, 5.5, 0.6, 5.5, { collide: true });
-  b.box('housestone', x, y + 0.6, z, 3.6, 0.9, 3.6);
-  b.cylinder('steel', x, y + 1.5, z, 0.85, 11, { sides: 8, rTop: 0.6 });
-  for (const ry of [3.5, 6.5, 9.5]) b.cylinder('glow', x, y + ry, z, 0.95 - ry * 0.025, 0.14, { sides: 16 });
-  b.cylinder('gunmetal', x, y + 12.5, z, 0.9, 0.5, { sides: 16 });
-  b.cylinder('glow', x, y + 13.0, z, 0.55, 1.2, { sides: 16 });
-  b.cylinder('gunmetal', x, y + 14.2, z, 0.95, 0.3, { sides: 16, rBottom: 0.7 });
-}
-
-export function buildMarket(b) {
-  // The cross street that runs through the square.
-  const cross = STREETS.find((s) => s.dir === 'ns' && s.maxX > MARKET.minX && s.minX < MARKET.maxX);
-  const cx0 = cross ? cross.minX : (MARKET.minX + MARKET.maxX) / 2 - 3;
-  const cx1 = cross ? cross.maxX : cx0 + 6;
-  const mz0 = MAIN.z - MAIN.width / 2, mz1 = MAIN.z + MAIN.width / 2;
-  const M = MARKET;
-
-  // Quarters, kept a couple of metres off the streets through the middle.
-  quarter(b, { minX: M.minX, maxX: cx0 - 2, minZ: M.minZ, maxZ: mz0 - 2 }, 1, weapons);
-  quarter(b, { minX: cx1 + 2, maxX: M.maxX, minZ: M.minZ, maxZ: mz0 - 2 }, 1, vehicleParts);
-  quarter(b, { minX: M.minX, maxX: cx0 - 2, minZ: mz1 + 2, maxZ: M.maxZ }, -1, bodyParts);
-  quarter(b, { minX: cx1 + 2, maxX: M.maxX, minZ: mz1 + 2, maxZ: M.maxZ }, -1, scrapAndGadgets);
-
-  pillar(b, (cx0 + cx1) / 2, MAIN.z);
 }

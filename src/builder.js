@@ -224,6 +224,7 @@ export class CityBuilder {
     this.renderer = renderer;
     this.parts = new Map();     // `${chunk}|${material}` -> { chunk, key, geometries[] }
     this.colliders = [];
+    this.doors = [];            // front doors of houses built with this kit
     this.chunks = [];
     this._m = new THREE.Matrix4();
     this._q = new THREE.Quaternion();
@@ -290,8 +291,10 @@ export class CityBuilder {
     }
   }
 
-  collider(minX, maxX, minZ, maxZ, top) {
-    this.colliders.push({ minX, maxX, minZ, maxZ, top });
+  // A solid box from the ground (or from `bottom`, for things you can pass under)
+  // up to `top`.
+  collider(minX, maxX, minZ, maxZ, top, bottom) {
+    this.colliders.push(bottom === undefined ? { minX, maxX, minZ, maxZ, top } : { minX, maxX, minZ, maxZ, top, bottom });
   }
 
   // Merge everything into one mesh per material per chunk, under `group`.

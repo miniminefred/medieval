@@ -11,6 +11,7 @@ const ACCEL = 12;          // how fast walk velocity chases the input
 const GRAVITY = 24;
 const JUMP_SPEED = 7.6;
 const RADIUS = 0.4;        // horizontal collision radius
+const HEAD = 1.85;         // feet to the top of the head
 const STEP_EPS = 0.35;     // surfaces within this of the feet are stood on, not walls
                            // — a normal step up, and what lets you walk onto the dock
 const MAX_SLOPE = 1.0;     // rise per metre (45°) beyond which terrain is a wall
@@ -18,6 +19,7 @@ const SNAP_DOWN = 0.6;     // walking downhill, stay glued to ground this far be
 
 // First-person walker: pointer-lock camera + WASD + jump, with AABB collision
 // against the world's boxes (walls block you, low steps can be jumped onto).
+// A box may have a `bottom` (an upper floor, a beam): you can pass beneath it.
 //
 // The floor comes from `groundAt(x, z)` — flat 0 in the castle, the terrain
 // height in the wasteland. Terrain steeper than MAX_SLOPE blocks like a wall,
@@ -28,6 +30,7 @@ export class Player {
     this.colliders = colliders;
     this.velocityY = 0;
     this.groundAt = () => 0;
+    this.seat = null;             // sitting on a chair (sit())
     this.runMul = 1;              // from the clan's speed stat: apex run fastest
     this.staminaMax = 10;         // seconds of running on a full bar (clan's speed stat)
     this.stamina = this.staminaMax;
@@ -55,6 +58,13 @@ export class Player {
     this.colliders = colliders;
   }
 
+  // Sit on a seat ({ x, y, z, yaw }): the view drops to sitting height and stays
+  // put until a movement key stands you up again, in front of the seat.
+  sit(seat) {
+    this.seat = seat;
+    this.object.quaternion.setFromEuler(new THREE.Euler(0, seat.yaw, 0, 'YXZ'));
+  }
+
   // Swap to another world's floor and walls (realms call this on arrival).
   setWorld({ colliders = [], groundAt = () => 0, canStand = () => true }) {
     this.colliders = colliders;
@@ -64,6 +74,7 @@ export class Player {
 
   // Put the feet at (x, z) on the ground, facing `yaw` (0 = looking down -Z).
   teleport(x, z, yaw = 0) {
+    this.seat = null;
     const pos = this.object.position;
     pos.set(x, this.groundAt(x, z) + EYE, z);
     this.object.quaternion.setFromEuler(new THREE.Euler(0, yaw, 0, 'YXZ'));
@@ -86,6 +97,21 @@ export class Player {
 
   update(dt, camera) {
     const pos = this.object.position;
+
+    if (this.seat) {
+      const k = this.keys;
+      if (k.forward || k.back || k.left || k.right || k.jump) {
+        const s = this.seat;
+        this.seat = null;
+        pos.set(s.x + Math.sin(s.yaw) * 0.6, s.y - 0.45 + EYE, s.z + Math.cos(s.yaw) * 0.6);
+      } else {
+        pos.set(this.seat.x, this.seat.y + 0.75, this.seat.z);
+        this._vel.set(0, 0, 0);
+        this.velocityY = 0;
+        this.running = false;
+        return;
+      }
+    }
 
     if (this.controls.isLocked) {
       camera.getWorldDirection(this._forward);
@@ -156,7 +182,7 @@ export class Player {
       this._vel.x = 0;
     } else if (dx !== 0) {
       for (const b of this.colliders) {
-        if (b.top <= feetY + STEP_EPS) continue;
+        if (b.top <= feetY + STEP_EPS || (b.bottom !== undefined && feetY + HEAD <= b.bottom)) continue;
         if (this._overlapsXZ(pos, b)) {
           pos.x = dx > 0 ? b.minX - RADIUS : b.maxX + RADIUS;
           this._vel.x = 0;
@@ -170,7 +196,7 @@ export class Player {
       this._vel.z = 0;
     } else if (dz !== 0) {
       for (const b of this.colliders) {
-        if (b.top <= feetY + STEP_EPS) continue;
+        if (b.top <= feetY + STEP_EPS || (b.bottom !== undefined && feetY + HEAD <= b.bottom)) continue;
         if (this._overlapsXZ(pos, b)) {
           pos.z = dz > 0 ? b.minZ - RADIUS : b.maxZ + RADIUS;
           this._vel.z = 0;

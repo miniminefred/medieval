@@ -11,6 +11,13 @@ import { buildCamps } from './camps.js';
 import { buildFarmville } from './farmville.js';
 import { buildCityFolk, buildFarmFolk } from './townsfolk.js';
 import { createChest } from '../chest.js';
+import { clock } from '../clock.js';
+import { setNight } from '../builder.js';
+import { createLamps } from '../lamps.js';
+import { CITY } from './terrain.js';
+import { MARKET, MAIN } from './city/streets.js';
+import { WALL } from './city/wall.js';
+import { PLACES } from './places.js';
 import { CLANS, currentClan } from '../clans.js';
 
 // World 1 — the Wasteland. See docs/DESIGN.md.
@@ -109,6 +116,24 @@ export function createWastelandRealm(renderer) {
   const farmville = buildFarmville(group, renderer, terrain.heightAt);
   const camps = buildCamps(group, renderer, terrain.heightAt);
   const cityFolk = buildCityFolk(group, renderer);
+
+  // Street lamps: down both sides of the main street from the gate to the market,
+  // round the market, and about Farmville's green.
+  const lampSpots = [];
+  const cy = CITY.y + 0.07;
+  for (let x = CITY.minX + WALL.thick + 10; x < MARKET.x - MARKET.r - 3; x += 22) {
+    lampSpots.push({ x, y: cy, z: MAIN.z - MAIN.width / 2 + 0.6 }, { x: x + 11, y: cy, z: MAIN.z + MAIN.width / 2 - 0.6 });
+  }
+  for (let k = 0; k < 8; k++) {
+    const a = (k / 8) * Math.PI * 2 + Math.PI / 8;
+    lampSpots.push({ x: MARKET.x + Math.cos(a) * 17.5, y: CITY.y + 0.09, z: MARKET.z + Math.sin(a) * 17.5 });
+  }
+  const fv = PLACES.farmville;
+  for (const [dx, dz] of [[-9, -18], [9, -18], [-9, 4], [9, 4], [-20, 14], [24, 16]]) {
+    const x = fv.x + dx, z = fv.z + dz;
+    lampSpots.push({ x, y: terrain.heightAt(x, z), z });
+  }
+  const lamps = createLamps(group, renderer, lampSpots);
   const farmFolk = buildFarmFolk(group, renderer, terrain.heightAt);
 
   // Chests half-buried out in the open desert, for whoever goes looking.
@@ -119,7 +144,7 @@ export function createWastelandRealm(renderer) {
     x, z, y: terrain.heightAt(x, z), yaw: x * 0.01, gold, items, half: true,
   }));
 
-  const colliders = portal.colliders.concat(city.colliders, farmville.colliders, camps.colliders,
+  const colliders = portal.colliders.concat(city.colliders, farmville.colliders, camps.colliders, lamps.colliders,
     desertChests.map((c) => c.collider));
 
   const fog = new THREE.FogExp2(MOODS.desert.horizon, MOODS.desert.fog);
@@ -142,6 +167,34 @@ export function createWastelandRealm(renderer) {
       for (let i = 0; i < v.length; i++) target[i] += v[i] * wk;
     }
     return storm;
+  }
+
+  // The time of day on top of the area's mood (clock.js): the sky and fog darken
+  // to a deep night blue, warm at dawn and dusk; by night a dim moon does the
+  // sun's job, and the nights are really dark (docs/DESIGN.md). Returns the
+  // amount of daylight, 0..1.
+  const NIGHT_HORIZON = new THREE.Color(0x0a0f1c), NIGHT_ZENITH = new THREE.Color(0x020409);
+  const DUSK = new THREE.Color(0xff8a4a), MOON = new THREE.Color(0x8ea4d6);
+  const lightDir = new THREE.Vector3(0, 1, 0);
+  function applyTime(scene) {
+    const { sunDir, moonDir, day, warmth } = clock.light();
+    const night = 1 - day;
+    const h = sky.uniforms.uHorizon.value, z = sky.uniforms.uZenith.value;
+    h.lerp(DUSK, warmth * 0.45 * (1 - fog.density / 0.04)).lerp(NIGHT_HORIZON, night);
+    z.lerp(NIGHT_ZENITH, night);
+    fog.color.copy(h);
+    sky.uniforms.uSunDir.value.copy(sunDir);
+    sky.uniforms.uSunStrength.value = day;
+    sky.uniforms.uNight.value = night;
+    lightDir.copy(day > 0.02 ? sunDir : moonDir);
+    sun.intensity = sun.intensity * day + 0.12 * night;
+    sun.color.lerp(DUSK, warmth * 0.5).lerp(MOON, night);
+    hemi.intensity = 0.9 * (0.03 + 0.97 * day);
+    hemi.color.lerp(NIGHT_ZENITH, night);
+    scene.environmentIntensity *= 0.03 + 0.97 * day;
+    dust.uniforms.uColor.value.multiplyScalar(0.1 + 0.9 * day);
+    setNight(night);
+    return day;
   }
 
   function applyMood(scene) {
@@ -211,15 +264,17 @@ export function createWastelandRealm(renderer) {
       blendTarget(p.x, p.z);
       const k = 1 - Math.exp(-dt * 1.2);
       for (let i = 0; i < mood.length; i++) mood[i] += (target[i] - mood[i]) * k;
-      const dustI = applyMood(scene);
+      const dustI = applyMood(scene) * (0.15 + 0.85 * applyTime(scene));
 
-      // Keep the shadow map centred on the player; the sun is effectively infinite.
+      // Keep the shadow map centred on the player; the sun (or moon) is
+      // effectively infinite.
       sun.target.position.copy(p);
-      sun.position.copy(p).addScaledVector(SUN_DIR, 250);
+      sun.position.copy(p).addScaledVector(lightDir, 250);
 
       camps.update(dt, p);
       for (const t of city.traders) t.update(dt);
       cityFolk.update(dt, p);
+      lamps.update(dt, p);
       farmFolk.update(dt, p);
       for (const c of desertChests) c.update(dt);
 

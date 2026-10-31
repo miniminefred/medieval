@@ -156,7 +156,7 @@ src/
     places.js       World 1's places, camps and the upside-down Y road (pure data)
     road.js         The road surface: cobbles near cities, dirt track between
     camps.js        Six bandit camps (one big, walled) with fires, tents, loot
-    bandits.js      Hooded figures: sit, guard, patrol (no fighting yet); traders too
+    bandits.js      Hooded fighters: guard, shout, chase, strike, fall; traders too
     farmville.js    The farming village at the road's fork
     apex.js         The apex city: bone-and-hide halls, scaffolding, palisade, ruins, folk
     scorpions.js    Instanced scorpion flocks at nests; dart at you, sting, poison

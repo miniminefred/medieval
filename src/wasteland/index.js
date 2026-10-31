@@ -113,6 +113,8 @@ export function createWastelandRealm(renderer) {
   // ----------------------------------------------------------------- city
   const city = buildCity(renderer);
   group.add(city.group);
+  let armed = false;
+
   // ------------------------------------------------- Farmville and the camps
   const farmville = buildFarmville(group, renderer, terrain.heightAt);
   const camps = buildCamps(group, renderer, terrain.heightAt);
@@ -220,13 +222,16 @@ export function createWastelandRealm(renderer) {
     return dustI;
   }
 
+  const staticThings = camps.chests.concat(desertChests, city.traders,
+    city.doors.concat(farmville.doors).map(doorInteractable));
+
   return {
     name: 'wasteland',
     group,
     terrain,
     portals: [portal],
-    interactables: camps.chests.concat(desertChests, city.traders,
-      city.doors.concat(farmville.doors).map(doorInteractable)),
+    // Fallen bandits join the list as they fall, so it is read fresh each time.
+    get interactables() { return staticThings.concat(camps.bodies); },
     spawn: { x: SPAWN.x, z: SPAWN.z, yaw: Math.PI },   // facing south, away from the portal
     // Each clan's prince arrives at their clan's home (clans.js); without a clan
     // (the F2 dev hop), at the map's centre.
@@ -235,6 +240,7 @@ export function createWastelandRealm(renderer) {
     },
 
     enter(ctx) {
+      if (!armed && ctx.combat) { camps.arm(ctx.combat); armed = true; }
       const { scene, renderer, camera, player } = ctx;
       active = ctx;
       scene.add(group);
@@ -261,7 +267,8 @@ export function createWastelandRealm(renderer) {
       scene.remove(group);
     },
 
-    update(dt, { scene, renderer, camera, player }) {
+    update(dt, ctx) {
+      const { scene, renderer, camera, player } = ctx;
       const p = player.object.position;
       blendTarget(p.x, p.z);
       const k = 1 - Math.exp(-dt * 1.2);
@@ -273,7 +280,7 @@ export function createWastelandRealm(renderer) {
       sun.target.position.copy(p);
       sun.position.copy(p).addScaledVector(lightDir, 250);
 
-      camps.update(dt, p);
+      camps.update(dt, p, { playerPos: p, playerHere: true, combat: ctx.combat });
       for (const t of city.traders) t.update(dt);
       cityFolk.update(dt, p);
       lamps.update(dt, p);

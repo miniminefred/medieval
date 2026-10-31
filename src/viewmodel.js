@@ -120,6 +120,9 @@ export class Viewmodel {
 
   // Start a cast. Called mid-cast it does nothing; called while the bobber is
   // sitting out there it reels in early, so clicking twice is "cast, then reel".
+  set visible(v) { if (this.rig) this.rig.visible = v; }
+  get visible() { return this.rig ? this.rig.visible : false; }
+
   cast() {
     if (this.phase === 'idle') this._setPhase('rewind');
     else if (this.phase === 'hang') this._setPhase('reel');

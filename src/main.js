@@ -1,4 +1,4 @@
-import { Timer, Vector3 } from 'three';
+import { Timer, Vector3, Mesh, SphereGeometry, MeshStandardMaterial } from 'three';
 import { createRenderer, createScene, createCamera, handleResize } from './scene.js';
 import { createInput } from './input.js';
 import { ModelLibrary } from './models.js';
@@ -18,6 +18,9 @@ import { explored } from './explored.js';
 import { clock } from './clock.js';
 import { onDoorOpened, isLocked } from './doorways.js';
 import { createInterior } from './interiors.js';
+import { createSword } from './sword.js';
+import { createCombat } from './combat.js';
+import { CLANS, currentClan } from './clans.js';
 
 const renderer = createRenderer();
 const scene = createScene();
@@ -112,7 +115,7 @@ onDoorOpened((door) => {
   const inside = createInterior(door, renderer, {
     player,
     onLeave: () => goTo(async () => outside, step),
-    onSleep: () => sleep(),
+    onSleep: () => { lastRest = { make: async () => outside, at: step }; sleep(); },
   });
   goTo(async () => inside);
 });
@@ -139,11 +142,59 @@ if (import.meta.env.DEV) {
   });
 }
 
-// The rod rides on the camera. The first click grabs pointer lock (input.js), so
-// only clicks that arrive while already locked are casts.
+// In hand: the old sword (combat.js). The fishing rod is bought later, as the
+// "old rod" (docs/DESIGN.md), so it starts put away. The first click grabs
+// pointer lock (input.js); only clicks that arrive while locked swing.
 const viewmodel = new Viewmodel(camera, library);
+viewmodel.visible = false;
+const sword = createSword(camera);
+const combat = createCombat({ camera, player, sword });
+ctx.combat = combat;
+onClanChosen((id) => combat.setClan(id));
 renderer.domElement.addEventListener('mousedown', (e) => {
-  if (e.button === 0 && player.isLocked) viewmodel.cast();
+  if (e.button !== 0 || !player.isLocked) return;
+  if (viewmodel.visible) viewmodel.cast(); else combat.swing();
+});
+
+// Dying (docs/DESIGN.md): you lose a big part of your gold, and some of what you
+// carry is dropped where you fell, in a pack you can go back for. You wake where
+// you last slept — or, if you never have, at your clan's home.
+let lastRest = null;          // { make, at } — where you wake
+const drops = [];             // dropped packs: { realm, thing }
+combat.onDeath(async () => {
+  const lostGold = Math.ceil(inventory.gold * 0.6);
+  inventory.addGold(-lostGold);
+  const dropped = {};
+  for (const [k, n] of inventory.items) {
+    const d = Math.ceil(n / 3);
+    if (d > 0) { dropped[k] = d; inventory.addItem(k, -d); }
+  }
+  const where = realm, at = player.object.position.clone();
+  if (Object.keys(dropped).length) {
+    const sack = new Mesh(new SphereGeometry(0.3, 12, 8), new MeshStandardMaterial({ color: 0x7a5f3e, roughness: 1 }));
+    sack.scale.y = 0.75;
+    sack.position.set(at.x, at.y - 1.5, at.z);
+    where.group.add(sack);
+    let taken = false;
+    drops.push({ realm: where, thing: {
+      pos: sack.position, reach: 2.2, label: 'pick up your pack',
+      get done() { return taken; },
+      use() {
+        taken = true;
+        where.group.remove(sack);
+        for (const [k, n] of Object.entries(dropped)) inventory.addItem(k, n);
+        hud.toast('You take back what you dropped.');
+      },
+    } });
+  }
+  hud.toast(`You fell. ${lostGold} gold is gone${Object.keys(dropped).length ? ', and you dropped part of your pack' : ''}.`, 6);
+  await new Promise((r) => setTimeout(r, 1200));
+  const clan = CLANS[currentClan()];
+  const wake = lastRest ?? (clan
+    ? { make: async () => (realms.wasteland ??= await builders.wasteland()), at: clan.home }
+    : { make: async () => realms.castle, at: realms.castle.spawn });
+  await goTo(wake.make, wake.at);
+  combat.revive(0.6);
 });
 
 inventory.refresh();
@@ -152,7 +203,7 @@ document.getElementById('loading')?.classList.add('hidden');
 // Dev-only handle so the world can be flown around and inspected from the console
 // (there is no scene editor by design — this is how we look at what we built).
 if (import.meta.env.DEV) {
-  window.__medieval = { renderer, scene, camera, library, realms, viewmodel, player, travel, orb, inventory, clock,
+  window.__medieval = { renderer, scene, camera, library, realms, viewmodel, player, travel, orb, inventory, clock, combat, sword,
     get realm() { return realm; } };
 }
 
@@ -170,7 +221,9 @@ function animate() {
   clock.tick(dt);
   hud.time(clock.hour, clock.label(), clock.isNight);
   realm.update(dt, ctx);
-  interaction.update(realm.interactables, camera, player.isLocked);
+  const here = drops.filter((d) => d.realm === realm && !d.thing.done).map((d) => d.thing);
+  interaction.update(here.length ? realm.interactables.concat(here) : realm.interactables, camera, player.isLocked);
+  combat.update(dt);
   orb.update(dt, camera);
   story.update(dt);
   checkQuests(realm.name, player.object.position);
@@ -184,6 +237,7 @@ function animate() {
     if (portal) travel(portal.target);
   }
   viewmodel.update(dt, { speed: player.speed, grounded: player.grounded, locked: player.isLocked });
+  sword.update(dt, { speed: player.speed });
   renderer.render(scene, camera);
 }
 animate();

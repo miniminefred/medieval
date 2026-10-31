@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { createCrowd } from '../people.js';
+import { createCrowd, METALS, CORES } from '../people.js';
 import { mulberry32 } from '../noise.js';
 import { CITY } from './terrain.js';
 import { STREETS, MARKET, MAIN } from './city/streets.js';
@@ -74,7 +74,10 @@ export function buildCityFolk(group, renderer) {
   const { ns, ew } = G;
   const thinkers = [];
   const cloth = () => pick(CLOTH);
-  const cyborg = () => rng() < 0.35;
+  // How much machine a city dweller is: it varies (docs/DESIGN.md). About half
+  // are plain folk; the rest anything from a metal arm to nearly all metal.
+  const cyborg = () => { const r = rng(); return r < 0.5 ? 0 : r < 0.68 ? 1 : r < 0.86 ? 2 : 3; };
+  const machine = () => ({ cyborg: cyborg(), metal: pick(METALS), core: pick(CORES) });
 
   // A street walker: node to node, keeping to one side of the street.
   function walker(opts = {}) {
@@ -83,7 +86,7 @@ export function buildCityFolk(group, renderer) {
     while (Math.hypot(ns[i].c - MARKET.x, ew[j].c - MARKET.z) < MARKET.r + 2 || !G.neighbours(i, j).length);
     if (opts.lane) { i = rng() < 0.5 ? 0 : ns.length - 1; }
     const side = (rng() < 0.5 ? -1 : 1) * between(0.6, 1.6);
-    const p = crowd.add({ x: ns[i].c, y: Y, z: ew[j].c, color: opts.color ?? cloth(), eye: opts.eye ?? cyborg(),
+    const p = crowd.add({ x: ns[i].c, y: Y, z: ew[j].c, color: opts.color ?? cloth(), ...(opts.plain ? {} : machine()),
       helmet: opts.helmet, tool: opts.tool, height: between(0.94, 1.06) });
     let prev = null, tx = p.pos.x, tz = p.pos.z, wait = between(0, 4);
     const speed = (opts.speed ?? WALK) * between(0.85, 1.15);
@@ -113,7 +116,7 @@ export function buildCityFolk(group, renderer) {
   for (let n = 0; n < 70; n++) {
     const side = (rng() < 0.5 ? -1 : 1) * between(0.8, MAIN.width / 2 - 1);
     const x = between(gateIn, mainEnd);
-    const p = crowd.add({ x, y: Y, z: MAIN.z + side, color: cloth(), eye: cyborg(), tool: rng() < 0.08 ? 'crate' : null, height: between(0.94, 1.06) });
+    const p = crowd.add({ x, y: Y, z: MAIN.z + side, color: cloth(), ...machine(), tool: rng() < 0.08 ? 'crate' : null, height: between(0.94, 1.06) });
     let tx = between(gateIn, mainEnd), wait = between(0, 3);
     const speed = WALK * between(0.8, 1.15);
     thinkers.push((dt, t) => {
@@ -125,7 +128,7 @@ export function buildCityFolk(group, renderer) {
     });
   }
   for (let n = 0; n < 12; n++) walker({ tool: 'crate', speed: 1.1 });          // porters
-  for (let n = 0; n < 6; n++) walker({ lane: true, color: GUARD, eye: false, helmet: true, tool: 'spear', speed: 1.0 });
+  for (let n = 0; n < 6; n++) walker({ lane: true, color: GUARD, plain: true, helmet: true, tool: 'spear', speed: 1.0 });
 
   // ------------------------------------------------------------ shoppers
   // They walk the aisle between the stalls and the town hall, round the ring,
@@ -137,7 +140,7 @@ export function buildCityFolk(group, renderer) {
     let ang = angleOf(target) + between(-0.3, 0.3);
     const r = AISLE + between(-0.8, 0.8);
     const p = crowd.add({ x: MARKET.x + Math.cos(ang) * r, y: CITY.y + 0.09, z: MARKET.z + Math.sin(ang) * r,
-      color: cloth(), eye: cyborg(), height: between(0.94, 1.06) });
+      color: cloth(), ...machine(), height: between(0.94, 1.06) });
     let wait = between(0, 6);
     thinkers.push((dt, t) => {
       const goal = angleOf(target);
@@ -174,7 +177,7 @@ export function buildCityFolk(group, renderer) {
     const size = 2 + Math.floor(rng() * 3);
     for (let m = 0; m < size; m++) {
       const a = (m / size) * Math.PI * 2 + rng();
-      const p = crowd.add({ x: x + Math.cos(a) * 0.75, y: Y, z: z + Math.sin(a) * 0.75, color: cloth(), eye: cyborg(), height: between(0.94, 1.06) });
+      const p = crowd.add({ x: x + Math.cos(a) * 0.75, y: Y, z: z + Math.sin(a) * 0.75, color: cloth(), ...machine(), height: between(0.94, 1.06) });
       face(p, x, z);
       const base = p.yaw, ph = rng() * 10;
       thinkers.push((dt, t) => {
@@ -187,7 +190,7 @@ export function buildCityFolk(group, renderer) {
   // Sweepers: a few metres back and forth, the broom going.
   for (let n = 0; n < 7; n++) {
     const { x, z } = edgeSpot();
-    const p = crowd.add({ x, y: Y, z, color: cloth(), eye: cyborg(), tool: 'broom' });
+    const p = crowd.add({ x, y: Y, z, color: cloth(), ...machine(), tool: 'broom' });
     const along = rng() < 0.5, ph = rng() * 10;
     thinkers.push((dt, t) => {
       const o = Math.sin(t * 0.25 + ph) * 3;
@@ -206,7 +209,7 @@ export function buildCityFolk(group, renderer) {
     anvil.position.set(x, Y + 0.275, z + 0.75);
     anvil.castShadow = true;
     group.add(anvil);
-    const p = crowd.add({ x, y: Y, z, color: pick([0x4a3a2e, 0x3d3a36]), eye: rng() < 0.6, tool: 'hammer' });
+    const p = crowd.add({ x, y: Y, z, color: pick([0x4a3a2e, 0x3d3a36]), ...machine(), tool: 'hammer' });
     p.yaw = 0;
     const ph = rng() * 10;
     thinkers.push((dt, t) => {

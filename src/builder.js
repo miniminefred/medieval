@@ -103,6 +103,32 @@ function tex(path, srgb, repeat, aniso) {
   return t;
 }
 
+// Night: about half of all windows light up, warm, as people light their lamps.
+// `setNight(k)` (0 day .. 1 night) drives every window at once; which windows
+// are lit is a hash of where each one is, so it never flickers or changes.
+export function setNight(k) {
+  const glass = cache.get('glass');
+  if (glass) glass.emissiveIntensity = k * 1.6;
+}
+
+function litWindows(material) {
+  material.emissive.set(0xffa04a);
+  material.emissiveIntensity = 0;
+  material.onBeforeCompile = (shader) => {
+    shader.vertexShader = shader.vertexShader
+      .replace('#include <common>', `#include <common>
+        varying vec3 vWinW;`)
+      .replace('#include <begin_vertex>', `#include <begin_vertex>
+        vWinW = (modelMatrix * vec4(transformed, 1.0)).xyz;`);
+    shader.fragmentShader = shader.fragmentShader
+      .replace('#include <common>', `#include <common>
+        varying vec3 vWinW;`)
+      .replace('#include <emissivemap_fragment>', `#include <emissivemap_fragment>
+        vec3 wc = floor(vWinW * vec3(0.8, 0.45, 0.8));
+        totalEmissiveRadiance *= step(0.48, fract(sin(dot(wc, vec3(12.9898, 78.233, 37.719))) * 43758.5453));`);
+  };
+}
+
 // One shared material per surface key.
 export function cityMaterial(key, renderer) {
   if (cache.has(key)) return cache.get(key);
@@ -113,6 +139,7 @@ export function cityMaterial(key, renderer) {
       color: s.color, roughness: s.roughness, metalness: s.metalness, envMapIntensity: s.envMapIntensity ?? 1,
       emissive: s.emissive ?? 0x000000, emissiveIntensity: s.emissiveIntensity ?? 1,
     });
+    if (key === 'glass') litWindows(m);
   } else {
     const r = 1 / s.size;
     const aniso = renderer.capabilities.getMaxAnisotropy();

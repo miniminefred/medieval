@@ -46,18 +46,16 @@ function stepTo(p, tx, tz, speed, dt, t) {
 function streetGraph() {
   const ns = STREETS.filter((s) => s.dir === 'ns').map((s) => ({ c: (s.minX + s.maxX) / 2, w: s.maxX - s.minX }));
   const ew = STREETS.filter((s) => s.dir === 'ew').map((s) => ({ c: (s.minZ + s.maxZ) / 2, w: s.maxZ - s.minZ }));
-  const cross = ns.find((s) => s.c > MARKET.minX && s.c < MARKET.maxX);
-  // A stretch of street that runs across the market's stalls is not walkable,
-  // unless it is the main street or the cross street that the stalls keep clear.
-  const inMarket = (x, z) => x > MARKET.minX + 1 && x < MARKET.maxX - 1 && z > MARKET.minZ + 1 && z < MARKET.maxZ - 1;
-  const okH = (i, j) => {   // node (i,j) → (i+1,j), along ew street j
-    const mx = (ns[i].c + ns[i + 1].c) / 2;
-    return !inMarket(mx, ew[j].c) || Math.abs(ew[j].c - MAIN.z) < 1;
+  // The town hall stands in the middle of the round market, where the main
+  // street and a cross street meet, so walkers never cross the market: any
+  // stretch of street that passes within it is not walkable (shoppers have it).
+  const near = (x0, z0, x1, z1) => {
+    const dx = x1 - x0, dz = z1 - z0;
+    const t = Math.max(0, Math.min(1, ((MARKET.x - x0) * dx + (MARKET.z - z0) * dz) / (dx * dx + dz * dz || 1)));
+    return Math.hypot(x0 + dx * t - MARKET.x, z0 + dz * t - MARKET.z) < MARKET.r + 2;
   };
-  const okV = (i, j) => {   // node (i,j) → (i,j+1), along ns street i
-    const mz = (ew[j].c + ew[j + 1].c) / 2;
-    return !inMarket(ns[i].c, mz) || ns[i] === cross;
-  };
+  const okH = (i, j) => !near(ns[i].c, ew[j].c, ns[i + 1].c, ew[j].c);   // (i,j) → (i+1,j)
+  const okV = (i, j) => !near(ns[i].c, ew[j].c, ns[i].c, ew[j + 1].c);   // (i,j) → (i,j+1)
   function neighbours(i, j) {
     const out = [];
     if (i > 0 && okH(i - 1, j)) out.push([i - 1, j]);
@@ -80,7 +78,9 @@ export function buildCityFolk(group, renderer) {
 
   // A street walker: node to node, keeping to one side of the street.
   function walker(opts = {}) {
-    let i = Math.floor(rng() * ns.length), j = Math.floor(rng() * ew.length);
+    let i, j;
+    do { i = Math.floor(rng() * ns.length); j = Math.floor(rng() * ew.length); }
+    while (Math.hypot(ns[i].c - MARKET.x, ew[j].c - MARKET.z) < MARKET.r + 2 || !G.neighbours(i, j).length);
     if (opts.lane) { i = rng() < 0.5 ? 0 : ns.length - 1; }
     const side = (rng() < 0.5 ? -1 : 1) * between(0.6, 1.6);
     const p = crowd.add({ x: ns[i].c, y: Y, z: ew[j].c, color: opts.color ?? cloth(), eye: opts.eye ?? cyborg(),
@@ -106,19 +106,20 @@ export function buildCityFolk(group, renderer) {
   // ------------------------------------------------------------ walkers
   for (let n = 0; n < 200; n++) walker();
 
-  // The main street, from the gate past the market, is the busiest: strollers go
-  // up and down it, turning back at random points.
+  // The main street, from the gate to the market, is the busiest: strollers go up
+  // and down it, turning back at random points short of the market's stalls.
   const gateIn = CITY.minX + WALL.thick + 8;
+  const mainEnd = MARKET.x - MARKET.r + 2;
   for (let n = 0; n < 70; n++) {
     const side = (rng() < 0.5 ? -1 : 1) * between(0.8, MAIN.width / 2 - 1);
-    const x = between(gateIn, MARKET.maxX + 60);
+    const x = between(gateIn, mainEnd);
     const p = crowd.add({ x, y: Y, z: MAIN.z + side, color: cloth(), eye: cyborg(), tool: rng() < 0.08 ? 'crate' : null, height: between(0.94, 1.06) });
-    let tx = between(gateIn, MARKET.maxX + 60), wait = between(0, 3);
+    let tx = between(gateIn, mainEnd), wait = between(0, 3);
     const speed = WALK * between(0.8, 1.15);
     thinkers.push((dt, t) => {
       if (wait > 0) { wait -= dt; p.bob = 0; return; }
       if (stepTo(p, tx, MAIN.z + side, speed, dt, t)) {
-        tx = between(gateIn, MARKET.maxX + 60);
+        tx = between(gateIn, mainEnd);
         if (rng() < 0.3) wait = between(1, 4);
       }
     });
@@ -127,32 +128,31 @@ export function buildCityFolk(group, renderer) {
   for (let n = 0; n < 6; n++) walker({ lane: true, color: GUARD, eye: false, helmet: true, tool: 'spear', speed: 1.0 });
 
   // ------------------------------------------------------------ shoppers
-  // Counters in the same row share an aisle; a shopper drifts along one row,
-  // stopping at stalls to look.
-  const rows = new Map();
-  for (const c of COUNTERS) {
-    const key = `${Math.round(c.front.z)}|${Math.round(c.yaw * 10)}`;
-    if (!rows.has(key)) rows.set(key, []);
-    rows.get(key).push(c);
-  }
-  const rowList = [...rows.values()].filter((r) => r.length > 1);
-  for (let n = 0; n < 45 && rowList.length; n++) {
-    const row = pick(rowList);
-    let k = Math.floor(rng() * row.length);
-    const p = crowd.add({ x: row[k].front.x + between(-1, 1), y: CITY.y + 0.09, z: row[k].front.z, color: cloth(), eye: cyborg(), height: between(0.94, 1.06) });
-    let tx = p.pos.x, tz = p.pos.z, wait = between(0, 6), looking = row[k];
+  // They walk the aisle between the stalls and the town hall, round the ring,
+  // stopping at a stall to look before moving on to another nearby.
+  const AISLE = 8;
+  const angleOf = (c) => Math.atan2(c.front.z - MARKET.z, c.front.x - MARKET.x);
+  for (let n = 0; n < 24 && COUNTERS.length; n++) {
+    let target = pick(COUNTERS);
+    let ang = angleOf(target) + between(-0.3, 0.3);
+    const r = AISLE + between(-0.8, 0.8);
+    const p = crowd.add({ x: MARKET.x + Math.cos(ang) * r, y: CITY.y + 0.09, z: MARKET.z + Math.sin(ang) * r,
+      color: cloth(), eye: cyborg(), height: between(0.94, 1.06) });
+    let wait = between(0, 6);
     thinkers.push((dt, t) => {
-      if (wait > 0) {
-        wait -= dt; p.bob = 0;
-        face(p, looking.x, looking.z);
+      const goal = angleOf(target);
+      let da = Math.atan2(Math.sin(goal - ang), Math.cos(goal - ang));
+      if (Math.abs(da) < 0.02) {
+        if (wait > 0) { wait -= dt; p.bob = 0; face(p, target.x, target.z); return; }
+        target = COUNTERS[(COUNTERS.indexOf(target) + pick([-2, -1, 1, 2]) + COUNTERS.length) % COUNTERS.length];
+        wait = between(3, 10);
         return;
       }
-      if (stepTo(p, tx, tz, WALK * 0.8, dt, t)) {
-        k = Math.max(0, Math.min(row.length - 1, k + pick([-2, -1, 1, 2])));
-        looking = row[k];
-        tx = looking.front.x + between(-1.2, 1.2); tz = looking.front.z + between(-0.3, 0.3);
-        wait = between(3, 10);
-      }
+      ang += Math.sign(da) * Math.min(Math.abs(da), (WALK * 0.8 * dt) / r);
+      const nx = MARKET.x + Math.cos(ang) * r, nz = MARKET.z + Math.sin(ang) * r;
+      p.yaw = Math.atan2(nx - p.pos.x, nz - p.pos.z);
+      p.pos.x = nx; p.pos.z = nz;
+      p.bob = Math.abs(Math.sin(t * 6.5)) * 0.045;
     });
   }
 
@@ -170,7 +170,7 @@ export function buildCityFolk(group, renderer) {
   // Little groups chatting, turned to each other, shifting their weight.
   for (let n = 0; n < 16; n++) {
     const { x, z } = edgeSpot();
-    if (x > MARKET.minX - 2 && x < MARKET.maxX + 2 && z > MARKET.minZ - 2 && z < MARKET.maxZ + 2) continue;
+    if (Math.hypot(x - MARKET.x, z - MARKET.z) < MARKET.r + 3) continue;
     const size = 2 + Math.floor(rng() * 3);
     for (let m = 0; m < size; m++) {
       const a = (m / size) * Math.PI * 2 + rng();

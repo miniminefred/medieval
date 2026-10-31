@@ -1,5 +1,5 @@
 import { CITY } from '../terrain.js';
-import { BLOCKS, MAIN } from './streets.js';
+import { BLOCKS, MAIN, inMarket } from './streets.js';
 import { mulberry32 } from '../../noise.js';
 
 // Medieval town houses, with the cyborgs' hand on some of them.
@@ -145,6 +145,14 @@ function row(from, to, maxDepth, place) {
 }
 
 export function buildHouses(b) {
+  // A city house, unless it would stand on the round market.
+  const cityHouse = (x, z, w, d, yaw, floors) => {
+    const swap = Math.abs(Math.sin(yaw)) > 0.5;
+    const hw = (swap ? d : w) / 2 + JET, hd = (swap ? w : d) / 2 + JET;
+    if (inMarket(x - hw, x + hw, z - hd, z + hd)) return false;
+    buildHouse(b, x, z, w, d, yaw, floors);
+    return true;
+  };
   let count = 0;
   for (const k of BLOCKS) {
     const bw = k.maxX - k.minX, bd = k.maxZ - k.minZ;
@@ -156,19 +164,19 @@ export function buildHouses(b) {
     const depthNS = Math.min(11, bd / 2 - 0.5);
     let usedN = 0, usedS = 0;
     row(k.minX, k.maxX, depthNS, (a, w, d) => {
-      buildHouse(b, a, k.minZ + d / 2, w, d, Math.PI, floors()); usedN = Math.max(usedN, d); count++;
+      if (cityHouse(a, k.minZ + d / 2, w, d, Math.PI, floors())) { usedN = Math.max(usedN, d); count++; }
     });
     row(k.minX, k.maxX, depthNS, (a, w, d) => {
-      buildHouse(b, a, k.maxZ - d / 2, w, d, 0, floors()); usedS = Math.max(usedS, d); count++;
+      if (cityHouse(a, k.maxZ - d / 2, w, d, 0, floors())) { usedS = Math.max(usedS, d); count++; }
     });
     const z0 = k.minZ + usedN + JET + 0.6, z1 = k.maxZ - usedS - JET - 0.6;
     if (z1 - z0 > 7) {
       const depthEW = Math.min(11, bw / 2 - 0.5);
       row(z0, z1, depthEW, (a, w, d) => {
-        buildHouse(b, k.minX + d / 2, a, w, d, -Math.PI / 2, floors()); count++;
+        if (cityHouse(k.minX + d / 2, a, w, d, -Math.PI / 2, floors())) count++;
       });
       row(z0, z1, depthEW, (a, w, d) => {
-        buildHouse(b, k.maxX - d / 2, a, w, d, Math.PI / 2, floors()); count++;
+        if (cityHouse(k.maxX - d / 2, a, w, d, Math.PI / 2, floors())) count++;
       });
     }
   }

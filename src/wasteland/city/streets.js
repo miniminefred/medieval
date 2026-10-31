@@ -20,12 +20,19 @@ const LANE = 7;
 
 export const MAIN = { z: WALL.gateZ, width: 12 };
 
-// The market square, on the main street a short walk in from the gate (about
-// 100 m, docs/DESIGN.md). This is where it
-// is *asked* for; every block it touches is cleared, and MARKET is then widened to
-// exactly the cleared ground (below), so the square runs right up to the houses.
-const WANT = { minX: 380, maxX: 480, minZ: MAIN.z - 38, maxZ: MAIN.z + 38 };
-export const MARKET = { ...WANT };
+// The market: a round square on the main street, a short walk in from the gate
+// (docs/DESIGN.md), where a cross street meets it. The town hall tower stands in
+// the middle and ten stalls ring it. Houses that would stand on it are left out
+// (houses.js asks `inMarket`); the blocks themselves are kept.
+const MARKET_X = 430;
+export const MARKET = { x: MARKET_X, z: MAIN.z, r: 19 };
+
+// True if a rectangle comes within `pad` metres of the market's circle.
+export function inMarket(minX, maxX, minZ, maxZ, pad = 1.5) {
+  const dx = Math.max(minX - MARKET.x, 0, MARKET.x - maxX);
+  const dz = Math.max(minZ - MARKET.z, 0, MARKET.z - maxZ);
+  return Math.hypot(dx, dz) < MARKET.r + pad;
+}
 
 // Cross streets: [centre, width]. Spacings vary so no two blocks are alike.
 function lines(from, to, step, jitter, width, keep = []) {
@@ -36,7 +43,7 @@ function lines(from, to, step, jitter, width, keep = []) {
   return out.concat(keep).sort((a, b) => a[0] - b[0]);
 }
 
-const xs = lines(IN.minX + LANE, IN.maxX - LANE, 58, 8, 6, [[(WANT.minX + WANT.maxX) / 2, 10]])
+const xs = lines(IN.minX + LANE, IN.maxX - LANE, 58, 8, 6, [[MARKET_X, 10]])
   .filter(([v], i, a) => i === 0 || v - a[i - 1][0] > 30);
 const zs = lines(IN.minZ + LANE, IN.maxZ - LANE, 52, 6, 6, [[MAIN.z, MAIN.width]])
   .filter(([v], i, a) => i === 0 || Math.abs(v - MAIN.z) > 25 || v === MAIN.z)
@@ -54,23 +61,17 @@ zEdges.push([IN.maxZ - LANE, IN.maxZ]);
 for (const [x0, x1] of xEdges) STREETS.push({ minX: x0, maxX: x1, minZ: IN.minZ, maxZ: IN.maxZ, dir: 'ns' });
 for (const [z0, z1] of zEdges) STREETS.push({ minX: IN.minX, maxX: IN.maxX, minZ: z0, maxZ: z1, dir: 'ew' });
 
-// The blocks between streets, minus the market.
+// The blocks between streets.
 export const BLOCKS = [];
 for (let i = 0; i + 1 < xEdges.length; i++) {
   for (let j = 0; j + 1 < zEdges.length; j++) {
     const b = { minX: xEdges[i][1], maxX: xEdges[i + 1][0], minZ: zEdges[j][1], maxZ: zEdges[j + 1][0] };
-    const inMarket = b.maxX > WANT.minX && b.minX < WANT.maxX && b.maxZ > WANT.minZ && b.minZ < WANT.maxZ;
-    if (inMarket) {
-      MARKET.minX = Math.min(MARKET.minX, b.minX); MARKET.maxX = Math.max(MARKET.maxX, b.maxX);
-      MARKET.minZ = Math.min(MARKET.minZ, b.minZ); MARKET.maxZ = Math.max(MARKET.maxZ, b.maxZ);
-    } else if (b.maxX - b.minX > 12 && b.maxZ - b.minZ > 12) {
-      BLOCKS.push(b);
-    }
+    if (b.maxX - b.minX > 12 && b.maxZ - b.minZ > 12) BLOCKS.push(b);
   }
 }
 
 // Paving. North–south streets sit a hair higher than east–west ones so their
-// crossings never z-fight; the market is paved over the lot.
+// crossings never z-fight; the market's disc sits above both.
 export function buildStreets(b) {
   const y = CITY.y;
   for (const s of STREETS) {
@@ -78,6 +79,6 @@ export function buildStreets(b) {
     b.box('cobble', (s.minX + s.maxX) / 2, y - 0.3, (s.minZ + s.maxZ) / 2,
       s.maxX - s.minX, 0.3 + top, s.maxZ - s.minZ);
   }
-  b.box('cobble', (MARKET.minX + MARKET.maxX) / 2, y - 0.3, (MARKET.minZ + MARKET.maxZ) / 2,
-    MARKET.maxX - MARKET.minX, 0.39, MARKET.maxZ - MARKET.minZ);
+  // The round market, paved a hair above the streets that run into it.
+  b.disc('cobble', MARKET.x, y - 0.3, MARKET.z, MARKET.r, 0.39);
 }

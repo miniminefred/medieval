@@ -243,6 +243,15 @@ export class CityBuilder {
     if (collide) this.collider(x - r, x + r, z - r, z + r, y0 + (lying ? r : h));
   }
 
+  // A flat round slab (a paved square, a plinth top) of radius r and thickness h,
+  // standing on y0, with UVs in metres so the texture is life-size across it.
+  disc(key, x, y0, z, r, h = 0.2, sides = 64) {
+    const g = new THREE.CylinderGeometry(r, r, h, sides);
+    const pos = g.attributes.position, uv = g.attributes.uv;
+    for (let i = 0; i < uv.count; i++) uv.setXY(i, pos.getX(i), pos.getZ(i));   // top-down
+    this._add(key, g, x, y0 + h / 2, z, 0, 0, r > CHUNK / 4);
+  }
+
   // A gable roof on top of walls w × d whose tops are at y0; ridge along the
   // walls' local X. Adds the two gable-end triangles in `wallKey`.
   roof(roofKey, wallKey, x, y0, z, w, d, h, { yaw = 0, over = 0.45 } = {}) {

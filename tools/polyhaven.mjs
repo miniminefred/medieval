@@ -50,6 +50,9 @@ const TEXTURES = [
   ['dirtroad', 'dry_mud_field_001', '1k', BUILD],      // the village's trodden roads
   ['soil', 'farm_soil', '1k', BUILD],                  // the ploughed field
   ['mud', 'brown_mud_02', '1k', BUILD],                // the pond's shore
+
+  // The apex city.
+  ['hide', 'fabric_leather_02', '1k', BUILD],          // animal pelts stretched over bone frames
 ];
 
 // [key, id, seen]. Every sky gets a 1k .hdr, which is plenty to *light* by. A sky

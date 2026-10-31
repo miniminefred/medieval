@@ -28,5 +28,6 @@ All CC0 (public domain) from [Poly Haven](https://polyhaven.com). Downloaded by
 | `textures/dirtroad` | Dry Mud Field 001 | Rob Tuytel, Rico Cilliers | https://polyhaven.com/a/dry_mud_field_001 |
 | `textures/soil` | Farm Soil | Amal Kumar | https://polyhaven.com/a/farm_soil |
 | `textures/mud` | Brown Mud 02 | Rob Tuytel | https://polyhaven.com/a/brown_mud_02 |
+| `textures/hide` | Fabric Leather 02 | Rob Tuytel | https://polyhaven.com/a/fabric_leather_02 |
 | `hdri/desert_noon.hdr` | Qwantani Noon (Pure Sky) | Greg Zaal, Jarod Guest | https://polyhaven.com/a/qwantani_noon_puresky |
 | `hdri/castle_day.hdr` | Kloofendal 48d Partly Cloudy (Pure Sky) | Greg Zaal, Jarod Guest | https://polyhaven.com/a/kloofendal_48d_partly_cloudy_puresky |

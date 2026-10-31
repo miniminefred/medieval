@@ -48,6 +48,11 @@ const SURFACES = {
   dirtroad: { size: 3.0 },            // the castle village's trodden roads
   soil: { size: 2.0 },                // its ploughed field
   mud: { size: 1.3 },                 // the pond's shore
+  // The apex city: pelts over frames of giant bones. `tex` borrows another
+  // surface's photos (bone is ivory-tinted plaster; burned hide is charred hide).
+  hide: { size: 1.0, tint: 0xb59a7c },
+  hideburnt: { size: 1.0, tex: 'hide', tint: 0x3a2e26 },
+  bone: { size: 1.5, tex: 'plaster', tint: 0xefe4cc },
   // Old window glass: dark, a little green, reflecting the sky.
   glass: { color: 0x1d2522, roughness: 0.08, metalness: 0.0, envMapIntensity: 1.6 },
   // Machined cyborg parts: blades, barrels, limbs.
@@ -143,11 +148,12 @@ export function cityMaterial(key, renderer) {
   } else {
     const r = 1 / s.size;
     const aniso = renderer.capabilities.getMaxAnisotropy();
-    const arm = tex(`${key}/arm.jpg`, false, r, aniso);
+    const dir = s.tex ?? key;
+    const arm = tex(`${dir}/arm.jpg`, false, r, aniso);
     m = new THREE.MeshStandardMaterial({
       color: new THREE.Color(s.tint ?? 0xffffff).multiplyScalar(s.gain ?? 1),
-      map: tex(`${key}/diff.jpg`, true, r, aniso),
-      normalMap: tex(`${key}/nor.jpg`, false, r, aniso),
+      map: tex(`${dir}/diff.jpg`, true, r, aniso),
+      normalMap: tex(`${dir}/nor.jpg`, false, r, aniso),
       aoMap: arm,
       roughnessMap: arm,
       metalnessMap: arm,

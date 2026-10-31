@@ -451,3 +451,59 @@ kbd {
   transition: opacity 400ms ease;
 }
 #health.poisoned span { background: linear-gradient(to bottom, #8fc23a, #4d7a1a); }
+
+/* ------------------------------------------------- inventory and trading */
+
+.itempanel {
+  position: fixed;
+  inset: 0;
+  z-index: 23;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(8, 6, 4, 0.7);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 160ms ease;
+}
+.itempanel.visible { opacity: 1; pointer-events: auto; }
+.itempanel .page {
+  width: min(30rem, 92vw);
+  max-height: 80vh;
+  display: flex;
+  flex-direction: column;
+  padding: 1.2rem 1.4rem;
+  background: #e8dcc0;
+  color: var(--ink);
+  border-radius: 3px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6);
+}
+.itempanel .page.wide { width: min(52rem, 94vw); }
+.itempanel .head { display: flex; align-items: center; gap: 1rem; margin-bottom: 0.8rem; }
+.itempanel h2 { margin: 0; flex: 1; font-weight: 400; letter-spacing: 0.12em; text-transform: uppercase; font-size: 1rem; color: #6b4a16; }
+.itempanel h3 { margin: 0 0 0.4rem; font-weight: 400; font-size: 0.85rem; color: #6b4a16; }
+.itempanel .gold { color: #7a5a10; font-weight: bold; }
+.itempanel .close { background: none; border: none; font-size: 1.1rem; cursor: pointer; color: #6b4a16; }
+.itempanel .cols { display: grid; grid-template-columns: 1fr 1fr; gap: 1.4rem; overflow: auto; }
+.itempanel .list, .itempanel .sells, .itempanel .buys { overflow: auto; }
+.itempanel .item {
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  gap: 0.8rem;
+  width: 100%;
+  padding: 0.35rem 0.5rem;
+  border: none;
+  border-bottom: 1px solid rgba(107, 74, 22, 0.2);
+  background: none;
+  font: inherit;
+  text-align: left;
+  color: inherit;
+  cursor: pointer;
+}
+.itempanel .item:hover { background: rgba(201, 162, 39, 0.18); }
+.itempanel .item .meta { opacity: 0.6; font-size: 0.85rem; }
+.itempanel .item .price { color: #7a5a10; font-size: 0.85rem; min-width: 4.5rem; text-align: right; }
+.itempanel .item .n { opacity: 0.7; }
+.itempanel .empty { opacity: 0.6; padding: 0.5rem 0; }
+.itempanel .foot { display: flex; justify-content: space-between; margin-top: 0.8rem; font-size: 0.85rem; opacity: 0.85; }
+.itempanel .over { color: #8e2219; font-weight: bold; }

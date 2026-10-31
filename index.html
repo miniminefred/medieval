@@ -25,7 +25,7 @@
     <div class="keys">
       <kbd>W</kbd> <kbd>A</kbd> <kbd>S</kbd> <kbd>D</kbd> walk &nbsp;·&nbsp;
       <kbd>Shift</kbd> run &nbsp;·&nbsp; <kbd>Space</kbd> jump &nbsp;·&nbsp;
-      <kbd>E</kbd> use &nbsp;·&nbsp; <kbd>Tab</kbd> journal &amp; map &nbsp;·&nbsp; <kbd>Click</kbd> cast &nbsp;·&nbsp;
+      <kbd>E</kbd> use &nbsp;·&nbsp; <kbd>Tab</kbd> journal &amp; map &nbsp;·&nbsp; <kbd>I</kbd> inventory &nbsp;·&nbsp; <kbd>Click</kbd> cast &nbsp;·&nbsp;
       <kbd>Mouse</kbd> look &nbsp;·&nbsp; <kbd>Esc</kbd> release
     </div>
   </div>
@@ -66,6 +66,27 @@
       </div>
     </div>
     <div class="hint"><kbd>Tab</kbd> close</div>
+  </div>
+
+  <!-- I: what you carry (trade.js). -->
+  <div id="inventory" class="itempanel">
+    <div class="page">
+      <div class="head"><h2>Carried</h2><span class="gold"></span><button class="close">✕</button></div>
+      <div class="list"></div>
+      <div class="foot"><span class="weight"></span><span class="hint">Click an item to use it</span></div>
+    </div>
+  </div>
+
+  <!-- A trader's wares and yours (trade.js). -->
+  <div id="trade" class="itempanel">
+    <div class="page wide">
+      <div class="head"><h2 class="title"></h2><span class="gold"></span><button class="close">✕</button></div>
+      <div class="cols">
+        <div><h3>For sale — click to buy one</h3><div class="sells"></div></div>
+        <div><h3>Yours — click to sell one</h3><div class="buys"></div></div>
+      </div>
+      <div class="foot"><span class="weight"></span></div>
+    </div>
   </div>
 
   <!-- Black curtain drawn while travelling between worlds. -->

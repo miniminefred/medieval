@@ -189,6 +189,10 @@ exception to "no guns": it belongs to the cyborg clan, not a general shooter loo
   builders**, **guards**, and **wounded dinos healing** from the war. Scorpions live
   in the ruins; the bandits think the place is dead. **The camp and the finished
   buildings are safe.**
+- **The cyborg market is a medium circle**, not a big square.
+- **Cyborg people look like cartoon-style cyborgs** (in the spirit of Cyborg from
+  *Teen Titans Go!*, but not a copy): chunky metal head with a glowing red eye, a
+  metal arm, shoulder plates and a glowing chest core.
 - **The brute city, later:** mammoth pens, a training arena, stone and wood houses.
 
 ## The worlds

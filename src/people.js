@@ -12,6 +12,8 @@ import { cityMaterial } from './builder.js';
 //   2  no hood: a metal head with a visor and red eye, a shoulder plate, and a
 //      chest plate with a glowing core
 //   3  nearly all machine: a metal body, both arms, both shoulders
+// Apex folk (`apex: true`) are dinosaur-people: no hood — a long scaly snout with
+// yellow eyes, and a tail — in their own skin colours. `hurt: true` bandages one.
 //
 // A person is a plain object the caller moves each frame — pos, yaw, `bob`
 // (walk/work bounce), `lean` (bowing forward) and `toolSwing` — and update()
@@ -56,12 +58,28 @@ function figureParts() {
     plate: at(new THREE.BoxGeometry(0.4, 0.32, 0.1), 0, 1.2, 0.2),
     core: at(new THREE.CylinderGeometry(0.075, 0.075, 0.03, 16), 0, 1.22, 0.26, 1, 1, 1, Math.PI / 2),
     torso: at(new THREE.CylinderGeometry(0.22, 0.45, 1.3, 16), 0, 0.65, 0),
+    // Apex: a reptile's head — skull, long snout, jaw, brow ridges — and a tail.
+    snout: merge(
+      at(new THREE.SphereGeometry(0.17, 16, 12), 0, 1.62, -0.02, 1, 0.95, 1.05),
+      at(new THREE.SphereGeometry(0.12, 14, 10), 0, 1.58, 0.2, 0.85, 0.7, 1.6),
+      at(new THREE.BoxGeometry(0.17, 0.06, 0.3), 0, 1.49, 0.2),
+      at(new THREE.ConeGeometry(0.05, 0.16, 8), 0.07, 1.74, 0.0, 1, 1, 1, -0.5),
+      at(new THREE.ConeGeometry(0.05, 0.16, 8), -0.07, 1.74, 0.0, 1, 1, 1, -0.5)),
+    tail: at(new THREE.ConeGeometry(0.16, 1.1, 10), 0, 0.55, -0.62, 1, 1, 1, -1.25),
+    apexEye: merge(
+      at(new THREE.SphereGeometry(0.03, 8, 6), 0.1, 1.66, 0.12),
+      at(new THREE.SphereGeometry(0.03, 8, 6), -0.1, 1.66, 0.12)),
+    bandage: merge(
+      at(new THREE.CylinderGeometry(0.3, 0.3, 0.12, 16, 1, true), 0, 1.15, 0),
+      at(new THREE.CylinderGeometry(0.175, 0.175, 0.07, 14, 1, true), 0, 1.7, -0.02)),
   };
 }
 
 // Mixed cartoon colours for a cyborg's metal and for their glowing core.
 export const METALS = [0x6e86a6, 0xd9dde3, 0xc9a24a, 0x3fa39b, 0xb2463f, 0x6b5a9a, 0x8f969e];
 export const CORES = [0x48d8ff, 0x5dff8a, 0xff5ad1, 0xffd04a];
+// Apex skin: greens, olive, ochre, rust — like big lizards.
+export const SKINS = [0x5f7a3e, 0x7d8a45, 0x8f7a40, 0x9a5b34, 0x4d6b5a, 0x6e6a3a];
 
 // Tools, in the right hand's space (hand at the origin, pointing +z forward).
 function toolGeometry(kind) {
@@ -86,6 +104,9 @@ export function createCrowd(parent, renderer) {
   const cloakMat = new THREE.MeshStandardMaterial({ map: hess.map, normalMap: hess.normalMap, roughness: 1 });
   // Cartoon metal: smooth and glossy, its colour per person.
   const metalMat = new THREE.MeshStandardMaterial({ roughness: 0.28, metalness: 0.55 });
+  // Scaly skin: the hessian's weave reads as scales at this size.
+  const hessian = cityMaterial('hessian', renderer);
+  const skinMat = new THREE.MeshStandardMaterial({ normalMap: hessian.normalMap, roughness: 0.65 });
   const mesh = (geo, mat, coloured = false) => {
     const m = new THREE.InstancedMesh(geo, mat, MAX);
     m.count = 0;
@@ -111,11 +132,16 @@ export function createCrowd(parent, renderer) {
     plate: mesh(parts.plate, metalMat, true),
     core: mesh(parts.core, new THREE.MeshBasicMaterial({ toneMapped: false }), true),
     torso: mesh(parts.torso, metalMat, true),
+    snout: mesh(parts.snout, skinMat, true),
+    tail: mesh(parts.tail, skinMat, true),
+    apexEye: mesh(parts.apexEye, new THREE.MeshBasicMaterial({ color: 0xffc83a, toneMapped: false })),
+    bandage: mesh(parts.bandage, new THREE.MeshStandardMaterial({ color: 0xe8e2d4, roughness: 1, side: THREE.DoubleSide })),
   };
   // Which parts a person of each machine level shows.
   const SHOW = {
     body: () => true,
-    hood: (p) => p.cyborg < 2, dark: (p) => p.cyborg < 2, helmet: (p) => p.cap && p.cyborg < 2,
+    hood: (p) => p.cyborg < 2 && !p.apex, dark: (p) => p.cyborg < 2 && !p.apex, helmet: (p) => p.cap && p.cyborg < 2 && !p.apex,
+    snout: (p) => p.apex, tail: (p) => p.apex, apexEye: (p) => p.apex, bandage: (p) => p.hurt,
     head: (p) => p.cyborg >= 2, visor: (p) => p.cyborg >= 2, eye: (p) => p.cyborg >= 1,
     armR: (p) => p.cyborg >= 1, shoulderR: (p) => p.cyborg >= 2, plate: (p) => p.cyborg >= 2,
     core: (p) => p.cyborg >= 2, armL: (p) => p.cyborg >= 3, shoulderL: (p) => p.cyborg >= 3,
@@ -138,10 +164,11 @@ export function createCrowd(parent, renderer) {
     // Add a person; returns the object to move about.
     // `cyborg`: 0–3, how much machine (see the top of this file); `metal` and
     // `core` colour it.
-    add({ x, y, z, yaw = 0, color = 0x6b5a48, cyborg = 0, metal = METALS[0], core = CORES[0], helmet: cap = false, tool = null, height = 1 }) {
+    add({ x, y, z, yaw = 0, color = 0x6b5a48, cyborg = 0, metal = METALS[0], core = CORES[0], helmet: cap = false, tool = null, height = 1,
+      apex = false, skin = SKINS[0], hurt = false }) {
       if (people.length >= MAX) return null;
       const i = people.length;
-      const p = { pos: new THREE.Vector3(x, y, z), yaw, bob: 0, lean: 0, toolSwing: 0, cyborg, cap, tool, height };
+      const p = { pos: new THREE.Vector3(x, y, z), yaw, bob: 0, lean: 0, toolSwing: 0, cyborg, cap, tool, height, apex, hurt };
       _c.set(color);
       M.body.instanceColor.setXYZ(i, _c.r, _c.g, _c.b);
       M.hood.instanceColor.setXYZ(i, _c.r, _c.g, _c.b);
@@ -149,6 +176,9 @@ export function createCrowd(parent, renderer) {
       for (const k of METAL_PARTS) M[k].instanceColor.setXYZ(i, _c.r, _c.g, _c.b);
       _c.set(core);
       M.core.instanceColor.setXYZ(i, _c.r, _c.g, _c.b);
+      _c.set(skin);
+      M.snout.instanceColor.setXYZ(i, _c.r, _c.g, _c.b);
+      M.tail.instanceColor.setXYZ(i, _c.r, _c.g, _c.b);
       people.push(p);
       return p;
     },

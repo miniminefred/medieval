@@ -69,8 +69,19 @@ export function createSword(camera) {
     _e.set(a.r[0] + (b.r[0] - a.r[0]) * e, a.r[1] + (b.r[1] - a.r[1]) * e, a.r[2] + (b.r[2] - a.r[2]) * e);
   }
 
+  // The dagger: the same hand, the blade cut short and the swing quicker.
+  const blades = hand.children.slice(0, 3).concat(hand.children.slice(6));
+  let speed = 1;
+  function setKind(kind) {
+    const dagger = kind === 'dagger';
+    hand.scale.setScalar(dagger ? 0.62 : 0.85);
+    speed = dagger ? 1.7 : 1;
+    for (const m of blades) m.scale.y = dagger ? 0.55 : 1;
+  }
+
   return {
     object: rig,
+    setKind,
     get swinging() { return t >= 0; },
     get hitMoment() { return hit; },
     set visible(v) { rig.visible = v; },
@@ -84,7 +95,7 @@ export function createSword(camera) {
       hit = false;
       if (t >= 0) {
         const before = t;
-        t += dt;
+        t += dt * speed;
         if (before < HIT_AT && t >= HIT_AT) hit = true;
         if (t >= SWING[SWING.length - 1].t) t = -1;
       }

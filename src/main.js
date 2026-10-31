@@ -21,6 +21,9 @@ import { createInterior } from './interiors.js';
 import { createSword } from './sword.js';
 import { createCombat } from './combat.js';
 import { CLANS, currentClan } from './clans.js';
+import { trade } from './trade.js';
+import { ITEMS } from './inventory.js';
+import { createKnives } from './knives.js';
 
 const renderer = createRenderer();
 const scene = createScene();
@@ -150,10 +153,48 @@ viewmodel.visible = false;
 const sword = createSword(camera);
 const combat = createCombat({ camera, player, sword });
 ctx.combat = combat;
-onClanChosen((id) => combat.setClan(id));
+onClanChosen((id) => { combat.setClan(id); inventory.setStrength(CLANS[id].stats.strength); });
+const knives = createKnives(scene);
+trade.init(player.controls);
+
+// What using an item from the inventory (I) does.
+//   food and potions   eaten or drunk: health back (water: breath too), antidote cures poison
+//   dagger             held instead of the old sword (use the sword again: the dagger again)
+//   throwing knives    held; a click throws three
+//   old fishing rod    held; a click casts
+let holding = 'sword';
+function hold(w) {
+  holding = w;
+  viewmodel.visible = w === 'rod';
+  sword.visible = w === 'sword' || w === 'dagger';
+  if (w === 'sword' || w === 'dagger') combat.setWeapon(w);
+  hud.toast(w === 'sword' ? 'You draw the old sword.' : `You take up the ${ITEMS[{ dagger: 'dagger', knives: 'knives', rod: 'rod' }[w]].name.toLowerCase()}.`);
+}
+trade.onUse((key) => {
+  const it = ITEMS[key];
+  if (it.heal || it.cure || it.stamina) {
+    inventory.addItem(key, -1);
+    if (it.heal) combat.heal(it.heal);
+    if (it.cure) combat.cure();
+    if (it.stamina) { player.stamina = player.staminaMax; player.winded = false; }
+    hud.toast(`You ${it.kind === 'food' ? 'eat' : 'drink'} the ${it.name.toLowerCase()}.`);
+    return true;
+  }
+  if (it.weapon) { hold(holding === it.weapon ? 'sword' : it.weapon); return true; }
+  hud.toast(`The ${it.name.toLowerCase()} is not something to use just now.`);
+  return false;
+});
+inventory.onChange(() => {
+  player.overloaded = inventory.overloaded;
+  // Sold or used up what you were holding: back to the sword.
+  if (holding !== 'sword' && !inventory.count(holding)) hold('sword');
+});
 renderer.domElement.addEventListener('mousedown', (e) => {
   if (e.button !== 0 || !player.isLocked) return;
-  if (viewmodel.visible) viewmodel.cast(); else combat.swing();
+  if (holding === 'rod') viewmodel.cast();
+  else if (holding === 'knives') {
+    if (inventory.count('knives') >= 1) { knives.throw3(camera, combat); inventory.addItem('knives', -1); }
+  } else combat.swing();
 });
 
 // Dying (docs/DESIGN.md): you lose a big part of your gold, and some of what you
@@ -203,7 +244,7 @@ document.getElementById('loading')?.classList.add('hidden');
 // Dev-only handle so the world can be flown around and inspected from the console
 // (there is no scene editor by design — this is how we look at what we built).
 if (import.meta.env.DEV) {
-  window.__medieval = { renderer, scene, camera, library, realms, viewmodel, player, travel, orb, inventory, clock, combat, sword,
+  window.__medieval = { renderer, scene, camera, library, realms, viewmodel, player, travel, orb, inventory, clock, combat, sword, trade,
     get realm() { return realm; } };
 }
 
@@ -224,6 +265,7 @@ function animate() {
   const here = drops.filter((d) => d.realm === realm && !d.thing.done).map((d) => d.thing);
   interaction.update(here.length ? realm.interactables.concat(here) : realm.interactables, camera, player.isLocked);
   combat.update(dt);
+  knives.update(dt, player.groundAt);
   orb.update(dt, camera);
   story.update(dt);
   checkQuests(realm.name, player.object.position);

@@ -31,6 +31,7 @@ export class Player {
     this.velocityY = 0;
     this.groundAt = () => 0;
     this.seat = null;             // sitting on a chair (sit())
+    this.overloaded = false;      // carrying too much: walk slowly, no running
     this.runMul = 1;              // from the clan's speed stat: apex run fastest
     this.staminaMax = 10;         // seconds of running on a full bar (clan's speed stat)
     this.stamina = this.staminaMax;
@@ -63,6 +64,11 @@ export class Player {
   sit(seat) {
     this.seat = seat;
     this.object.quaternion.setFromEuler(new THREE.Euler(0, seat.yaw, 0, 'YXZ'));
+  }
+
+  // A burst forward along the view (the dagger's lunge).
+  dash(strength) {
+    this._dash = strength;
   }
 
   // Swap to another world's floor and walls (realms call this on arrival).
@@ -129,7 +135,7 @@ export class Player {
       // fast, and (through staminaMax) for how long. Spent stamina means walking
       // until it has refilled to RECOVER of the bar.
       const moving = this._wish.lengthSq() > 0;
-      this.running = this.keys.sprint && moving && !this.winded;
+      this.running = this.keys.sprint && moving && !this.winded && !this.overloaded;
       if (this.running) {
         this.stamina = Math.max(0, this.stamina - dt);
         if (this.stamina === 0) this.winded = true;
@@ -137,8 +143,14 @@ export class Player {
         this.stamina = Math.min(this.staminaMax, this.stamina + dt * this.staminaMax / STAMINA_REFILL);
         if (this.winded && this.stamina >= this.staminaMax * RECOVER) this.winded = false;
       }
-      const speed = this.running ? RUN_SPEED * this.runMul : WALK_SPEED;
+      const speed = this.running ? RUN_SPEED * this.runMul : WALK_SPEED * (this.overloaded ? 0.6 : 1);
       if (moving) this._wish.normalize().multiplyScalar(speed);
+
+      if (this._dash) {
+        this._vel.x += this._forward.x * this._dash;
+        this._vel.z += this._forward.z * this._dash;
+        this._dash = 0;
+      }
 
       // Ease into the target velocity so starting and stopping has some weight.
       const k = 1 - Math.exp(-ACCEL * dt);

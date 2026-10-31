@@ -24,6 +24,7 @@ export function createCombat({ camera, player, sword }) {
   let deathHandler = () => {};
   let dead = false;
   let poisonT = 0, poisonDps = 0;
+  let weapon = 'sword';
 
   function refresh() { hud.health(health / maxHealth); }
   refresh();
@@ -48,9 +49,14 @@ export function createCombat({ camera, player, sword }) {
     unregister(e) { enemies.delete(e); },
     onDeath(fn) { deathHandler = fn; },
 
+    get weapon() { return weapon; },
+    setWeapon(w) { weapon = w; sword.setKind(w); },
+
     swing() {
       if (dead || player.seat) return;
-      sword.swing();
+      if (!sword.swing()) return;
+      // The dagger lunges: a short dash forward with the stab.
+      if (weapon === 'dagger') player.dash(6);
     },
 
     // Something hurts the player.
@@ -73,6 +79,9 @@ export function createCombat({ camera, player, sword }) {
       poisonDps = Math.max(poisonDps, dps);
       hud.poisoned(true);
     },
+
+    heal(n) { health = Math.min(maxHealth, health + n); refresh(); },
+    cure() { poisonT = 0; poisonDps = 0; hud.poisoned(false); },
 
     // After dying: back on your feet with some health.
     revive(fraction = 0.6) {
@@ -107,7 +116,7 @@ export function createCombat({ camera, player, sword }) {
           const d = _to.length();
           if (d > REACH) continue;
           if (d > 0.4 && _to.normalize().dot(_fwd) < ARC) continue;
-          e.hit(damage, p);
+          e.hit(weapon === 'dagger' ? Math.round(damage * 0.7) : damage, p);
         }
       }
     },

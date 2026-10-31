@@ -15,6 +15,7 @@ import { checkQuests, onQuestsChanged, allQuests } from './quests.js';
 import { createJournal } from './journal.js';
 import { createMinimap } from './minimap.js';
 import { explored } from './explored.js';
+import { clock } from './clock.js';
 
 const renderer = createRenderer();
 const scene = createScene();
@@ -111,7 +112,7 @@ document.getElementById('loading')?.classList.add('hidden');
 // Dev-only handle so the world can be flown around and inspected from the console
 // (there is no scene editor by design — this is how we look at what we built).
 if (import.meta.env.DEV) {
-  window.__medieval = { renderer, scene, camera, library, realms, viewmodel, player, travel, orb, inventory,
+  window.__medieval = { renderer, scene, camera, library, realms, viewmodel, player, travel, orb, inventory, clock,
     get realm() { return realm; } };
 }
 
@@ -126,6 +127,8 @@ function animate() {
 
   player.update(dt, camera);
   hud.stamina(player.stamina / player.staminaMax, player.running, player.winded, dt);
+  clock.tick(dt);
+  hud.time(clock.hour, clock.label(), clock.isNight);
   realm.update(dt, ctx);
   interaction.update(realm.interactables, camera, player.isLocked);
   orb.update(dt, camera);

@@ -48,6 +48,16 @@ export const hud = {
     sayTimer = setTimeout(() => el.classList.remove('visible'), t * 1000);
   },
 
+  // The time bar: the hour as a mark along the bar, sun by day, moon by night.
+  time(hour, label, night) {
+    const bar = $('timebar');
+    if (!bar) return;
+    const mark = bar.querySelector('.mark');
+    mark.style.left = `${((hour / 24) * 100).toFixed(2)}%`;
+    mark.classList.toggle('moon', night);
+    bar.querySelector('.label').textContent = label;
+  },
+
   // "Press E to …" under the crosshair, or nothing.
   prompt(text) {
     const el = $('prompt');

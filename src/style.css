@@ -317,7 +317,7 @@ kbd {
 #minimap {
   position: absolute;
   right: 1.2rem;
-  top: 1.2rem;
+  top: 3rem;
   width: 170px;
   height: 170px;
   border-radius: 50%;
@@ -329,7 +329,7 @@ kbd {
 #gold {
   position: absolute;
   right: 1.2rem;
-  top: calc(1.2rem + 178px);
+  top: calc(3rem + 178px);
   width: 170px;
   text-align: center;
   color: var(--gold);
@@ -381,3 +381,44 @@ kbd {
 #journal #journal-bag .empty { opacity: 0.6; }
 #journal-map { width: min(32rem, 46vw, 70vh); height: auto; border: 2px solid #6b4a16; display: block; }
 #journal .hint { margin-top: 1rem; opacity: 0.7; font-size: 0.85rem; }
+
+/* -------------------------------------------------------------- time bar */
+
+/* Just above the minimap: a day-to-night gradient with the sun or moon on it. */
+#timebar {
+  position: absolute;
+  right: 1.2rem;
+  top: 1rem;
+  width: 170px;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+#timebar .track {
+  position: relative;
+  flex: 1;
+  height: 8px;
+  border-radius: 4px;
+  border: 1px solid rgba(201, 162, 39, 0.6);
+  /* 00:00 night .. 06 dawn .. 13 noon .. 20 dusk .. 24 night */
+  background: linear-gradient(to right, #0b1230 0%, #0b1230 22%, #e6905a 26%, #8cc4f0 40%,
+    #8cc4f0 76%, #e6905a 82%, #0b1230 86%, #0b1230 100%);
+}
+#timebar .mark {
+  position: absolute;
+  top: 50%;
+  width: 12px;
+  height: 12px;
+  margin: -6px 0 0 -6px;
+  border-radius: 50%;
+  background: #ffe28a;
+  box-shadow: 0 0 6px #ffd04a;
+}
+#timebar .mark.moon { background: #dfe8ff; box-shadow: 0 0 6px #9fb8ff; }
+#timebar .label {
+  color: var(--parchment);
+  font-size: 0.8rem;
+  text-shadow: 0 1px 3px #000;
+  min-width: 2.6rem;
+  text-align: right;
+}

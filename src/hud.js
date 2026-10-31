@@ -54,6 +54,11 @@ export const hud = {
     if (el) el.firstElementChild.style.width = `${(Math.max(0, frac) * 100).toFixed(1)}%`;
   },
 
+  // Poisoned: the health bar turns sickly green.
+  poisoned(on) {
+    $('health')?.classList.toggle('poisoned', on);
+  },
+
   // A red flash at the screen's edges, 0..1 strong.
   hurt(strength = 0.6) {
     const el = $('hurt');

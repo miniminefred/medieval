@@ -23,6 +23,7 @@ export function createCombat({ camera, player, sword }) {
   let maxHealth = 120, health = maxHealth, sinceHurt = 99, damage = 26;
   let deathHandler = () => {};
   let dead = false;
+  let poisonT = 0, poisonDps = 0;
 
   function refresh() { hud.health(health / maxHealth); }
   refresh();
@@ -65,6 +66,14 @@ export function createCombat({ camera, player, sword }) {
       }
     },
 
+    // Poison: `dps` damage a second for `seconds` (a scorpion's sting). A fresh
+    // sting tops the poison up rather than stacking it.
+    poison(seconds, dps) {
+      poisonT = Math.max(poisonT, seconds);
+      poisonDps = Math.max(poisonDps, dps);
+      hud.poisoned(true);
+    },
+
     // After dying: back on your feet with some health.
     revive(fraction = 0.6) {
       dead = false;
@@ -75,6 +84,14 @@ export function createCombat({ camera, player, sword }) {
 
     update(dt) {
       sinceHurt += dt;
+      if (poisonT > 0 && !dead) {
+        poisonT -= dt;
+        health = Math.max(0, health - poisonDps * dt);
+        sinceHurt = 0;
+        refresh();
+        if (poisonT <= 0) { poisonDps = 0; hud.poisoned(false); }
+        if (health <= 0) { dead = true; poisonT = 0; hud.poisoned(false); deathHandler(); }
+      }
       if (!dead && sinceHurt > REGEN_DELAY && health < maxHealth) {
         health = Math.min(maxHealth, health + REGEN_RATE * dt);
         refresh();

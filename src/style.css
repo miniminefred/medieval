@@ -450,3 +450,4 @@ kbd {
   opacity: 0;
   transition: opacity 400ms ease;
 }
+#health.poisoned span { background: linear-gradient(to bottom, #8fc23a, #4d7a1a); }

@@ -16,6 +16,8 @@ import { createJournal } from './journal.js';
 import { createMinimap } from './minimap.js';
 import { explored } from './explored.js';
 import { clock } from './clock.js';
+import { onDoorOpened, isLocked } from './doorways.js';
+import { createInterior } from './interiors.js';
 
 const renderer = createRenderer();
 const scene = createScene();
@@ -75,21 +77,59 @@ onQuestsChanged(() => {
 const fade = document.getElementById('fade');
 let travelling = false;
 
-async function travel(name) {
+// Fade to black, swap the current realm for another, put the player at `at`
+// (default: the new realm's arrival point), fade back in. `make` builds the
+// realm if it is not built yet.
+async function goTo(make, at) {
   travelling = true;
   fade.classList.add('on');
   await new Promise((r) => setTimeout(r, 450));
   // Give the fade a frame to paint before a slow realm build blocks the thread.
   await new Promise((r) => requestAnimationFrame(() => setTimeout(r, 0)));
-  realms[name] ??= await builders[name]();
+  const next = await make();
   realm.exit(ctx);
-  realm = realms[name];
+  realm = next;
   realm.enter(ctx);
-  player.teleport(realm.arrival.x, realm.arrival.z, realm.arrival.yaw);
+  const a = at ?? realm.arrival;
+  player.teleport(a.x, a.z, a.yaw);
   orb.attach(scene);
   story.arrived(realm.name, realm.terrain?.heightAt ?? (() => 0));
   fade.classList.remove('on');
   travelling = false;
+}
+
+async function travel(name) {
+  await goTo(async () => (realms[name] ??= await builders[name]()));
+}
+
+// Houses: walking in builds the inside on the spot (interiors.js); leaving
+// puts you back on the street, just outside the door, facing out.
+onDoorOpened((door) => {
+  if (travelling) return;
+  if (isLocked(door)) { hud.toast('The door is locked.'); return; }
+  const outside = realm;
+  const step = { x: door.x + Math.sin(door.yaw) * 0.9, z: door.z + Math.cos(door.yaw) * 0.9, yaw: door.yaw + Math.PI };
+  const inside = createInterior(door, renderer, {
+    player,
+    onLeave: () => goTo(async () => outside, step),
+    onSleep: () => sleep(),
+  });
+  goTo(async () => inside);
+});
+
+// A bed: sleep until morning — a long rest (docs/DESIGN.md).
+async function sleep() {
+  if (travelling) return;
+  travelling = true;
+  fade.classList.add('on');
+  await new Promise((r) => setTimeout(r, 900));
+  clock.wakeAtDawn();
+  player.stamina = player.staminaMax;
+  player.winded = false;
+  await new Promise((r) => setTimeout(r, 600));
+  fade.classList.remove('on');
+  travelling = false;
+  hud.toast(`You wake at ${clock.label()}, rested.`);
 }
 
 // Dev shortcut while the worlds are being built: F2 hops between them.

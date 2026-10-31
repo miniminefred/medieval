@@ -11,6 +11,7 @@ import { buildCamps } from './camps.js';
 import { buildFarmville } from './farmville.js';
 import { buildCityFolk, buildFarmFolk } from './townsfolk.js';
 import { createChest } from '../chest.js';
+import { doorInteractable } from '../doorways.js';
 import { clock } from '../clock.js';
 import { setNight } from '../builder.js';
 import { createLamps } from '../lamps.js';
@@ -224,7 +225,8 @@ export function createWastelandRealm(renderer) {
     group,
     terrain,
     portals: [portal],
-    interactables: camps.chests.concat(desertChests, city.traders),
+    interactables: camps.chests.concat(desertChests, city.traders,
+      city.doors.concat(farmville.doors).map(doorInteractable)),
     spawn: { x: SPAWN.x, z: SPAWN.z, yaw: Math.PI },   // facing south, away from the portal
     // Each clan's prince arrives at their clan's home (clans.js); without a clan
     // (the F2 dev hop), at the map's centre.

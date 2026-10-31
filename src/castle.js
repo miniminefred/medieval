@@ -7,6 +7,7 @@ import { createPortal } from './portal.js';
 import { createClanStands } from './clan-stands.js';
 import { currentClan } from './clans.js';
 import { createChest } from './chest.js';
+import { doorInteractable } from './doorways.js';
 import { clock } from './clock.js';
 import { setNight } from './builder.js';
 import { createLamps } from './lamps.js';
@@ -111,7 +112,7 @@ export function createCastleRealm(library, renderer) {
     portal,
     portals: [portal],
     stands,
-    interactables: chests,
+    interactables: chests.concat(village.doors.map(doorInteractable)),
     // Out on the grass facing the gatehouse; back from a trip, in front of the portal.
     spawn: { x: 0, z: 36, yaw: 0 },
     arrival: { x: 10, z: -9, yaw: Math.PI },

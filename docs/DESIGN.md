@@ -163,6 +163,34 @@ exception to "no guns": it belongs to the cyborg clan, not a general shooter loo
   doing jobs.
 - **The market is a short walk in** from the cyborg city's gate (about 100 m).
 
+### Decided 2026-10-31
+
+- **Day/night:** day lasts 20 real minutes, night 10, unless you sleep through it.
+  **Nights are really dark.** A time bar with a moving sun/moon sits just above the
+  minimap.
+- **Houses you can enter:** furniture, upstairs, chests to loot, and **furniture you
+  can use** (doors, beds, chairs…). **Sleeping in a bed skips to morning** (a long
+  rest). No lockpicking yet.
+- **Basic combat:** you start with an **old sword**; **click to swing**; a **health
+  bar**. Bandits **attack, scream for the others, and chase you.** Scorpions fight
+  too: small, in flocks, poisonous, one hit kills them.
+- **Dying:** you lose **a big part of your gold** and **some of your loot is
+  dropped**. You wake where you last slept (or at your clan's home).
+- **The fishing rod is bought** in the shop as an **old rod**; it is not carried
+  from the start.
+- **Trading and inventory:** **I** opens the inventory (items with weight). **Over
+  the weight limit you walk slowly and cannot run.** Traders buy and sell **one item
+  at a time**. For sale: food and potions, better weapons (**throwing knives** —
+  thrown three at a time — and a **dagger** with a dash), gear and tools, and
+  materials (scrap, planks).
+- **The apex city is built first** of the clan cities. Before the war it was built
+  of **bone and animal pelts**. The Lava King destroyed it; now there are **a few
+  finished buildings, scaffolding everywhere, still messy**. There are **apex
+  builders**, **guards**, and **wounded dinos healing** from the war. Scorpions live
+  in the ruins; the bandits think the place is dead. **The camp and the finished
+  buildings are safe.**
+- **The brute city, later:** mammoth pens, a training arena, stone and wood houses.
+
 ## The worlds
 
 0. **Intro: the castle.** You pick your clan here, at four clan banners in the

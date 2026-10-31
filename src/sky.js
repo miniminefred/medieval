@@ -32,6 +32,7 @@ export function createSky({ radius = 4000 } = {}) {
     uSunColor: { value: new THREE.Color(0xfff1dc) },
     uSunStrength: { value: 1 },
     uHaze: { value: 0 },  // 0 clear .. 1 a wall of dust that swallows the sun
+    uNight: { value: 0 },  // 0 day .. 1 full night: how many stars show
   };
 
   const material = new THREE.ShaderMaterial({
@@ -48,13 +49,22 @@ export function createSky({ radius = 4000 } = {}) {
       }`,
     fragmentShader: /* glsl */`
       ${SKY_GLSL}
+      uniform float uNight;
       varying vec3 vDir;
+      float starHash(vec3 p) { return fract(sin(dot(p, vec3(12.9898, 78.233, 37.719))) * 43758.5453); }
       void main() {
         vec3 d = normalize(vDir);
         vec3 col = skyColor(d);
         float s = max(dot(d, normalize(uSunDir)), 0.0);
         float disc = smoothstep(0.9995, 0.99975, s) * (1.0 - uHaze);
         col += uSunColor * disc * 6.0 * uSunStrength;
+
+        // Stars: a fixed scatter on a fine grid of directions, twinkle-free,
+        // fading in with the night and out toward the hazy horizon. Only the dome
+        // gets them — the terrain's fog uses skyColor() and must not sparkle.
+        vec3 cell = floor(d * 380.0);
+        float star = step(0.9975, starHash(cell)) * smoothstep(0.02, 0.25, d.y) * (1.0 - uHaze);
+        col += vec3(0.9, 0.93, 1.0) * star * uNight * (0.6 + 0.8 * starHash(cell + 7.0));
 
         gl_FragColor = vec4(col, 1.0);
         #include <tonemapping_fragment>

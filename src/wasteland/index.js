@@ -10,6 +10,7 @@ import { buildRoads } from './road.js';
 import { buildCamps } from './camps.js';
 import { buildFarmville } from './farmville.js';
 import { buildCityFolk, buildFarmFolk } from './townsfolk.js';
+import { buildApexCity } from './apex.js';
 import { createChest } from '../chest.js';
 import { doorInteractable } from '../doorways.js';
 import { clock } from '../clock.js';
@@ -138,6 +139,7 @@ export function createWastelandRealm(renderer) {
   }
   const lamps = createLamps(group, renderer, lampSpots);
   const farmFolk = buildFarmFolk(group, renderer, terrain.heightAt);
+  const apex = buildApexCity(group, renderer, terrain.heightAt);
 
   // Chests half-buried out in the open desert, for whoever goes looking.
   const desertChests = [
@@ -147,7 +149,7 @@ export function createWastelandRealm(renderer) {
     x, z, y: terrain.heightAt(x, z), yaw: x * 0.01, gold, items, half: true,
   }));
 
-  const colliders = portal.colliders.concat(city.colliders, farmville.colliders, camps.colliders, lamps.colliders,
+  const colliders = portal.colliders.concat(city.colliders, farmville.colliders, camps.colliders, lamps.colliders, apex.colliders,
     desertChests.map((c) => c.collider));
 
   const fog = new THREE.FogExp2(MOODS.desert.horizon, MOODS.desert.fog);
@@ -240,7 +242,7 @@ export function createWastelandRealm(renderer) {
     },
 
     enter(ctx) {
-      if (!armed && ctx.combat) { camps.arm(ctx.combat); armed = true; }
+      if (!armed && ctx.combat) { camps.arm(ctx.combat); apex.scorpions.arm(ctx.combat); armed = true; }
       const { scene, renderer, camera, player } = ctx;
       active = ctx;
       scene.add(group);
@@ -285,6 +287,7 @@ export function createWastelandRealm(renderer) {
       cityFolk.update(dt, p);
       lamps.update(dt, p);
       farmFolk.update(dt, p);
+      apex.update(dt, p, ctx.combat);
       for (const c of desertChests) c.update(dt);
 
       // FogExp2 has swallowed everything by ~2.2 / density.

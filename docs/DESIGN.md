@@ -190,6 +190,12 @@ exception to "no guns": it belongs to the cyborg clan, not a general shooter loo
   in the ruins; the bandits think the place is dead. **The camp and the finished
   buildings are safe.**
 - **The cyborg market is a medium circle**, not a big square.
+  **10 stalls** in a ring (wares as before), round **the tower hall**: the old
+  glowing pillar becomes a tall round tower that is the **town hall**.
+- **Trade with people at their places too**: the **blacksmith at the forge**, a
+  **fisher / general store**, a **librarian**, a **carpenter**, etc.
+- **Cyborg townsfolk vary**: some just a metal arm or eye, others nearly all metal.
+  **Mixed, cartoon-like colours.**
 - **Cyborg people look like cartoon-style cyborgs** (in the spirit of Cyborg from
   *Teen Titans Go!*, but not a copy): chunky metal head with a glowing red eye, a
   metal arm, shoulder plates and a glowing chest core.

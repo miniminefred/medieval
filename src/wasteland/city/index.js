@@ -5,8 +5,8 @@ import { buildStreets } from './streets.js';
 import { buildHouses } from './houses.js';
 import { buildMarket, COUNTERS } from './market.js';
 import { createBandit } from '../bandits.js';
-import { inventory } from '../../inventory.js';
-import { hud } from '../../hud.js';
+import { trade } from '../../trade.js';
+import { SHOPS } from '../../shops.js';
 import { mulberry32 } from '../../noise.js';
 import { CITY } from '../terrain.js';
 
@@ -34,11 +34,8 @@ export function buildCity(renderer) {
       update: t.update,
       pos: new THREE.Vector3(c.front.x, CITY.y + 1.5, c.front.z),
       reach: 2.2,
-      label: 'sell your goods',
-      use() {
-        const earned = inventory.sellAll();
-        hud.toast(earned ? `The trader pays you ${earned} gold.` : 'You have nothing the trader wants.');
-      },
+      label: 'trade',
+      use() { trade.openShop(SHOPS[c.shop] ?? SHOPS.gadgets); },
     };
   });
   return {

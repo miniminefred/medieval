@@ -224,7 +224,7 @@ export function createWastelandRealm(renderer) {
     return dustI;
   }
 
-  const staticThings = camps.chests.concat(desertChests, city.traders,
+  const staticThings = camps.chests.concat(desertChests, city.traders, cityFolk.shops, farmFolk.shops,
     city.doors.concat(farmville.doors).map(doorInteractable));
 
   return {

@@ -166,6 +166,7 @@ export function buildMarket(b) {
       const yaw = Math.atan2(mx - x, mz - z);
       const cloth = n % 5 === 4 ? 'hessian' : (n % 2 ? 'linen' : 'caban');
       stall(b, x, z, yaw, cloth, WARES[n % WARES.length]);
+      COUNTERS[COUNTERS.length - 1].shop = WARES[n % WARES.length].name;
       n++;
     }
   });

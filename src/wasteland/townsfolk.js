@@ -6,6 +6,8 @@ import { STREETS, MARKET, MAIN } from './city/streets.js';
 import { COUNTERS } from './city/market.js';
 import { WALL } from './city/wall.js';
 import { PLACES } from './places.js';
+import { trade } from '../trade.js';
+import { SHOPS } from '../shops.js';
 
 // The people of the cyborg city and Farmville (docs/DESIGN.md): walking the
 // streets, shopping at the market, standing and chatting, guards at the gate and
@@ -73,7 +75,12 @@ export function buildCityFolk(group, renderer) {
   const G = streetGraph();
   const { ns, ew } = G;
   const thinkers = [];
+  const shops = [];        // tradespeople you can talk to
   const cloth = () => pick(CLOTH);
+  const shopkeeper = (p, shop) => shops.push({
+    pos: p.pos, reach: 2.6, label: `trade with ${SHOPS[shop].name.toLowerCase()}`,
+    use() { trade.openShop(SHOPS[shop]); },
+  });
   // How much machine a city dweller is: it varies (docs/DESIGN.md). About half
   // are plain folk; the rest anything from a metal arm to nearly all metal.
   const cyborg = () => { const r = rng(); return r < 0.5 ? 0 : r < 0.68 ? 1 : r < 0.86 ? 2 : 3; };
@@ -211,12 +218,22 @@ export function buildCityFolk(group, renderer) {
     group.add(anvil);
     const p = crowd.add({ x, y: Y, z, color: pick([0x4a3a2e, 0x3d3a36]), ...machine(), tool: 'hammer' });
     p.yaw = 0;
+    shopkeeper(p, 'blacksmith');
     const ph = rng() * 10;
     thinkers.push((dt, t) => {
       const c = (t * 1.4 + ph) % 1;               // raise slowly, strike fast
       p.toolSwing = c < 0.75 ? (c / 0.75) * 1.6 : 1.6 * (1 - (c - 0.75) / 0.25);
       p.lean = 0.12 + p.toolSwing * 0.04;
     });
+  }
+
+  // The general store, the librarian and the carpenter, each by a street.
+  for (const [shop, color, tool] of [['general', 0x7a5a3a, null], ['general', 0x6a5040, 'crate'],
+    ['librarian', 0x3f4f5f, null], ['carpenter', 0x6d4e3a, 'hammer']]) {
+    const { x, z } = edgeSpot();
+    const p = crowd.add({ x, y: Y, z, color, ...machine(), tool });
+    face(p, x + 1, z);
+    shopkeeper(p, shop);
   }
 
   // Gate guards: two outside, two inside, looking down the road.
@@ -228,7 +245,7 @@ export function buildCityFolk(group, renderer) {
   }
 
   const centre = new THREE.Vector3((CITY.minX + CITY.maxX) / 2, 0, (CITY.minZ + CITY.maxZ) / 2);
-  return crowdRunner(crowd, thinkers, centre, 600);
+  return { ...crowdRunner(crowd, thinkers, centre, 600), shops };
 }
 
 // ----------------------------------------------------------------- Farmville
@@ -276,7 +293,11 @@ export function buildFarmFolk(group, renderer, heightAt) {
     });
   }
 
-  return crowdRunner(crowd, thinkers, new THREE.Vector3(fx, 0, fz), 350);
+  // Farmville's general store keeper, by the well.
+  const keeper = crowd.add({ x: fx - 9, y: heightAt(fx - 9, fz - 14), z: fz - 14, color: 0x7a5a3a });
+  face(keeper, fx - 12, fz - 14);
+  const shops = [{ pos: keeper.pos, reach: 2.6, label: 'trade with the general store', use() { trade.openShop(SHOPS.general); } }];
+  return { ...crowdRunner(crowd, thinkers, new THREE.Vector3(fx, 0, fz), 350), shops };
 }
 
 // Runs a crowd only while the player is near enough to see it.

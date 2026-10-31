@@ -132,10 +132,19 @@ src/
   minimap.js      Rotating corner minimap
   explored.js     Fog of war: maps show only explored ground
   hud.js          Stamina bar, gold, orb subtitles, "press E" prompt, news toasts
-  inventory.js    Gold (25 to start) and items; sellAll() for traders
+  inventory.js    Gold (25 to start), items with weight/value/price, buy/sell one at a time
   interact.js     "Press E" for chests, traders…; realms list `interactables`
   chest.js        Lootable chest with an opening lid (gold + items)
-  people.js       Instanced crowd of hooded figures (cloth colour, cyborg eye, helmet, tool)
+  people.js       Instanced crowd: hooded folk, cartoon cyborgs (levels 0–3), apex dino-people
+  clock.js        Time of day: 20 min day, 10 min night; sun/moon direction and daylight
+  lamps.js        Street lamps; a pool of 8 real lights hops to the nearest
+  doorways.js     House doors as interactables (1 in 7 locked); main.js handles entering
+  interiors.js    Generated house insides: stairs, fire, table, chairs, cupboard, beds, chest
+  sword.js        The old sword (or dagger) in first person, and its swing
+  combat.js       Health, poison, enemies the blade strikes, dying
+  knives.js       Throwing knives, three at a time
+  shops.js        Who sells what
+  trade.js        I: the inventory screen; the trade window
   portal.js       Standing stone portal with a light sheet; isInside(feet) triggers travel
   sky.js          Sky dome whose horizon colour is driven to match the fog
   noise.js        Seeded Perlin noise, fbm, ridged — the source of all procedural land
@@ -149,13 +158,15 @@ src/
     camps.js        Six bandit camps (one big, walled) with fires, tents, loot
     bandits.js      Hooded figures: sit, guard, patrol (no fighting yet); traders too
     farmville.js    The farming village at the road's fork
+    apex.js         The apex city: bone-and-hide halls, scaffolding, palisade, ruins, folk
+    scorpions.js    Instanced scorpion flocks at nests; dart at you, sting, poison
     townsfolk.js    People of the cyborg city and Farmville: walkers on the street graph,
                     shoppers in market aisles, chatting groups, guards, sweepers, smiths, farmers
     city/           The cyborg city (east, above the snow line)
       wall.js         Stone + steel curtain wall, towers, west gatehouse
       streets.js      Street plan (STREETS, BLOCKS, MARKET) and cobbles
       houses.js       Half-timbered houses round every block; ~30% cyborg-touched
-      market.js       Tech market: four trade quarters of stalls, the glowing pillar
+      market.js       Round market: 10 stalls round the town hall tower
   world.js        The castle: weathered stone walls, round towers, gatehouse, keep, props
   village.js      Outside the walls: realistic houses, roads, farm, pond, woods (some props still low-poly)
   grass.js        Instanced wind-blown grass field + the procedural ground material
@@ -237,8 +248,9 @@ Two loader details that are easy to break and hard to spot:
 | Shift | Run |
 | Space | Jump |
 | Esc | Release the mouse |
-| Click | Grab the mouse (lock pointer); once locked, cast the fishing rod |
-| E | Use: open a chest, sell to a trader; at a clan banner, E twice to join |
+| Click | Grab the mouse (lock pointer); once locked, swing (or throw, or cast) |
+| E | Use: chests, doors, beds, chairs, traders, bodies; at a clan banner, E twice to join |
+| I | Inventory: click an item to eat, drink or hold it |
 | Tab | Journal and map (releases the mouse; Tab again to return) |
 | Shift | Run — drains stamina; spent, you walk until it refills |
 | F2 | Dev server only: hop between the castle and the wasteland |
@@ -299,12 +311,40 @@ would cross market stalls; shoppers stay in one aisle (counters grouped by row).
 A crowd only thinks and draws while you are within range of its town. The orb only
 shows while it speaks or points somewhere new (`shownFor` / `presence` in orb.js).
 
+### Day and night (`clock.js`, `lamps.js`)
+`clock.light()` gives sun and moon directions and `day` (0..1). Each realm applies it
+on top of its own lighting every frame; nights are meant to be **really dark**. Windows
+glow at night through the `glass` material (`setNight` in builder.js), half of them by
+a position hash. Stars are drawn by the sky dome only, never by `skyColor()`, or the
+fogged terrain would sparkle. Sleeping in a bed calls `clock.wakeAtDawn()`.
+
+### Houses (`doorways.js`, `interiors.js`)
+`buildHouse` pushes each front door onto `builder.doors` with the house's size, floors,
+door position and a seed. Opening one builds an interior realm from those numbers on
+the spot (same house, same inside) and `goTo()`s it; leaving goes back to the street
+outside the door. Upper floors are colliders with a `bottom` (player.js lets you walk
+under a box whose bottom is above your head), with the stairwell cut out of the slab.
+
+### Combat (`combat.js`, `sword.js`, `wasteland/bandits.js`, `scorpions.js`)
+Enemies register with combat as `{ pos, alive, hit(damage, from) }`; the sword's
+`hitMoment` (one frame mid-swing) strikes those within reach in front. A camp is a band:
+the first to see you (or be struck) calls `band.alert`, and every member comes after a
+delay set by distance; they give up past `GIVE_UP` from camp and walk home. Fallen
+bandits become "search the body" interactables. Dying (main.js) takes 60% of your gold
+and drops a third of each item in a pack where you fell; you wake where you last slept.
+
+### Trading (`inventory.js`, `trade.js`, `shops.js`)
+Every item has a weight, a `value` (paid to you) and a `price` (2× value). Capacity
+comes from the clan's strength; over it, `player.overloaded` slows walking and stops
+running. Market traders open the shop their stall's wares name (`COUNTERS[i].shop`).
+
 ### Realms (`main.js`, `castle.js`, `wasteland/`)
 Each world is a *realm*: built once on first visit into its own `THREE.Group`, then
 attached and detached as the player travels. `enter(ctx)` adds the group and owns the
 scene-wide settings it needs (background, fog, environment, tone mapping, camera far,
 and the player's `setWorld({ colliders, groundAt, canStand })`); `exit` removes it.
 Each realm lists `portals`; walking into one fades to black and calls `travel(target)`.
+`goTo(make, at)` is the general version (houses use it).
 The game **starts at the castle** (`START` in `main.js`).
 
 ### Wasteland (`wasteland/`)

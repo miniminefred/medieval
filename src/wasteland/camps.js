@@ -4,12 +4,14 @@ import { mulberry32 } from '../noise.js';
 import { CAMPS } from './places.js';
 import { createBandit } from './bandits.js';
 import { createChest } from '../chest.js';
+import { hud } from '../hud.js';
+import { inventory, ITEMS } from '../inventory.js';
 
 // The bandit camps of World 1 (places.js): cloth tents round a stone fire ring,
 // crates and barrels, a weapon rack, a loot chest — and bandits sitting by the
 // fire, standing guard and walking the edge. The big camp (the second mid boss's)
-// also has a palisade of sharpened stakes. No fighting yet: the bandits ignore
-// you, and their loot is there for the taking (docs/DESIGN.md).
+// also has a palisade of sharpened stakes. Get too close and they come for you
+// (bandits.js); their loot is there for whoever survives (docs/DESIGN.md).
 //
 // One shared orange light jumps to whichever campfire is nearest, so six fires
 // cost one light.
@@ -39,15 +41,50 @@ function fireMesh() {
   return g;
 }
 
+let combatRef = null;
+
 export function buildCamps(group, renderer, heightAt) {
   const b = new CityBuilder(renderer);
   const bandits = [];
   const chests = [];
   const fires = [];
+  const bodies = [];        // fallen bandits, to search
+  const camps = [];
 
   for (const camp of CAMPS) {
     const { x: cx, z: cz, big } = camp;
     const y = heightAt(cx, cz);
+    // The camp as a band: one shout brings them all.
+    let shouted = false;
+    const band = {
+      x: cx, z: cz, members: [],
+      alert(from) {
+        if (!shouted) { hud.toast('A bandit shouts for the others!'); shouted = true; }
+        for (const m of band.members) {
+          if (m.alive) m.alert(Math.hypot(m.pos.x - from.x, m.pos.z - from.z) / 25 + rng() * 0.4);
+        }
+      },
+      died(who) {
+        combatRef?.unregister(who);
+        const at = who.pos.clone();
+        let searched = false;
+        bodies.push({
+          pos: new THREE.Vector3(at.x, at.y + 0.4, at.z), reach: 2.2,
+          get label() { return searched ? 'nothing more on them' : 'search the body'; },
+          get done() { return searched; },
+          use() {
+            searched = true;
+            const gold = 2 + Math.floor(rng() * 11);
+            inventory.addGold(gold);
+            const found = [`${gold} gold`];
+            if (rng() < 0.5) { const k = LOOT[Math.floor(rng() * LOOT.length)]; inventory.addItem(k); found.push(ITEMS[k].name); }
+            hud.toast(`Found: ${found.join(', ')}`);
+          },
+        });
+        if (band.members.every((m) => !m.alive)) hud.toast('The camp falls quiet.');
+      },
+    };
+    camps.push(band);
 
     // ------------------------------------------------------ the fire
     for (let i = 0; i < 9; i++) {
@@ -136,7 +173,8 @@ export function buildCamps(group, renderer, heightAt) {
     for (let i = 0; i < seats - 1; i++) {        // by the fire, facing it
       const a = (i / seats) * Math.PI * 2 + 0.4;
       const px = cx + Math.cos(a) * 2.6, pz = cz + Math.sin(a) * 2.6;
-      bandits.push(createBandit(group, renderer, rng, {
+      band.members.push(createBandit(group, renderer, rng, {
+        camp: band,
         x: px, z: pz, yaw: Math.atan2(cx - px, cz - pz), pose: 'sit', heightAt,
       }));
     }
@@ -144,18 +182,21 @@ export function buildCamps(group, renderer, heightAt) {
     for (let i = 0; i < guards; i++) {           // standing guard, looking out
       const a = between(0, Math.PI * 2), r = big ? 16 : 10;
       const px = cx + Math.cos(a) * r, pz = cz + Math.sin(a) * r;
-      bandits.push(createBandit(group, renderer, rng, {
+      band.members.push(createBandit(group, renderer, rng, {
+        camp: band,
         x: px, z: pz, yaw: Math.atan2(px - cx, pz - cz), heightAt,
       }));
     }
     for (let i = 0; i < (big ? 2 : 1); i++) {    // walking the edge
-      bandits.push(createBandit(group, renderer, rng, {
+      band.members.push(createBandit(group, renderer, rng, {
+        camp: band,
         x: cx, z: cz, heightAt,
         patrol: { cx, cz, r: big ? 22 : 13, speed: 1.2, phase: between(0, Math.PI * 2) },
       }));
     }
   }
 
+  for (const band of camps) bandits.push(...band.members);
   b.finish(group);
 
   const light = new THREE.PointLight(0xff8a3a, 0, 22, 1.6);
@@ -164,11 +205,19 @@ export function buildCamps(group, renderer, heightAt) {
 
   return {
     colliders: b.colliders
-      .concat(bandits.map((x) => x.collider).filter(Boolean))
+
       .concat(chests.map((c) => c.collider)),
     chests,
-    update(dt, playerPos) {
-      for (const bd of bandits) bd.update(dt);
+    bodies,
+    bandits,
+    // Hand the camps the combat system: every bandit becomes something the
+    // sword can strike.
+    arm(combat) {
+      combatRef = combat;
+      for (const bd of bandits) combat.register(bd);
+    },
+    update(dt, playerPos, combatCtx) {
+      for (const bd of bandits) bd.update(dt, combatCtx);
       for (const c of chests) c.update(dt);
       let nearest = null, best = 80;
       for (const f of fires) {

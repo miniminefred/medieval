@@ -9,6 +9,7 @@ import { trade } from '../../trade.js';
 import { SHOPS } from '../../shops.js';
 import { mulberry32 } from '../../noise.js';
 import { CITY } from '../terrain.js';
+import { clock } from '../../clock.js';
 
 // The cyborg city — a safe quest town in the east of World 1. See docs/DESIGN.md
 // for what it is meant to become; each part lives in its own module here.
@@ -21,7 +22,7 @@ export function buildCity(renderer) {
   buildWall(b);
   buildStreets(b);
   const houses = buildHouses(b);
-  buildMarket(b);
+  const updateBoards = buildMarket(b, group);
 
   b.finish(group);
 
@@ -47,6 +48,7 @@ export function buildCity(renderer) {
     // Skip whole chunks the haze has already hidden.
     update(camera, viewDistance) {
       b.updateVisibility(camera.position, viewDistance);
+      updateBoards(clock.day);
     },
   };
 }

@@ -1,6 +1,10 @@
 import { CITY } from '../terrain.js';
 import { MARKET } from './streets.js';
 import { mulberry32 } from '../../noise.js';
+import { weapons, bodyParts, gadgets, vehicleParts, fill } from './stallgoods.js';
+import { paintedSign, chalkboard } from '../../signs.js';
+import { SHOPS, dealOf } from '../../shops.js';
+import { ITEMS } from '../../inventory.js';
 
 // The round market (docs/DESIGN.md): ten stalls in a ring round the town hall
 // tower, facing it across an aisle, with gaps where the streets come in. The
@@ -45,67 +49,14 @@ function stall(b, x, z, yaw, cloth, goods) {
   // Back wall and two shelves on it.
   put('timber', 0, 0, -D / 2 + 0.05, W - 0.2, 2.3, 0.06);
   for (const sy of [1.25, 1.9]) put('timber', 0, sy, -D / 2 + 0.3, W - 0.4, 0.05, 0.45);
-  // A sign board hung under the front of the awning, with a lit strip on tech stalls.
-  put('timber', 0, 2.05, D / 2 + 0.2, 1.8, 0.38, 0.05);
+  // A lit strip under the awning's front edge, where the painted sign hangs.
   if (cloth !== 'hessian') put('glow', 0, 1.98, D / 2 + 0.23, 1.6, 0.05, 0.03);
 
   goods({ put, cyl, top: 0.98, cz, back: -D / 2 + 0.3 });
+  fill({ put, cyl, W, D });
 
   // Behind the counter (local z = 0.05), facing out over it.
   COUNTERS.push({ x: x + 0.05 * s, z: z + 0.05 * c, yaw, front: { x: x + (D / 2 + 0.6) * s, z: z + (D / 2 + 0.6) * c } });
-}
-
-// ------------------------------------------------------------------- goods
-
-// Blades and guns: a rack of energy blades, a plasma cannon on the counter.
-function weapons({ put, cyl, top, cz, back }) {
-  for (let i = 0; i < 5; i++) {
-    const lx = -1.6 + i * 0.8;
-    put('gunmetal', lx, 1.3, back + 0.05, 0.07, 1.15, 0.03, { roll: between(-0.05, 0.05) });
-    put('glow', lx, 1.3, back + 0.08, 0.02, 1.0, 0.01);          // the lit edge
-  }
-  if (rand() < 0.8) {   // plasma cannon: body, barrel, power cell
-    put('steel', -0.6, top, cz, 0.5, 0.28, 0.3);
-    cyl('gunmetal', 0.05, top + 0.16, cz, 0.09, 0.9, { roll: Math.PI / 2 });
-    cyl('glow', -0.25, top + 0.16, cz, 0.11, 0.08, { roll: Math.PI / 2 });
-  }
-  put('gunmetal', 1.2, top, cz, 0.6, 0.12, 0.35);               // a crossbow-like stock
-  put('timber', 1.2, top + 0.12, cz, 0.8, 0.05, 0.08);
-}
-
-// Metal arms, eye implants, armour plates.
-function bodyParts({ put, cyl, top, cz, back }) {
-  for (const lx of [-1.4, -0.4]) {   // two arms laid out: upper, forearm, glowing joints
-    cyl('gunmetal', lx, top + 0.08, cz - 0.15, 0.07, 0.42, { pitch: Math.PI / 2 });
-    cyl('gunmetal', lx, top + 0.07, cz + 0.28, 0.06, 0.4, { pitch: Math.PI / 2 });
-    put('glow', lx, top + 0.02, cz + 0.06, 0.1, 0.1, 0.1);
-    put('steel', lx, top, cz + 0.52, 0.16, 0.06, 0.14);           // the hand
-  }
-  for (let i = 0; i < 6; i++) put('glow', 0.4 + i * 0.22, top, cz, 0.07, 0.07, 0.07);   // eyes
-  for (let i = 0; i < 3; i++) put('steel', -1 + i * 0.9, 1.3, back, 0.7, 0.5 - i * 0.08, 0.05); // plates
-  for (let i = 0; i < 4; i++) cyl('gunmetal', -1.3 + i * 0.85, 1.95, back, 0.08, 0.3);
-}
-
-// Small boxes with lit screens, lanterns, coils of cable and hook.
-function gadgets({ put, cyl, top, cz, back }) {
-  for (let i = 0; i < 4; i++) {
-    const lx = -1.5 + i * 0.95, h = between(0.12, 0.3);
-    put(pick(['steel', 'gunmetal']), lx, top, cz, between(0.25, 0.45), h, 0.25);
-    put('glow', lx, top + h * 0.3, cz + 0.13, 0.16, h * 0.4, 0.01);
-  }
-  for (let i = 0; i < 4; i++) cyl('glow', -1.4 + i * 0.9, 1.3, back, 0.07, 0.22, { sides: 8 });
-  for (let i = 0; i < 3; i++) cyl('rust', -1 + i * 1.0, 1.95, back, 0.18, 0.1);
-}
-
-// Engines, thrusters, wheels: big things, partly on the ground in front.
-function vehicleParts({ put, cyl, top, cz, back }) {
-  put('steel', -1.0, top, cz, 0.9, 0.45, 0.55);                   // an engine block
-  cyl('glow', -1.0, top + 0.45, cz, 0.12, 0.05);
-  cyl('gunmetal', 0.6, top + 0.22, cz, 0.22, 0.75, { rTop: 0.14, roll: Math.PI / 2 }); // thruster
-  cyl('glow', 0.98, top + 0.22, cz, 0.13, 0.03, { roll: Math.PI / 2 });
-  for (const lx of [-1.3, -0.3, 0.7]) {                             // wheels on the shelf
-    cyl('rust', lx, 1.3 + 0.32, back + 0.05, 0.32, 0.18, { pitch: Math.PI / 2 });
-  }
 }
 
 // ----------------------------------------------------------- the town hall
@@ -140,8 +91,12 @@ function townHall(b, x, z) {
 // ------------------------------------------------------------- the ring
 
 const WARES = [weapons, bodyParts, gadgets, vehicleParts, gadgets];
+const SIGN = { weapons: 'Arms & Armour', bodyParts: 'Cyborg Parts', gadgets: 'Gadgets', vehicleParts: 'Engines & Wheels' };
 
-export function buildMarket(b) {
+// Signs need their own meshes (each its own painting), so the market takes the
+// city's group too. Returns an update that re-chalks the deal boards each new day.
+export function buildMarket(b, group) {
+  const boards = [];
   const { x: mx, z: mz } = MARKET;
   const RING = 12.5;          // stall centres
   townHall(b, mx, mz);
@@ -157,8 +112,21 @@ export function buildMarket(b) {
       const x = mx + Math.cos(a) * RING, z = mz + Math.sin(a) * RING;
       const yaw = Math.atan2(mx - x, mz - z);
       const cloth = n % 5 === 4 ? 'hessian' : (n % 2 ? 'linen' : 'caban');
-      stall(b, x, z, yaw, cloth, WARES[n % WARES.length]);
-      COUNTERS[COUNTERS.length - 1].shop = WARES[n % WARES.length].name;
+      const wares = WARES[n % WARES.length];
+      stall(b, x, z, yaw, cloth, wares);
+      COUNTERS[COUNTERS.length - 1].shop = wares.name;
+      // The painted sign under the awning, and a chalkboard with today's deal.
+      const sign = paintedSign(SIGN[wares.name], 1.8, 0.4);
+      const c = Math.cos(yaw), s = Math.sin(yaw);
+      sign.position.set(x + (STALL_D / 2 + 0.2) * s, CITY.y + 0.09 + 2.24, z + (STALL_D / 2 + 0.2) * c);
+      sign.rotation.y = yaw;
+      group.add(sign);
+      const board = chalkboard();
+      const bl = STALL_W / 2 + 0.3, bf = STALL_D / 2 + 0.6;
+      board.object.position.set(x + bl * c + bf * s, CITY.y + 0.09, z - bl * s + bf * c);
+      board.object.rotation.y = yaw;
+      group.add(board.object);
+      boards.push({ board, shop: SHOPS[wares.name] });
       n++;
     }
   });
@@ -171,4 +139,15 @@ export function buildMarket(b) {
     if (rand() < 0.5) b.cylinder('timber', cx, CITY.y + 0.09, cz, 0.38, 0.95, { rTop: 0.33, collide: true });
     else b.box('timber', cx, CITY.y + 0.09, cz, 0.8, 0.8, 0.8, { yaw: between(0, 1.5), collide: true });
   }
+
+  // Chalk the deals, and again whenever the day turns.
+  let chalked = -1;
+  return function updateBoards(day) {
+    if (day === chalked) return;
+    chalked = day;
+    for (const { board, shop } of boards) {
+      const d = dealOf(shop);
+      board.write(d ? ['TODAY', ITEMS[d.item].name, `-${Math.round(d.off * 100)}%`] : ['OPEN']);
+    }
+  };
 }

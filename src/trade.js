@@ -1,5 +1,6 @@
 import { inventory, ITEMS } from './inventory.js';
 import { hud } from './hud.js';
+import { dealOf, priceAt } from './shops.js';
 
 // The two item screens (docs/DESIGN.md):
 //   I       your inventory — every item with its weight; click to use, eat or
@@ -54,7 +55,10 @@ function renderTrade() {
   const el = $('trade');
   const shop = currentShop;
   el.querySelector('.title').textContent = shop.name;
-  el.querySelector('.sells').innerHTML = shop.sells.map((k) => row(k, 0, `${ITEMS[k].price} gold`)).join('');
+  const deal = dealOf(shop);
+  el.querySelector('.sells').innerHTML = shop.sells.map((k) => row(k, 0, deal?.item === k
+    ? `<span class="sale">−${Math.round(deal.off * 100)}%</span> <s>${ITEMS[k].price}</s> ${priceAt(shop, k)} gold`
+    : `${ITEMS[k].price} gold`)).join('');
   const mine = inventory.items;
   el.querySelector('.buys').innerHTML = mine.length
     ? mine.map(([k, n]) => row(k, n, `${ITEMS[k].value} gold`)).join('')
@@ -62,7 +66,7 @@ function renderTrade() {
   el.querySelector('.gold').textContent = `${inventory.gold} gold`;
   el.querySelector('.weight').textContent = `${inventory.weight.toFixed(1)} / ${inventory.capacity} kg`;
   el.querySelectorAll('.sells .item').forEach((b) => b.onclick = () => {
-    if (!inventory.buyOne(b.dataset.key)) hud.toast('You cannot afford that.');
+    if (!inventory.buyOne(b.dataset.key, priceAt(shop, b.dataset.key))) hud.toast('You cannot afford that.');
     renderTrade();
   });
   el.querySelectorAll('.buys .item').forEach((b) => b.onclick = () => {

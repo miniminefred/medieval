@@ -139,10 +139,10 @@ export const inventory = {
   },
 
   // One item from a trader for its price. False if you cannot afford it.
-  buyOne(key) {
+  buyOne(key, price = ITEMS[key]?.price) {
     const it = ITEMS[key];
-    if (!it || state.gold < it.price) return false;
-    state.gold -= it.price;
+    if (!it || state.gold < price) return false;
+    state.gold -= price;
     this.addItem(key, 1);
     return true;
   },

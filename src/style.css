@@ -544,3 +544,6 @@ kbd {
   color: #dff0c8;
 }
 #effects span.bad { background: rgba(90, 20, 15, 0.8); color: #ffd6cc; }
+.itempanel .item .price s { opacity: 0.5; }
+.itempanel .item .price .sale { background: #8e2219; color: #fff; padding: 0 0.3rem; border-radius: 2px; font-size: 0.75rem; }
+.itempanel .item .price { min-width: 7.5rem; }

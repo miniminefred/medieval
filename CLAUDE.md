@@ -135,7 +135,11 @@ src/
   inventory.js    Gold (25 to start), items with weight/value/price, buy/sell one at a time
   interact.js     "Press E" for chests, traders…; realms list `interactables`
   chest.js        Lootable chest with an opening lid (gold + items)
-  people.js       Instanced crowd: hooded folk, cartoon cyborgs (levels 0–3), apex dino-people
+  people.js       Crowds: the nearest 30 are real models (humans.js), the rest instanced stand-ins
+  humans.js       Rigged, animated CC0 people + the cyborg shader (metal but one arm, one leg, half a face)
+  hunger.js       Hunger, food effects (well fed, energised), starving debuffs
+  furniture.js    Interior furniture and clutter; hinged doors
+  signs.js        Painted signs and chalkboards (canvas textures)
   clock.js        Time of day: 20 min day, 10 min night; sun/moon direction and daylight
   lamps.js        Street lamps; a pool of 8 real lights hops to the nearest
   doorways.js     House doors as interactables (1 in 7 locked); main.js handles entering
@@ -143,7 +147,7 @@ src/
   sword.js        The old sword (or dagger) in first person, and its swing
   combat.js       Health, poison, enemies the blade strikes, dying
   knives.js       Throwing knives, three at a time
-  shops.js        Who sells what
+  shops.js        Who sells what; one daily deal per shop (dealOf, priceAt)
   trade.js        I: the inventory screen; the trade window
   portal.js       Standing stone portal with a light sheet; isInside(feet) triggers travel
   sky.js          Sky dome whose horizon colour is driven to match the fog
@@ -166,7 +170,8 @@ src/
       wall.js         Stone + steel curtain wall, towers, west gatehouse
       streets.js      Street plan (STREETS, BLOCKS, MARKET) and cobbles
       houses.js       Half-timbered houses round every block; ~30% cyborg-touched
-      market.js       Round market: 10 stalls round the town hall tower
+      market.js       Round market: 10 stalls round the town hall tower, signs, deal boards
+      stallgoods.js   What lies on the stalls: swords, shields, potions, gadgets, engines…
   world.js        The castle: weathered stone walls, round towers, gatehouse, keep, props
   village.js      Outside the walls: realistic houses, roads, farm, pond, woods (some props still low-poly)
   grass.js        Instanced wind-blown grass field + the procedural ground material
@@ -334,9 +339,30 @@ bandits become "search the body" interactables. Dying (main.js) takes 60% of you
 and drops a third of each item in a pack where you fell; you wake where you last slept.
 
 ### Trading (`inventory.js`, `trade.js`, `shops.js`)
-Every item has a weight, a `value` (paid to you) and a `price` (2× value). Capacity
+Every item has a weight, a `value` (paid to you) and a `price` (2× value); armour items
+have a `slot` and `armour` (each point soaks 5% of a blow, at most 60%); `light` items
+(torch, lantern) light a point light on the camera. Each shop has one deal a day. Capacity
 comes from the clan's strength; over it, `player.overloaded` slows walking and stops
 running. Market traders open the shop their stall's wares name (`COUNTERS[i].shop`).
+
+### Real people (`humans.js`, `people.js`)
+Four CC0 Quaternius models (`person_man/woman/hooded/farmer` in public/models/medieval,
+listed in fetch-props.mjs) share one 62-bone skeleton and animation names (Idle, Walk,
+Run, Sword_Slash, Interact, HitRecieve, Death). `makeHuman(kind)` clones one with its own
+mixer and **materials carrying the cyborg shader**: `uHumanBones[62]` says which bones stay
+human (one arm, one leg), the head is human on one side of `position.x` only, and the
+rest becomes `uMetal`; a red eye and a chest core hang on the Head and Chest bones.
+Bones carry the exporter's scale, so anything parented to a bone is sized with
+`human.boneScale` (measured from the Head bone's world scale) — using the clone's own
+scale made the cores hundreds of times too big. Crowds give real models to the nearest
+30 people (re-picked every 0.25 s from a pool); everyone else stays an instanced
+stand-in. Bandits and traders each own a model and only animate within 120 m.
+
+### Hunger (`hunger.js`)
+Full to empty in 15 minutes awake; running and healing burn faster; sleeping costs 0.12.
+Food items have `food` (fill), and may give `effect` for `seconds`. Starving: no
+running (`player.starving`), capacity −10 kg (`inventory.setCapacityPenalty`), no regen,
+blows at 70%. Effects show as tags above the health and hunger bars.
 
 ### Realms (`main.js`, `castle.js`, `wasteland/`)
 Each world is a *realm*: built once on first visit into its own `THREE.Group`, then

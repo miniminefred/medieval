@@ -299,6 +299,35 @@ export class CityBuilder {
 
   // A solid box from the ground (or from `bottom`, for things you can pass under)
   // up to `top`.
+  // A turned rectangle (w along its own x, d along its own z, centred on x, z)
+  // as a row of small square boxes along its length. One axis-aligned box round a
+  // long thing at an angle would be a big invisible square (the market counters
+  // were 3.7 m squares that walled off the aisle).
+  turnedCollider(x, z, w, d, yaw, top) {
+    const long = Math.max(w, d), short = Math.min(w, d);
+    const n = Math.max(1, Math.ceil(long / short));
+    const ax = w >= d ? Math.cos(yaw) : Math.sin(yaw), az = w >= d ? -Math.sin(yaw) : Math.cos(yaw);
+    const half = short / 2;
+    for (let i = 0; i < n; i++) {
+      const t = (i + 0.5) / n - 0.5;
+      const px = x + ax * t * long, pz = z + az * t * long;
+      this.collider(px - half, px + half, pz - half, pz + half, top);
+    }
+  }
+
+  // A round thing (a tower) as a ring of boxes that hug its curve.
+  roundCollider(x, z, r, top, pieces = 16) {
+    const s = (Math.PI * r) / pieces;   // half the arc each box covers, roughly
+    for (let i = 0; i < pieces; i++) {
+      const a = (i / pieces) * Math.PI * 2;
+      const px = x + Math.cos(a) * (r - s / 2), pz = z + Math.sin(a) * (r - s / 2);
+      this.collider(px - s / 2, px + s / 2, pz - s / 2, pz + s / 2, top);
+    }
+    // And the middle, so nothing slips between the ring's boxes into it.
+    const c = r * 0.7;
+    this.collider(x - c, x + c, z - c, z + c, top);
+  }
+
   collider(minX, maxX, minZ, maxZ, top, bottom) {
     this.colliders.push(bottom === undefined ? { minX, maxX, minZ, maxZ, top } : { minX, maxX, minZ, maxZ, top, bottom });
   }

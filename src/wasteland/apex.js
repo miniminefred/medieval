@@ -69,10 +69,16 @@ function hall(b, heightAt, x, z, yaw, { len = 12, span = 8, rise = 6, cover = 1,
     }
   }
   // Solid where the hide is up (finished halls are walls; ruins you walk through).
+  // Only where the hide comes down to the ground: a wall along each long side
+  // and across the back. The front (+z end, under the skull) is the way in, and
+  // the inside is room to walk about.
   if (cover > 0.8) {
-    const hw = (Math.abs(c) * span + Math.abs(s) * len) / 2, hd = (Math.abs(s) * span + Math.abs(c) * len) / 2;
-    // Leave the entrance end open: a door in the near gable.
-    b.collider(x - hw, x + hw, z - hd, z + hd, y + rise);
+    for (const side of [-1, 1]) {
+      const [wx, wz] = at(side * (span / 2 - 0.5), 0);
+      b.turnedCollider(wx, wz, 1.0, len, yaw, y + rise);
+    }
+    const [bx, bz] = at(0, -len / 2);
+    b.turnedCollider(bx, bz, span, 1.0, yaw, y + rise);
   }
   if (skull) {
     const [kx, kz] = at(0, len / 2 + 0.6);
@@ -136,11 +142,12 @@ export function buildApexCity(group, renderer, heightAt) {
     b.cylinder(key, px, py - 0.3, pz, 0.16, h, { sides: 7 });
     b.cylinder(key, px, py - 0.3 + h, pz, 0.16, 0.4, { sides: 7, rTop: 0.01 });
   }
-  for (let i = 0; i < 60; i++) {
-    const a = ((i + 0.5) / 60) * Math.PI * 2;
-    if (Math.abs(Math.atan2(Math.sin(a + Math.PI / 2), Math.cos(a + Math.PI / 2))) < 0.13) continue;
+  // Small boxes that hug the stakes (big ones stuck far into the camp).
+  for (let i = 0; i < 200; i++) {
+    const a = ((i + 0.5) / 200) * Math.PI * 2;
+    if (Math.abs(Math.atan2(Math.sin(a + Math.PI / 2), Math.cos(a + Math.PI / 2))) < 0.09) continue;
     const px = cx + Math.cos(a) * CAMP_R, pz = cz + Math.sin(a) * CAMP_R;
-    b.collider(px - 1.8, px + 1.8, pz - 1.8, pz + 1.8, heightAt(px, pz) + 2.4);
+    b.collider(px - 0.55, px + 0.55, pz - 0.55, pz + 0.55, heightAt(px, pz) + 2.4);
   }
 
   // ---------------------------------------------------------- the ruins

@@ -117,7 +117,7 @@ export function buildCamps(group, renderer, heightAt) {
       const cloth = 'hessian';   // patched sacking — bandits do not buy new canvas
       const len = between(3.2, 4.2), wid = between(2.4, 3);
       b.roof(cloth, cloth, tx, ty - 0.05, tz, len, wid, between(1.7, 2.1), { yaw, over: 0.05 });
-      b.collider(tx - 1.6, tx + 1.6, tz - 1.6, tz + 1.6, ty + 1.9);
+      b.turnedCollider(tx, tz, len * 0.9, wid * 0.9, yaw, ty + 1.9);
     }
 
     // ------------------------------------------------------ clutter
@@ -148,12 +148,12 @@ export function buildCamps(group, renderer, heightAt) {
         b.cylinder('timber', px, py - 0.3, pz, 0.15, h, { sides: 7 });
         b.cylinder('timber', px, py - 0.3 + h, pz, 0.15, 0.4, { sides: 7, rTop: 0.01 });
       }
-      // One collider per short arc keeps the wall solid without hundreds of boxes.
-      for (let i = 0; i < 48; i++) {
-        const a = ((i + 0.5) / 48) * Math.PI * 2;
-        if (Math.abs(Math.sin((a - 0.6) / 2)) < 0.1) continue;
+      // Small boxes round the ring, hugging the stakes.
+      for (let i = 0; i < 120; i++) {
+        const a = ((i + 0.5) / 120) * Math.PI * 2;
+        if (Math.abs(Math.sin((a - 0.6) / 2)) < 0.08) continue;
         const px = cx + Math.cos(a) * r, pz = cz + Math.sin(a) * r;
-        b.collider(px - 1.3, px + 1.3, pz - 1.3, pz + 1.3, heightAt(px, pz) + 2.4);
+        b.collider(px - 0.55, px + 0.55, pz - 0.55, pz + 0.55, heightAt(px, pz) + 2.4);
       }
     }
 

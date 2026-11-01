@@ -53,6 +53,17 @@ const SURFACES = {
   hide: { size: 1.0, tint: 0xb59a7c },
   hideburnt: { size: 1.0, tex: 'hide', tint: 0x3a2e26 },
   bone: { size: 1.5, tex: 'plaster', tint: 0xefe4cc },
+  // House clutter (furniture.js): pottery, pewter, wax, books, rugs and blankets.
+  pottery: { size: 0.6, tex: 'plaster', tint: 0xa8643c },
+  rug: { size: 0.6, tex: 'linen', tint: 0x8c3328 },
+  blanket: { size: 0.5, tex: 'linen', tint: 0x6a2f3c },
+  sheet: { size: 0.5, tex: 'linen', tint: 0xe6dccb },
+  pewter: { color: 0x8a8d90, roughness: 0.4, metalness: 0.7 },
+  wax: { color: 0xece2c6, roughness: 0.6, metalness: 0 },
+  bookred: { color: 0x6e2219, roughness: 0.8, metalness: 0 },
+  bookgreen: { color: 0x284a2c, roughness: 0.8, metalness: 0 },
+  bookblue: { color: 0x22344f, roughness: 0.8, metalness: 0 },
+  bread: { color: 0xb07a3c, roughness: 0.9, metalness: 0 },
   // Old window glass: dark, a little green, reflecting the sky.
   glass: { color: 0x1d2522, roughness: 0.08, metalness: 0.0, envMapIntensity: 1.6 },
   // Machined cyborg parts: blades, barrels, limbs.
@@ -299,6 +310,11 @@ export class CityBuilder {
 
   // A solid box from the ground (or from `bottom`, for things you can pass under)
   // up to `top`.
+  // The shared material for a surface key (for meshes built outside the kit).
+  material(key) {
+    return cityMaterial(key, this.renderer);
+  }
+
   // A turned rectangle (w along its own x, d along its own z, centred on x, z)
   // as a row of small square boxes along its length. One axis-aligned box round a
   // long thing at an angle would be a big invisible square (the market counters

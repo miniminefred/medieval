@@ -283,7 +283,7 @@ export function createWastelandRealm(renderer) {
       sun.position.copy(p).addScaledVector(lightDir, 250);
 
       camps.update(dt, p, { playerPos: p, playerHere: true, combat: ctx.combat });
-      for (const t of city.traders) t.update(dt);
+      for (const t of city.traders) t.update(dt, { playerPos: p, playerHere: false });
       cityFolk.update(dt, p);
       lamps.update(dt, p);
       farmFolk.update(dt, p);

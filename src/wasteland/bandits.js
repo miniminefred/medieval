@@ -141,7 +141,8 @@ export function createBandit(parent, renderer, rng, { x, z, yaw = 0, pose = 'sta
       const here = ctx?.playerHere;
       const dx = p ? p.x - g.position.x : 0, dz = p ? p.z - g.position.z : 0;
       const dist = Math.hypot(dx, dz);
-      // Animate only when near enough to be seen.
+      // Draw and animate only when near enough to be seen.
+      if (human && p) human.setDetail(dist);
       if (human && (!p || dist < 120)) human.update(dt);
 
       if (mode === 'dead') {

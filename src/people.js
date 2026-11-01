@@ -27,7 +27,7 @@ import { makeHuman, hasHumans } from './humans.js';
 // writes the matrices. Behaviour lives with whoever made the crowd (townsfolk.js).
 
 const MAX = 700;
-const NEAR = 30;          // how many real models a crowd shows at once
+const NEAR = 20;          // how many real models a crowd shows at once
 const NEAR_DIST = 60;     // and how far away they may be
 
 // The figure, feet at y = 0, facing +z, built once; one geometry per part.
@@ -229,6 +229,7 @@ export function createCrowd(parent, renderer) {
       s.human.object.position.set(p.pos.x, p.pos.y, p.pos.z);
       s.human.object.rotation.set(0, p.yaw, 0);
       s.human.object.scale.setScalar(p.height);
+      s.human.setDetail(p.pos.distanceTo(view));
       const working = p.tool && p.tool !== 'spear' && p.tool !== 'crate' && p.speed < 0.2;
       s.human.play(p.speed > 2.6 ? 'Run' : p.speed > 0.25 ? 'Walk' : working ? 'Interact' : 'Idle');
       s.human.update(dt);

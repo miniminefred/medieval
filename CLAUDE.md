@@ -358,6 +358,14 @@ scale made the cores hundreds of times too big. Crowds give real models to the n
 30 people (re-picked every 0.25 s from a pool); everyone else stays an instanced
 stand-in. Bandits and traders each own a model and only animate within 120 m.
 
+**Performance traps:** each model arrives as 12–17 skinned parts (one per flat colour);
+`mergeParts` bakes the colours into vertices and merges the parts that share the body's
+space into one skinned mesh — one draw call a person instead of ~16 (a backpack in its
+own scaled node is left separate, or it comes out giant). Measure height *before*
+merging. Skinned meshes have frustum culling off, so `setDetail(dist)` hides people past
+150 m and drops their shadows past 25 m: without it 1,030 parts drew every frame and
+the market took 65 ms; now 9.5 ms.
+
 ### Hunger (`hunger.js`)
 Full to empty in 15 minutes awake; running and healing burn faster; sleeping costs 0.12.
 Food items have `food` (fill), and may give `effect` for `seconds`. Starving: no

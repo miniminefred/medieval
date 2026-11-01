@@ -41,7 +41,7 @@ function stall(b, x, z, yaw, cloth, goods) {
   const cz = D / 2 - 0.45;
   put('timber', 0, 0, cz, W - 0.4, 0.92, 0.75);
   put('timber', 0, 0.92, cz, W - 0.2, 0.06, 0.9);
-  b.collider(...footprint(x, z, yaw, W - 0.2, 0.9, cz), y + 0.98);
+  b.turnedCollider(x + cz * s, z + cz * c, W - 0.2, 0.9, yaw, y + 0.98);
   // Back wall and two shelves on it.
   put('timber', 0, 0, -D / 2 + 0.05, W - 0.2, 2.3, 0.06);
   for (const sy of [1.25, 1.9]) put('timber', 0, sy, -D / 2 + 0.3, W - 0.4, 0.05, 0.45);
@@ -53,14 +53,6 @@ function stall(b, x, z, yaw, cloth, goods) {
 
   // Behind the counter (local z = 0.05), facing out over it.
   COUNTERS.push({ x: x + 0.05 * s, z: z + 0.05 * c, yaw, front: { x: x + (D / 2 + 0.6) * s, z: z + (D / 2 + 0.6) * c } });
-}
-
-// AABB of a rectangle w × d offset `lz` forward from (x, z), turned by any yaw.
-function footprint(x, z, yaw, w, d, lz) {
-  const c = Math.cos(yaw), s = Math.sin(yaw);
-  const cx = x + lz * s, cz = z + lz * c;
-  const hw = (Math.abs(c) * w + Math.abs(s) * d) / 2, hd = (Math.abs(s) * w + Math.abs(c) * d) / 2;
-  return [cx - hw, cx + hw, cz - hd, cz + hd];
 }
 
 // ------------------------------------------------------------------- goods
@@ -142,7 +134,7 @@ function townHall(b, x, z) {
     b.box('glass', x + Math.sin(a) * (R + 0.16), y + 3.95, z + Math.cos(a) * (R + 0.16), 0.62, 2.0, 0.06, { yaw: a });
     b.box('glass', x + Math.sin(a) * (R - 0.45), y + 12.4, z + Math.cos(a) * (R - 0.45), 0.7, 1.8, 0.06, { yaw: a });
   }
-  b.collider(x - R, x + R, z - R, z + R, y + 27);
+  b.roundCollider(x, z, R, y + 27);
 }
 
 // ------------------------------------------------------------- the ring

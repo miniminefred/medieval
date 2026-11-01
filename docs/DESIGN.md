@@ -201,6 +201,21 @@ exception to "no guns": it belongs to the cyborg clan, not a general shooter loo
   metal arm, shoulder plates and a glowing chest core.
 - **The brute city, later:** mammoth pens, a training arena, stone and wood houses.
 
+### Decided 2026-11-01
+
+- **More realistic everywhere**, starting with the worst: **people**, and
+  **interiors and stalls**.
+- **People are real 3D human models** (rigged and animated), not hand-built figures.
+  The owner will send **drawings of how they should look** later.
+- **Cyborgs are mostly metal**, but keep **a human arm and a human leg**, and **half
+  a human face** (the other half metal, with a glowing eye). Most of the cyborg
+  city's people are cyborgs.
+- **More to buy and sell:** gadgets, materials, tools, **clothes and armour**, and
+  **food**, with a **hunger meter**.
+- **Interiors:** clutter, real furniture shapes, better light, **doors that open**.
+- **Market stalls:** real-looking goods, fuller stalls, signs, and maybe **small
+  signs showing discounts and offers**.
+
 ## The worlds
 
 0. **Intro: the castle.** You pick your clan here, at four clan banners in the

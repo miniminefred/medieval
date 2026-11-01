@@ -23,15 +23,28 @@ function row(key, n, right) {
     <span class="price">${right}</span></button>`;
 }
 
+// What clicking an item in the inventory does, as a word.
+function action(k) {
+  const it = ITEMS[k];
+  if (it.slot) return inventory.isWorn(k) ? 'worn — take off' : 'wear';
+  if (it.food || it.heal || it.cure) return 'eat / drink';
+  if (it.weapon) return 'hold';
+  if (it.light) return lightOn === k ? 'lit — put out' : 'light';
+  return '';
+}
+let lightOn = null;
+export function setLightShown(k) { lightOn = k; }
+
 function renderInventory() {
   const el = $('inventory');
   const items = inventory.items;
   const w = inventory.weight;
   el.querySelector('.list').innerHTML = items.length
-    ? items.map(([k, n]) => row(k, n, ITEMS[k].heal || ITEMS[k].cure ? 'eat / drink' : ITEMS[k].weapon ? 'hold' : '')).join('')
+    ? items.map(([k, n]) => row(k, n, action(k))).join('')
     : '<div class="empty">You carry nothing but the old sword.</div>';
   el.querySelector('.gold').textContent = `${inventory.gold} gold`;
-  el.querySelector('.weight').innerHTML = `${w.toFixed(1)} / ${inventory.capacity} kg${inventory.overloaded ? ' <span class="over">— too heavy: you cannot run</span>' : ''}`;
+  el.querySelector('.weight').innerHTML = `${w.toFixed(1)} / ${inventory.capacity} kg${inventory.overloaded ? ' <span class="over">— too heavy: you cannot run</span>' : ''}` +
+    (inventory.armour ? ` &nbsp;·&nbsp; armour ${inventory.armour}` : '');
   el.querySelectorAll('.item').forEach((b) => b.onclick = () => {
     if (useHandler(b.dataset.key)) renderInventory();
   });

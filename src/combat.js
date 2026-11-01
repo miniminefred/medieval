@@ -2,6 +2,7 @@ import * as THREE from 'three';
 import { hud } from './hud.js';
 import { CLANS } from './clans.js';
 import { hunger } from './hunger.js';
+import { inventory } from './inventory.js';
 
 // Basic combat (docs/DESIGN.md): the prince's health, the old sword's swing, and
 // the enemies the blade can find.
@@ -63,6 +64,7 @@ export function createCombat({ camera, player, sword }) {
     // Something hurts the player.
     hurt(n) {
       if (dead) return;
+      n *= 1 - Math.min(0.6, inventory.armour * 0.05);
       health = Math.max(0, health - n);
       sinceHurt = 0;
       hud.hurt(Math.min(1, n / 20));

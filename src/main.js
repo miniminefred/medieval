@@ -22,7 +22,8 @@ import { createInterior } from './interiors.js';
 import { createSword } from './sword.js';
 import { createCombat } from './combat.js';
 import { CLANS, currentClan } from './clans.js';
-import { trade } from './trade.js';
+import { trade, setLightShown } from './trade.js';
+import { PointLight } from 'three';
 import { ITEMS } from './inventory.js';
 import { createKnives } from './knives.js';
 import { hunger } from './hunger.js';
@@ -167,6 +168,11 @@ inventory.setCapacityPenalty(() => hunger.capacityPenalty);
 //   throwing knives    held; a click throws three
 //   old fishing rod    held; a click casts
 let holding = 'sword';
+// A lantern or torch you carry lights the ground round you.
+let lit = null;
+const handLight = new PointLight(0xffd9a0, 0, 14, 1.6);
+handLight.position.set(0.3, -0.2, -0.3);
+camera.add(handLight);
 function hold(w) {
   holding = w;
   viewmodel.visible = w === 'rod';
@@ -186,11 +192,25 @@ trade.onUse((key) => {
     return true;
   }
   if (it.weapon) { hold(holding === it.weapon ? 'sword' : it.weapon); return true; }
+  if (it.slot) {
+    inventory.toggleWear(key);
+    hud.toast(inventory.isWorn(key) ? `You put on the ${it.name.toLowerCase()}.` : `You take off the ${it.name.toLowerCase()}.`);
+    return true;
+  }
+  if (it.light) {
+    lit = lit === key ? null : key;
+    setLightShown(lit);
+    handLight.intensity = lit ? (it.light === 'lantern' ? 9 : 6) : 0;
+    handLight.color.set(it.light === 'lantern' ? 0xffd9a0 : 0xff9a40);
+    hud.toast(lit ? `You light the ${it.name.toLowerCase()}.` : `You put out the ${it.name.toLowerCase()}.`);
+    return true;
+  }
   hud.toast(`The ${it.name.toLowerCase()} is not something to use just now.`);
   return false;
 });
 inventory.onChange(() => {
   player.overloaded = inventory.overloaded;
+  if (lit && !inventory.count(lit)) { lit = null; setLightShown(null); handLight.intensity = 0; }
   // Sold or used up what you were holding: back to the sword.
   if (holding !== 'sword' && !inventory.count(holding)) hold('sword');
 });

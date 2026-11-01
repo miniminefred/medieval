@@ -212,6 +212,10 @@ exception to "no guns": it belongs to the cyborg clan, not a general shooter loo
   city's people are cyborgs.
 - **More to buy and sell:** gadgets, materials, tools, **clothes and armour**, and
   **food**, with a **hunger meter**.
+- **Hunger:** two meals a day (full to empty in about 15 real minutes). **Food has
+  effects** (better running, health regeneration…). **Starving** gives the
+  *starving* effect: no running, less carrying capacity, and other debuffs. The
+  meter sits **next to the health bar**.
 - **Interiors:** clutter, real furniture shapes, better light, **doors that open**.
 - **Market stalls:** real-looking goods, fuller stalls, signs, and maybe **small
   signs showing discounts and offers**.

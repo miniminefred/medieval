@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
 import { cityMaterial } from './builder.js';
+import { makeHuman, hasHumans } from './humans.js';
 
 // A crowd: every townsperson in a place drawn with a couple of dozen
 // InstancedMeshes, one per body part — a few draw calls for hundreds of people.
@@ -15,11 +16,19 @@ import { cityMaterial } from './builder.js';
 // Apex folk (`apex: true`) are dinosaur-people: no hood — a long scaly snout with
 // yellow eyes, and a tail — in their own skin colours. `hurt: true` bandages one.
 //
+// **Up close, real people.** A person with a `kind` (man, woman, hooded, farmer)
+// is drawn as a real rigged, animated model (humans.js) while among the NEAR
+// closest to you; everyone farther off is the cheap instanced stand-in above,
+// which at a distance reads the same. Models come from a small pool that is
+// handed round as you walk. Cyborgs (`cy`) get the cyborg shader.
+//
 // A person is a plain object the caller moves each frame — pos, yaw, `bob`
 // (walk/work bounce), `lean` (bowing forward) and `toolSwing` — and update()
 // writes the matrices. Behaviour lives with whoever made the crowd (townsfolk.js).
 
 const MAX = 700;
+const NEAR = 30;          // how many real models a crowd shows at once
+const NEAR_DIST = 60;     // and how far away they may be
 
 // The figure, feet at y = 0, facing +z, built once; one geometry per part.
 function figureParts() {
@@ -153,6 +162,78 @@ export function createCrowd(parent, renderer) {
     ? new THREE.MeshStandardMaterial({ color: 0x6a5a48, roughness: 0.7, metalness: 0.3 }) : wood)]));
 
   const people = [];
+
+  // ---------------------------------------------------------- real models
+  const slots = [];          // { human, person, tools: {kind: mesh} }
+  let since = 1;
+  function toolMeshes(human) {
+    const out = {};
+    const wrist = human.bone('Wrist.R');
+    if (!wrist) return out;
+    const inv = human.boneScale;
+    for (const k of TOOLS) {
+      const m = new THREE.Mesh(toolGeometry(k), k === 'spear' || k === 'hammer'
+        ? new THREE.MeshStandardMaterial({ color: 0x6a5a48, roughness: 0.7, metalness: 0.3 }) : wood);
+      m.scale.setScalar(inv);
+      m.rotation.set(Math.PI / 2, 0, 0);       // along the forearm, out of the fist
+      m.position.set(0, 0.06 * inv, 0);
+      m.visible = false;
+      wrist.add(m);
+      out[k] = m;
+    }
+    return out;
+  }
+  function slotFor(p) {
+    let s = slots.find((x) => !x.person && x.human.kind === p.kind);
+    if (!s && slots.length < NEAR + 6) {
+      const human = makeHuman(p.kind);
+      if (!human) return null;
+      human.object.visible = false;
+      parent.add(human.object);
+      s = { human, person: null, tools: toolMeshes(human) };
+      slots.push(s);
+    }
+    return s ?? null;
+  }
+  function assignModels(view, dt) {
+    since += dt;
+    // Every quarter second, re-pick who is close enough for a real model.
+    if (since > 0.25) {
+      since = 0;
+      const want = people
+        .filter((p) => p.kind && p.pos.distanceToSquared(view) < NEAR_DIST * NEAR_DIST)
+        .sort((a, b) => a.pos.distanceToSquared(view) - b.pos.distanceToSquared(view))
+        .slice(0, NEAR);
+      const keep = new Set(want);
+      for (const s of slots) {
+        if (s.person && !keep.has(s.person)) { s.person.slot = null; s.person = null; s.human.object.visible = false; }
+      }
+      for (const p of want) {
+        if (p.slot) continue;
+        const s = slotFor(p);
+        if (!s) continue;
+        s.person = p; p.slot = s;
+        s.human.setCyborg(p.cy);
+        s.human.object.visible = true;
+        for (const [k, m] of Object.entries(s.tools)) m.visible = p.tool === k;
+        s.human.play('Idle', 0);
+      }
+    }
+    // Move and animate the real ones.
+    for (const s of slots) {
+      const p = s.person;
+      if (!p) continue;
+      const moved = Math.hypot(p.pos.x - p.last.x, p.pos.z - p.last.z);
+      p.speed += ((dt > 0 ? moved / dt : 0) - p.speed) * Math.min(1, dt * 8);
+      p.last.copy(p.pos);
+      s.human.object.position.set(p.pos.x, p.pos.y, p.pos.z);
+      s.human.object.rotation.set(0, p.yaw, 0);
+      s.human.object.scale.setScalar(p.height);
+      const working = p.tool && p.tool !== 'spear' && p.tool !== 'crate' && p.speed < 0.2;
+      s.human.play(p.speed > 2.6 ? 'Run' : p.speed > 0.25 ? 'Walk' : working ? 'Interact' : 'Idle');
+      s.human.update(dt);
+    }
+  }
   const _m = new THREE.Matrix4(), _t = new THREE.Matrix4(), _q = new THREE.Quaternion(), _e = new THREE.Euler();
   const _p = new THREE.Vector3(), _s = new THREE.Vector3();
   const zero = new THREE.Matrix4().makeScale(0, 0, 0);
@@ -165,10 +246,11 @@ export function createCrowd(parent, renderer) {
     // `cyborg`: 0–3, how much machine (see the top of this file); `metal` and
     // `core` colour it.
     add({ x, y, z, yaw = 0, color = 0x6b5a48, cyborg = 0, metal = METALS[0], core = CORES[0], helmet: cap = false, tool = null, height = 1,
-      apex = false, skin = SKINS[0], hurt = false }) {
+      apex = false, skin = SKINS[0], hurt = false, kind = null, cy = null }) {
       if (people.length >= MAX) return null;
       const i = people.length;
-      const p = { pos: new THREE.Vector3(x, y, z), yaw, bob: 0, lean: 0, toolSwing: 0, cyborg, cap, tool, height, apex, hurt };
+      const p = { pos: new THREE.Vector3(x, y, z), yaw, bob: 0, lean: 0, toolSwing: 0, cyborg, cap, tool, height, apex, hurt,
+        kind: kind && hasHumans(kind) ? kind : null, cy, slot: null, last: new THREE.Vector3(x, y, z), speed: 0 };
       _c.set(color);
       M.body.instanceColor.setXYZ(i, _c.r, _c.g, _c.b);
       M.hood.instanceColor.setXYZ(i, _c.r, _c.g, _c.b);
@@ -182,8 +264,10 @@ export function createCrowd(parent, renderer) {
       people.push(p);
       return p;
     },
-    // Write every person's matrices. Call after moving them.
-    update() {
+    // Write every person's matrices. Call after moving them. With `view` (the
+    // camera's position) and `dt`, the nearest get real models.
+    update(view, dt = 0) {
+      if (view) assignModels(view, dt);
       const n = people.length;
       for (const m of Object.values(M)) m.count = n;
       for (const k of TOOLS) tools[k].count = n;
@@ -191,11 +275,12 @@ export function createCrowd(parent, renderer) {
         const p = people[i];
         _q.setFromEuler(_e.set(p.lean, p.yaw, 0, 'YXZ'));
         _m.compose(_p.set(p.pos.x, p.pos.y + p.bob, p.pos.z), _q, _s.set(p.height, p.height, p.height));
-        for (const k in M) M[k].setMatrixAt(i, SHOW[k](p) ? _m : zero);
+        const real = !!p.slot;
+        for (const k in M) M[k].setMatrixAt(i, !real && SHOW[k](p) ? _m : zero);
         // The tool hangs from the right hand, swung about the hand by toolSwing.
         hand.makeRotationX(-p.toolSwing).setPosition(0.34, 0.8, 0.2);
         _t.multiplyMatrices(_m, hand);
-        for (const k of TOOLS) tools[k].setMatrixAt(i, p.tool === k ? _t : zero);
+        for (const k of TOOLS) tools[k].setMatrixAt(i, p.tool === k && !real ? _t : zero);
       }
       for (const m of [...Object.values(M), ...Object.values(tools)]) {
         m.instanceMatrix.needsUpdate = true;
@@ -204,6 +289,7 @@ export function createCrowd(parent, renderer) {
     },
     setVisible(v) {
       for (const m of [...Object.values(M), ...Object.values(tools)]) m.visible = v;
+      if (!v) for (const s of slots) { s.human.object.visible = false; if (s.person) s.person.slot = null; s.person = null; }
     },
   };
 }

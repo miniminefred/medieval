@@ -114,14 +114,16 @@ export function makeHuman(kind) {
   });
 
   // Cyborg extras: a red eye on the metal half of the face, a core on the chest.
-  const eye = new THREE.Mesh(new THREE.SphereGeometry(0.035, 10, 8), glow(0xff2a1a));
+  const eye = new THREE.Mesh(new THREE.SphereGeometry(0.022, 10, 8), glow(0xff2a1a));
   const core = new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.06, 0.02, 16), glow(0x48d8ff));
   core.rotation.x = Math.PI / 2;
   eye.visible = core.visible = false;
   bones.Head?.add(eye);
   bones.Chest?.add(core);
-  // Bone space is in the model's own units: undo the clone's scale for the extras.
-  const inv = 1 / L.scale;
+  // Bones carry the model's own scale (and the exporter's): measure how big one
+  // metre is in a bone's space, so the extras come out life-size.
+  root.updateMatrixWorld(true);
+  const inv = bones.Head ? 1 / bones.Head.getWorldScale(new THREE.Vector3()).x : 1 / L.scale;
   eye.scale.setScalar(inv); core.scale.setScalar(inv);
   core.position.set(0, 0.12 * inv, 0.16 * inv);
 
@@ -134,6 +136,8 @@ export function makeHuman(kind) {
   return {
     object: root,
     kind,
+    // Metres to a bone's local units (for things held in the hand).
+    boneScale: inv,
     bone: (name) => bones[name],
     // opts: { metal, core, arm: 'L'|'R', leg: 'L'|'R', face: ±1 } or null for a plain human.
     setCyborg(opts) {

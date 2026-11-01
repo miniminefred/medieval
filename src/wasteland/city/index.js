@@ -31,7 +31,7 @@ export function buildCity(renderer) {
   const traders = COUNTERS.map((c) => {
     const t = createBandit(group, renderer, rng, { x: c.x, z: c.z, yaw: c.yaw, heightAt: () => CITY.y + 0.09, trader: true });
     return {
-      update: t.update,
+      update: (dt) => t.update(dt),
       pos: new THREE.Vector3(c.front.x, CITY.y + 1.5, c.front.z),
       reach: 2.2,
       label: 'trade',

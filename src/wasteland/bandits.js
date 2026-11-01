@@ -1,5 +1,7 @@
 import * as THREE from 'three';
 import { cityMaterial } from '../builder.js';
+import { makeHuman, hasHumans } from '../humans.js';
+import { METALS, CORES } from '../people.js';
 
 // Bandits: hooded, cloaked figures (docs/DESIGN.md — a deep hood with nothing
 // but shadow inside hides how hard faces are to make). In camp they sit by the
@@ -75,11 +77,30 @@ const HP = 60;
 // A bandit: a figure plus how it behaves. `heightAt` keeps it on the ground.
 // `trader: true` dresses the same figure in a merchant's blue and leaves off the
 // spear (and it never fights). `camp` makes it a fighter (camps.js).
+// Bandits and traders are real animated people (humans.js) when the models
+// loaded — hooded travellers for bandits, cyborg townsfolk for the city's
+// traders — and fall back to the hand-built figure otherwise.
 export function createBandit(parent, renderer, rng, { x, z, yaw = 0, pose = 'stand', patrol = null, heightAt, trader = false, camp = null }) {
-  let g = figure(renderer, pose, trader ? () => 0.99 : rng, trader);
-  g.position.set(x, heightAt(x, z), z);
+  const g = new THREE.Group();
+  let human = null;
+  if (trader && hasHumans('man')) {
+    human = makeHuman(rng() < 0.5 ? 'man' : 'woman');
+    human.setCyborg({ metal: METALS[Math.floor(rng() * METALS.length)], core: CORES[Math.floor(rng() * CORES.length)],
+      arm: rng() < 0.5 ? 'L' : 'R', leg: rng() < 0.5 ? 'L' : 'R', face: rng() < 0.5 ? 1 : -1 });
+  } else if (!trader && hasHumans('hooded')) {
+    human = makeHuman('hooded');
+  }
+  let fig = human ? human.object : figure(renderer, pose, trader ? () => 0.99 : rng, trader);
+  g.add(fig);
+  // Sitting by the fire: a real person stands just inside the ring of logs.
+  const inset = human && pose === 'sit' ? 0.7 : 0;
+  g.position.set(x + Math.sin(yaw) * inset, heightAt(x, z), z + Math.cos(yaw) * inset);
   g.rotation.y = yaw;
   parent.add(g);
+  const anim = (name) => human?.play(name);
+  anim(patrol ? 'Walk' : 'Idle');
+  // Real people lean through their animations; the old figure leans the whole body.
+  const lean = (v) => { if (!human) g.rotation.x = v; };
 
   let t = rng() * 100;
   const breathe = 0.6 + rng() * 0.3;
@@ -105,10 +126,12 @@ export function createBandit(parent, renderer, rng, { x, z, yaw = 0, pose = 'sta
       const dx = g.position.x - from.x, dz = g.position.z - from.z, d = Math.hypot(dx, dz) || 1;
       g.position.x += (dx / d) * 0.6; g.position.z += (dz / d) * 0.6;
       wind = 0; cool = Math.max(cool, 0.5);
+      anim('HitRecieve');
       if (mode === 'calm' || mode === 'return') camp?.alert(g.position);
       if (hp <= 0) {
         self.alive = false;
         mode = 'dead';
+        anim('Death');
         camp?.died(self);
       }
     },
@@ -118,8 +141,11 @@ export function createBandit(parent, renderer, rng, { x, z, yaw = 0, pose = 'sta
       const here = ctx?.playerHere;
       const dx = p ? p.x - g.position.x : 0, dz = p ? p.z - g.position.z : 0;
       const dist = Math.hypot(dx, dz);
+      // Animate only when near enough to be seen.
+      if (human && (!p || dist < 120)) human.update(dt);
 
       if (mode === 'dead') {
+        if (human) return;                // the Death animation lies them down
         // Topple over backward and lie still.
         fall = Math.min(1, fall + dt * 2.2);
         g.rotation.x = -Math.PI / 2 * (1 - (1 - fall) ** 3);
@@ -132,9 +158,9 @@ export function createBandit(parent, renderer, rng, { x, z, yaw = 0, pose = 'sta
           // Walk a slow circle round the camp, bobbing with each step.
           const a = patrol.phase + (t * patrol.speed) / patrol.r;
           const px = patrol.cx + Math.cos(a) * patrol.r, pz = patrol.cz + Math.sin(a) * patrol.r;
-          g.position.set(px, heightAt(px, pz) + Math.abs(Math.sin(t * 4.2)) * 0.04, pz);
+          g.position.set(px, heightAt(px, pz) + (human ? 0 : Math.abs(Math.sin(t * 4.2)) * 0.04), pz);
           g.rotation.y = Math.atan2(-Math.sin(a), Math.cos(a));     // facing along the circle
-        } else {
+        } else if (!human) {
           g.scale.y = g.scale.x * (1 + Math.sin(t * breathe * 2) * 0.008);
         }
         if (camp && here && dist < (sitting ? SIGHT_SITTING : SIGHT)) camp.alert(g.position);
@@ -145,19 +171,18 @@ export function createBandit(parent, renderer, rng, { x, z, yaw = 0, pose = 'sta
         if (p) g.rotation.y = Math.atan2(dx, dz);
         wait -= dt;
         if (wait > 0) return;
-        if (sitting) {
+        if (sitting && !human) {
           // Up off the log, blade out.
           const keepPos = g.position.clone(), keepRot = g.rotation.y;
-          parent.remove(g);
-          g = figure(renderer, 'stand', rng, false, true);
+          g.remove(fig);
+          fig = figure(renderer, 'stand', rng, false, true);
+          g.add(fig);
           g.position.copy(keepPos);
-          g.position.y = heightAt(keepPos.x, keepPos.z);
           g.rotation.y = keepRot;
-          parent.add(g);
-          self.object = g;
-          self.pos = g.position;
           sitting = false;
         }
+        sitting = false;
+        anim('Run');
         mode = 'chase';
         return;
       }
@@ -167,12 +192,13 @@ export function createBandit(parent, renderer, rng, { x, z, yaw = 0, pose = 'sta
       if ((mode === 'chase' || mode === 'attack') && (!here || fromCamp > GIVE_UP)) mode = 'return';
 
       if (mode === 'return') {
-        g.rotation.x = 0;
+        lean(0);
+        anim('Walk');
         const hx = home.x - g.position.x, hz = home.z - g.position.z, hd = Math.hypot(hx, hz);
-        if (hd < 0.3) { mode = 'calm'; g.rotation.y = home.yaw; return; }
+        if (hd < 0.3) { mode = 'calm'; g.rotation.y = home.yaw; anim(patrol ? 'Walk' : 'Idle'); return; }
         const step = Math.min(hd, 2.0 * dt);
         g.position.x += (hx / hd) * step; g.position.z += (hz / hd) * step;
-        g.position.y = heightAt(g.position.x, g.position.z) + Math.abs(Math.sin(t * 5)) * 0.04;
+        g.position.y = heightAt(g.position.x, g.position.z);
         g.rotation.y = Math.atan2(hx, hz);
         return;
       }
@@ -189,10 +215,14 @@ export function createBandit(parent, renderer, rng, { x, z, yaw = 0, pose = 'sta
             const ox = g.position.x - o.pos.x, oz = g.position.z - o.pos.z, od = Math.hypot(ox, oz);
             if (od > 0 && od < 1.0) { g.position.x += (ox / od) * (1.0 - od) * 0.5; g.position.z += (oz / od) * (1.0 - od) * 0.5; }
           }
-          g.position.y = heightAt(g.position.x, g.position.z) + Math.abs(Math.sin(t * 9)) * 0.06;
-          g.rotation.x = -0.12;                   // leaning into the run
+          g.position.y = heightAt(g.position.x, g.position.z);
+          lean(-0.12);                            // leaning into the run
+          anim('Run');
         } else if (cool === 0) {
           mode = 'attack'; wind = 0;
+          anim('Sword_Slash');
+        } else {
+          anim('Idle_Sword');
         }
         return;
       }
@@ -200,9 +230,9 @@ export function createBandit(parent, renderer, rng, { x, z, yaw = 0, pose = 'sta
       if (mode === 'attack') {
         // Wind up (rear back), then strike — if you are still in reach.
         wind += dt;
-        g.rotation.x = wind < 0.45 ? 0.25 * (wind / 0.45) : -0.35;
+        lean(wind < 0.45 ? 0.25 * (wind / 0.45) : -0.35);
         if (wind >= 0.45 && wind - dt < 0.45 && dist < 2.3) ctx.combat.hurt(8 + Math.floor(rng() * 6));
-        if (wind > 0.7) { mode = 'chase'; cool = 0.9; g.rotation.x = 0; }
+        if (wind > 0.7) { mode = 'chase'; cool = 0.9; lean(0); }
       }
     },
   };

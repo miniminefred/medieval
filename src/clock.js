@@ -9,23 +9,27 @@ const DAY_START = 6, DAY_END = 20;
 const DAY_SECONDS = 20 * 60, NIGHT_SECONDS = 10 * 60;
 
 let hour = 8.5;   // a fresh morning
+let day = 1;      // counts up each midnight (and each night slept through)
 
 const _sun = new THREE.Vector3();
 const _moon = new THREE.Vector3();
 
 export const clock = {
   get hour() { return hour; },
+  get day() { return day; },
   set hour(h) { hour = ((h % 24) + 24) % 24; },
 
   get isNight() { return hour < DAY_START || hour >= DAY_END; },
 
   tick(dt) {
     const rate = this.isNight ? (24 - DAY_END + DAY_START) / NIGHT_SECONDS : (DAY_END - DAY_START) / DAY_SECONDS;
+    const before = hour;
     this.hour = hour + dt * rate;
+    if (hour < before) day++;
   },
 
   // Sleep until morning.
-  wakeAtDawn() { hour = DAY_START + 0.25; },
+  wakeAtDawn() { if (hour > DAY_START) day++; hour = DAY_START + 0.25; },
 
   // "14:30"
   label() {

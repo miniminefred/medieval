@@ -64,6 +64,10 @@ const SURFACES = {
   bookgreen: { color: 0x284a2c, roughness: 0.8, metalness: 0 },
   bookblue: { color: 0x22344f, roughness: 0.8, metalness: 0 },
   bread: { color: 0xb07a3c, roughness: 0.9, metalness: 0 },
+  // Potions in the market: coloured, faintly glowing liquids.
+  potionred: { color: 0x5a0a0a, roughness: 0.1, metalness: 0, emissive: 0xc0201a, emissiveIntensity: 0.6 },
+  potiongreen: { color: 0x0a3a12, roughness: 0.1, metalness: 0, emissive: 0x30b040, emissiveIntensity: 0.6 },
+  potionblue: { color: 0x0a1a4a, roughness: 0.1, metalness: 0, emissive: 0x3060e0, emissiveIntensity: 0.6 },
   // Old window glass: dark, a little green, reflecting the sky.
   glass: { color: 0x1d2522, roughness: 0.08, metalness: 0.0, envMapIntensity: 1.6 },
   // Machined cyborg parts: blades, barrels, limbs.

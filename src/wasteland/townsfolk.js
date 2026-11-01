@@ -81,10 +81,18 @@ export function buildCityFolk(group, renderer) {
     pos: p.pos, reach: 2.6, label: `trade with ${SHOPS[shop].name.toLowerCase()}`,
     use() { trade.openShop(SHOPS[shop]); },
   });
-  // How much machine a city dweller is: it varies (docs/DESIGN.md). About half
-  // are plain folk; the rest anything from a metal arm to nearly all metal.
-  const cyborg = () => { const r = rng(); return r < 0.5 ? 0 : r < 0.68 ? 1 : r < 0.86 ? 2 : 3; };
-  const machine = () => ({ cyborg: cyborg(), metal: pick(METALS), core: pick(CORES) });
+  // City dwellers are mostly cyborgs (docs/DESIGN.md): mostly metal, keeping one
+  // human arm, one human leg and half a human face. About a quarter are plain
+  // humans. Far off they are stand-ins; close up, real models (people.js).
+  const machine = () => {
+    const kind = rng() < 0.5 ? 'man' : 'woman';
+    if (rng() < 0.25) return { kind, cyborg: 0 };
+    const metal = pick(METALS), core = pick(CORES);
+    return {
+      kind, cyborg: 3, metal, core,
+      cy: { metal, core, arm: rng() < 0.5 ? 'L' : 'R', leg: rng() < 0.5 ? 'L' : 'R', face: rng() < 0.5 ? 1 : -1 },
+    };
+  };
 
   // A street walker: node to node, keeping to one side of the street.
   function walker(opts = {}) {
@@ -135,7 +143,7 @@ export function buildCityFolk(group, renderer) {
     });
   }
   for (let n = 0; n < 12; n++) walker({ tool: 'crate', speed: 1.1 });          // porters
-  for (let n = 0; n < 6; n++) walker({ lane: true, color: GUARD, plain: true, helmet: true, tool: 'spear', speed: 1.0 });
+  for (let n = 0; n < 6; n++) walker({ lane: true, color: GUARD, plain: true, helmet: true, kind: 'man', tool: 'spear', speed: 1.0 });
 
   // ------------------------------------------------------------ shoppers
   // They walk the aisle between the stalls and the town hall, round the ring,
@@ -239,7 +247,7 @@ export function buildCityFolk(group, renderer) {
   // Gate guards: two outside, two inside, looking down the road.
   const gx = CITY.minX + WALL.thick / 2, gz = WALL.gateZ;
   for (const [dx, dz, yaw] of [[-12, -5.5, -Math.PI / 2], [-12, 5.5, -Math.PI / 2], [6, -4, Math.PI / 2], [6, 4, Math.PI / 2]]) {
-    const p = crowd.add({ x: gx + dx, y: Y, z: gz + dz, yaw, color: GUARD, helmet: true, tool: 'spear', height: 1.04 });
+    const p = crowd.add({ x: gx + dx, y: Y, z: gz + dz, yaw, color: GUARD, helmet: true, tool: 'spear', height: 1.04, kind: 'man' });
     const base = yaw, ph = rng() * 10;
     thinkers.push((dt, t) => { p.yaw = base + Math.sin(t * 0.15 + ph) * 0.35; });
   }
@@ -259,7 +267,7 @@ export function buildFarmFolk(group, renderer, heightAt) {
   // Farmers hoeing the field: bend, chop, straighten, shuffle along the row.
   for (let n = 0; n < 6; n++) {
     const x0 = fx - 15 + n * 6, z = fz + 31 + between(-5, 5);
-    const p = crowd.add({ x: x0, y: heightAt(x0, z), z, yaw: Math.PI / 2, color: cloth(), tool: 'hoe' });
+    const p = crowd.add({ x: x0, y: heightAt(x0, z), z, yaw: Math.PI / 2, color: cloth(), tool: 'hoe', kind: 'farmer' });
     const ph = rng() * 10;
     thinkers.push((dt, t) => {
       const c = (t * 0.8 + ph) % 1;
@@ -273,7 +281,7 @@ export function buildFarmFolk(group, renderer, heightAt) {
   // Two by the well, talking.
   for (const a of [0, Math.PI]) {
     const x = fx - 12 + Math.cos(a) * 1.9, z = fz - 14 + Math.sin(a) * 1.9;
-    const p = crowd.add({ x, y: heightAt(x, z), z, color: cloth() });
+    const p = crowd.add({ x, y: heightAt(x, z), z, color: cloth(), kind: a ? 'woman' : 'farmer' });
     face(p, fx - 12, fz - 14);
     const base = p.yaw, ph = rng() * 10;
     thinkers.push((dt, t) => { p.yaw = base + Math.sin(t * 0.6 + ph) * 0.2; });
@@ -285,7 +293,7 @@ export function buildFarmFolk(group, renderer, heightAt) {
   for (let n = 0; n < 4; n++) {
     let k = n % loop.length;
     const [sx, sz] = loop[k];
-    const p = crowd.add({ x: fx + sx, y: heightAt(fx + sx, fz + sz), z: fz + sz, color: cloth(), tool: n === 0 ? 'crate' : null });
+    const p = crowd.add({ x: fx + sx, y: heightAt(fx + sx, fz + sz), z: fz + sz, color: cloth(), tool: n === 0 ? 'crate' : null, kind: n % 2 ? 'woman' : 'man' });
     thinkers.push((dt, t) => {
       const [lx, lz] = loop[(k + 1) % loop.length];
       if (stepTo(p, fx + lx, fz + lz, 1.1, dt, t + n)) k = (k + 1) % loop.length;
@@ -294,7 +302,7 @@ export function buildFarmFolk(group, renderer, heightAt) {
   }
 
   // Farmville's general store keeper, by the well.
-  const keeper = crowd.add({ x: fx - 9, y: heightAt(fx - 9, fz - 14), z: fz - 14, color: 0x7a5a3a });
+  const keeper = crowd.add({ x: fx - 9, y: heightAt(fx - 9, fz - 14), z: fz - 14, color: 0x7a5a3a, kind: 'farmer' });
   face(keeper, fx - 12, fz - 14);
   const shops = [{ pos: keeper.pos, reach: 2.6, label: 'trade with the general store', use() { trade.openShop(SHOPS.general); } }];
   return { ...crowdRunner(crowd, thinkers, new THREE.Vector3(fx, 0, fz), 350), shops };
@@ -311,7 +319,7 @@ function crowdRunner(crowd, thinkers, centre, range) {
       if (!near) return;
       t += dt;
       for (const think of thinkers) think(dt, t);
-      crowd.update();
+      crowd.update(playerPos, dt);
     },
   };
 }

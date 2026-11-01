@@ -2,6 +2,7 @@ import { Timer, Vector3, Mesh, SphereGeometry, MeshStandardMaterial } from 'thre
 import { createRenderer, createScene, createCamera, handleResize } from './scene.js';
 import { createInput } from './input.js';
 import { ModelLibrary } from './models.js';
+import { loadHumans } from './humans.js';
 import { createCastleRealm } from './castle.js';
 import { onClanChosen, runMultiplier, staminaSeconds } from './clans.js';
 import { Player } from './player.js';
@@ -32,7 +33,7 @@ handleResize(renderer, camera);
 
 // The prop GLBs have to be in memory before anything can be placed, so the whole
 // bootstrap is async and the loading screen stays up until the world is standing.
-const library = await new ModelLibrary().load();
+const [library] = await Promise.all([new ModelLibrary().load(), loadHumans()]);
 
 const keys = createInput();
 const player = new Player(camera, renderer.domElement, keys);

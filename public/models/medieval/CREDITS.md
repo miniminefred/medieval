@@ -52,6 +52,10 @@ Authors: Kenney, Quaternius — thank you!
 | `market_stall` | Market Stand | Quaternius | CC0 1.0 | https://poly.pizza/m/DGIM5HGISb |
 | `market_stalls` | Market Stalls Compact | Quaternius | CC0 1.0 | https://poly.pizza/m/fmHUuX9AS3 |
 | `palisade` | Wooden Wall | Quaternius | CC0 1.0 | https://poly.pizza/m/8C9NBoi9cA |
+| `person_farmer` | Farmer | Quaternius | CC0 1.0 | https://poly.pizza/m/7pn3R6hPvE |
+| `person_hooded` | Hooded Adventurer | Quaternius | CC0 1.0 | https://poly.pizza/m/y9KWOVG21R |
+| `person_man` | Adventurer | Quaternius | CC0 1.0 | https://poly.pizza/m/5EGWBMpuXq |
+| `person_woman` | Adventurer | Quaternius | CC0 1.0 | https://poly.pizza/m/ZwF0K7WBmu |
 | `pig` | Pig | Quaternius | CC0 1.0 | https://poly.pizza/m/TNvG3QUFlp |
 | `pine_a` | Pine | Quaternius | CC0 1.0 | https://poly.pizza/m/igSu0cPoBz |
 | `pine_b` | Pine | Quaternius | CC0 1.0 | https://poly.pizza/m/Zt62gceKXZ |

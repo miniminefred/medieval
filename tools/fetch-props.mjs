@@ -109,6 +109,14 @@ const WANTED = [
   // ------------------------------------------------------------ in-hand
   ['fishing_pole',   'skqPvEIpve'],  // bare wooden pole, no reel — the one we hold
   ['fishing_rod',    '0YAR0Lg58p'],  // wooden blank but a modern reel; fallback only
+
+  // ------------------------------------------------------------ people
+  // Rigged and animated (Idle, Walk, Run, Sword_Slash, Interact, Death…), all on
+  // one shared 62-bone skeleton. Drawn by crowd.js, not placed as props.
+  ['person_man',     '5EGWBMpuXq'],  // Adventurer: townsman, cyborg base
+  ['person_woman',   'ZwF0K7WBmu'],  // Adventurer: townswoman, cyborg base
+  ['person_hooded',  'y9KWOVG21R'],  // Hooded Adventurer: bandits, travellers
+  ['person_farmer',  '7pn3R6hPvE'],  // Farmer: Farmville
 ];
 
 // Downloaded, inspected, thrown out. Do not re-add without looking at it first.
@@ -117,6 +125,9 @@ const REJECTED = [
   ['barn',          'vSqQNA7ez6', 'red gambrel American farm barn — every Quaternius barn is'],
   ['fishing_rod_b', 'aOabqWh68m', 'red composite blank with a baitcaster reel'],
   ['fishing_rod_c', 'lDlWQjn9Zg', 'black graphite blank with a spinning reel'],
+  ['person_worker', 'Yg2bQZO6Hj', 'modern hard hat and hi-vis vest'],
+  ['person_matt',   '66kQ4dBBC7', 'big-headed cartoon, not realistic'],
+  ['person_mw',     'HMnuH5geEG', 'Man / Woman: modern t-shirt and jeans'],
 ];
 void REJECTED;
 

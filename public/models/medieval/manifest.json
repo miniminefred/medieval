@@ -423,6 +423,42 @@
   "bytes": 18624
  },
  {
+  "key": "person_farmer",
+  "file": "person_farmer.glb",
+  "title": "Farmer",
+  "author": "Quaternius",
+  "licence": "CC0 1.0",
+  "source": "https://poly.pizza/m/7pn3R6hPvE",
+  "bytes": 1370524
+ },
+ {
+  "key": "person_hooded",
+  "file": "person_hooded.glb",
+  "title": "Hooded Adventurer",
+  "author": "Quaternius",
+  "licence": "CC0 1.0",
+  "source": "https://poly.pizza/m/y9KWOVG21R",
+  "bytes": 1598564
+ },
+ {
+  "key": "person_man",
+  "file": "person_man.glb",
+  "title": "Adventurer",
+  "author": "Quaternius",
+  "licence": "CC0 1.0",
+  "source": "https://poly.pizza/m/5EGWBMpuXq",
+  "bytes": 1944116
+ },
+ {
+  "key": "person_woman",
+  "file": "person_woman.glb",
+  "title": "Adventurer",
+  "author": "Quaternius",
+  "licence": "CC0 1.0",
+  "source": "https://poly.pizza/m/ZwF0K7WBmu",
+  "bytes": 1585676
+ },
+ {
   "key": "pig",
   "file": "pig.glb",
   "title": "Pig",

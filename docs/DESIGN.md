@@ -216,6 +216,8 @@ exception to "no guns": it belongs to the cyborg clan, not a general shooter loo
   effects** (better running, health regeneration…). **Starving** gives the
   *starving* effect: no running, less carrying capacity, and other debuffs. The
   meter sits **next to the health bar**.
+  **What drains it:** sleeping drains hunger *less*; running and regenerating
+  health drain it *more*.
 - **Interiors:** clutter, real furniture shapes, better light, **doors that open**.
 - **Market stalls:** real-looking goods, fuller stalls, signs, and maybe **small
   signs showing discounts and offers**.

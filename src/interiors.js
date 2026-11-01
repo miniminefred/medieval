@@ -5,6 +5,7 @@ import { createChest } from './chest.js';
 import { inventory, ITEMS } from './inventory.js';
 import { hud } from './hud.js';
 import { clock } from './clock.js';
+import * as Furn from './furniture.js';
 
 // The inside of a house, built when you walk in (docs/DESIGN.md: almost every
 // house can be entered). It is generated from the house's own numbers — its
@@ -54,8 +55,7 @@ export function createInterior(door, renderer, { onLeave, onSleep, player }) {
       if (lw > 0.05) b.box('housestone', -hx + lw / 2, 0, hz + WALL / 2, lw, h, WALL, { collide: true });
       if (rw > 0.05) b.box('housestone', hx - rw / 2, 0, hz + WALL / 2, rw, h, WALL, { collide: true });
       b.box('housestone', dx, 2.25, hz + WALL / 2, 2 * half, h - 2.25, WALL);
-      b.box('timber', dx, 0, hz + 0.02, 1.15, 2.25, 0.08);                                       // the door itself
-      b.collider(dx - half, dx + half, hz - 0.05, hz + WALL, 2.3);
+
     } else {
       b.box('plaster', 0, y, hz + WALL / 2, W + 2 * WALL, h, WALL, { collide: true });
     }
@@ -119,7 +119,10 @@ export function createInterior(door, renderer, { onLeave, onSleep, player }) {
 
   // ----------------------------------------------------------- ground floor
   // Fireplace on the back wall.
-  const fx = between(-hx / 3, hx / 3);
+  const pantry = W > 7;
+  const px = hx - 2.4;                         // the pantry's inner wall
+  const pz = -hz + Math.min(3.2, D * 0.55);    // and its front wall
+  const fx = Math.min(between(-hx / 3, hx / 3), pantry ? px - 1.25 : hx);
   b.box('housestone', fx, 0, -hz + 0.35, 1.9, 1.3, 0.7, { collide: true });
   b.box('housestone', fx, 1.3, -hz + 0.25, 1.3, G - 1.3, 0.5);                     // chimney breast
   b.box('rust', fx, 0.02, -hz + 0.5, 1.0, 0.9, 0.4);                                // the dark hearth
@@ -132,7 +135,10 @@ export function createInterior(door, renderer, { onLeave, onSleep, player }) {
   }
   fire.position.set(fx, 0.05, -hz + 0.62);
   group.add(fire);
-  const fireLight = new THREE.PointLight(0xff9a4a, 0, 9, 1.6);
+  const fireLight = new THREE.PointLight(0xff9a4a, 0, 10, 1.6);
+  fireLight.castShadow = true;                 // the fire throws the furniture's shadows
+  fireLight.shadow.mapSize.set(512, 512);
+  fireLight.shadow.bias = -0.004;
   fireLight.position.set(fx, 0.8, -hz + 1.2);
   group.add(fireLight);
   let burning = rand() < 0.6;
@@ -150,48 +156,80 @@ export function createInterior(door, renderer, { onLeave, onSleep, player }) {
     fireLight.intensity = burning ? 6 * (1 + Math.sin(tf * 11) * 0.1) : 0;
   });
 
-  // Table and chairs in the middle.
-  const tx = stairSide(0) < 0 ? 0.6 : 0, tz = between(-0.3, 0.6);
-  b.box('timber', tx, 0.74, tz, 1.6, 0.06, 0.85);
-  for (const [lx, lz] of [[-0.7, -0.35], [0.7, -0.35], [-0.7, 0.35], [0.7, 0.35]]) b.box('timber', tx + lx, 0, tz + lz, 0.07, 0.74, 0.07);
-  b.collider(tx - 0.8, tx + 0.8, tz - 0.43, tz + 0.43, 0.8);
-  const chairs = [[-1.15, 0, Math.PI / 2], [1.15, 0, -Math.PI / 2], [0, -0.85, 0], [0, 0.85, Math.PI]];
-  chairs.slice(0, 2 + Math.floor(rand() * 3)).forEach(([cx, cz, yaw]) => chair(tx + cx, 0, tz + cz, yaw));
-
-  function chair(x, y, z, yaw) {
-    const c = Math.cos(yaw), s = Math.sin(yaw);
-    b.box('timber', x, y + 0.42, z, 0.45, 0.05, 0.45, { yaw });
-    for (const [lx, lz] of [[-0.19, -0.19], [0.19, -0.19], [-0.19, 0.19], [0.19, 0.19]]) {
-      b.box('timber', x + lx * c + lz * s, y, z - lx * s + lz * c, 0.05, 0.42, 0.05);
-    }
-    b.box('timber', x - 0.21 * s, y + 0.45, z - 0.21 * c, 0.45, 0.5, 0.05, { yaw });   // the back
-    things.push({
-      pos: new THREE.Vector3(x, y + 0.6, z), reach: 1.8, label: 'sit down',
-      use() { player.sit({ x, y: y + 0.45, z, yaw: yaw + Math.PI }); },
-    });
-  }
-
-  // A cupboard against the right wall, to search once.
-  const cz = between(-hz + 1.2, -0.5);
-  b.box('timber', hx - 0.3, 0, cz, 0.55, 1.9, 1.1, { collide: true });
-  b.box('rust', hx - 0.57, 0.95, cz, 0.03, 0.08, 0.3);
-  let searched = false;
-  things.push({
-    pos: new THREE.Vector3(hx - 0.6, 1.1, cz), reach: 2.2,
-    get label() { return searched ? 'the cupboard is bare' : 'search the cupboard'; },
-    get done() { return searched; },
-    use() {
-      searched = true;
-      const pool = ['bread', 'bread', 'scrap', 'wire', 'coin'];
-      if (rand() < 0.35) { hud.toast('Nothing but dust and an old spoon.'); return; }
-      const k = pool[Math.floor(rand() * pool.length)];
-      inventory.addItem(k);
-      hud.toast(`Found: ${ITEMS[k].name}`);
-    },
+  const lights = [];          // candle flames: [position, light]
+  const addCandle = (pos) => {
+    const l = new THREE.PointLight(0xffb25a, 2.4, 7, 1.6);
+    l.position.copy(pos);
+    group.add(l);
+    const flame = new THREE.Mesh(new THREE.ConeGeometry(0.012, 0.045, 6), flameMat);
+    flame.position.copy(pos).add({ x: 0, y: -0.02, z: 0 });
+    group.add(flame);
+    lights.push(l);
+  };
+  const sitAt = (x, y, z, yaw) => things.push({
+    pos: new THREE.Vector3(x, y + 0.6, z), reach: 1.8, label: 'sit down',
+    use() { player.sit({ x, y: y + 0.45, z, yaw: yaw + Math.PI }); },
   });
 
-  // Barrels in a corner.
-  for (let i = 0; i < 2; i++) b.cylinder('timber', -hx + 0.5 + i * 0.75, 0, -hz + 0.5, 0.33, 0.85, { rTop: 0.29, collide: true });
+  // Table, chairs and a rug in the middle.
+  const tx = stairSide(0) < 0 ? 0.5 : 0, tz = between(-0.2, 0.5);
+  Furn.rug(b, tx, 0, tz, 0, 2.6, 1.9);
+  addCandle(Furn.table(b, tx, 0, tz, 0, 1.6, 0.85, rand));
+  const chairs = [[-1.15, 0, -Math.PI / 2], [1.15, 0, Math.PI / 2], [0, -0.85, Math.PI], [0, 0.85, 0]];
+  for (const [cx, cz, yaw] of chairs.slice(0, 2 + Math.floor(rand() * 3))) {
+    Furn.chair(b, tx + cx, 0, tz + cz, yaw + Math.PI);      // backs away from the table
+    sitAt(tx + cx, 0, tz + cz, yaw + Math.PI);
+  }
+
+  // A cupboard to search once — in the pantry if there is one.
+  let searched = false;
+  const cupboard = (x, z, yaw) => {
+    b.box('timber', x, 0, z, 1.1, 1.9, 0.55, { yaw });
+    b.box('timber', x, 1.9, z, 1.2, 0.06, 0.62, { yaw });
+    b.turnedCollider(x, z, 1.1, 0.55, yaw, 1.9);
+    things.push({
+      pos: new THREE.Vector3(x + Math.sin(yaw) * 0.4, 1.1, z + Math.cos(yaw) * 0.4), reach: 2.2,
+      get label() { return searched ? 'the cupboard is bare' : 'search the cupboard'; },
+      get done() { return searched; },
+      use() {
+        searched = true;
+        const pool = ['bread', 'bread', 'apple', 'cheese', 'scrap', 'wire', 'coin', 'cloth', 'oil'];
+        if (rand() < 0.3) { hud.toast('Nothing but dust and an old spoon.'); return; }
+        const k = pool[Math.floor(rand() * pool.length)];
+        inventory.addItem(k);
+        hud.toast(`Found: ${ITEMS[k].name}`);
+      },
+    });
+  };
+
+  let pantryDoor = null;
+  if (pantry) {
+    // The pantry: a little room in the back corner, behind a door that opens.
+    const T = 0.14;
+    b.box('plaster', px, 0, (-hz + pz) / 2, T, G, pz + hz, { collide: true });            // its side wall
+    const gap0 = px + 0.35, gap1 = gap0 + 1.0;
+    b.box('plaster', (px + gap0) / 2, 0, pz, gap0 - px, G, T, { collide: true });          // front wall, left of the door
+    b.box('plaster', (gap1 + hx) / 2, 0, pz, hx - gap1, G, T, { collide: true });          // right of it
+    b.box('plaster', (gap0 + gap1) / 2, 2.15, pz, 1.0, G - 2.15, T);                       // over it
+    pantryDoor = Furn.hingedDoor(b, group, gap0, 0, pz, 0, 1.0, 2.15, -Math.PI / 2);
+    things.push({
+      pos: pantryDoor.pos, reach: 2.2,
+      get label() { return pantryDoor.open ? 'close the door' : 'open the door'; },
+      use() { pantryDoor.toggle(); },
+    });
+    updaters.push((dt) => pantryDoor.update(dt));
+    Furn.shelves(b, (px + hx) / 2, 0, -hz + 0.2, 0, Math.min(2.0, hx - px - 0.3), rand);
+    for (let i = 0; i < 3; i++) Furn.sack(b, px + 0.4 + i * 0.5, 0, pz - 0.5, rand);
+    b.cylinder('timber', hx - 0.45, 0, pz - 0.55, 0.33, 0.85, { rTop: 0.29, collide: true });
+    cupboard(hx - 0.32, (-hz + pz) / 2 + 0.3, -Math.PI / 2);
+  } else {
+    cupboard(hx - 0.32, between(-hz + 1.2, -0.5), -Math.PI / 2);
+  }
+
+  // Barrels by the front, tools on the wall at the back.
+  for (let i = 0; i < 2; i++) b.cylinder('timber', hx - 0.5 - i * 0.75, 0, hz - 0.6, 0.33, 0.85, { rTop: 0.29, collide: true });
+  if (floors === 1 || stairSide(0) >= 0) Furn.hungTools(b, -hx + 0.05, 0, -0.5, Math.PI / 2);
+  else Furn.hungTools(b, (fx - hx) / 2 - 0.3, 0, -hz + 0.04, 0);
 
   // ------------------------------------------------------------ upper floors
   for (let k = 1; k < floors; k++) {
@@ -199,42 +237,41 @@ export function createInterior(door, renderer, { onLeave, onSleep, player }) {
     const away = k % 2 ? 1 : -1;      // the side without this floor's stairwell
     // A bed (or two) against the back wall.
     const beds = W > 7 ? 2 : 1;
-    for (let i = 0; i < beds; i++) bed(away * (hx - 0.8 - i * 1.6), y, -hz + 1.15);
+    for (let i = 0; i < beds; i++) {
+      const bx = away * (hx - 0.75 - i * 1.5), bz = -hz + 1.08;
+      Furn.bed(b, bx, y, bz, 0);
+      things.push({ pos: new THREE.Vector3(bx, y + 0.7, bz), reach: 2.2, label: 'sleep until morning', use() { onSleep(); } });
+    }
+    Furn.rug(b, away * (hx - 1.6), y, -hz + 2.6, 0, 2.0, 1.2);
     // A chest at the foot of the first bed.
-    const chx = away * (hx - 0.8), chz = -hz + 2.65;
+    const chx = away * (hx - 0.75), chz = -hz + 2.75;
     const chest = createChest(group, renderer, {
       x: chx, y, z: chz, yaw: 0, gold: 3 + Math.floor(rand() * 12),
-      items: rand() < 0.4 ? { [['coin', 'gem', 'cell', 'dagger'][Math.floor(rand() * 4)]]: 1 } : {},
+      items: rand() < 0.4 ? { [['coin', 'gem', 'cell', 'dagger', 'crystal'][Math.floor(rand() * 5)]]: 1 } : {},
     });
     things.push(chest);
     updaters.push((dt) => chest.update(dt));
     b.colliders.push(chest.collider);
-    // A small table with a candle by the window.
-    const sx = 0, sz = -hz + 0.6;
-    b.box('timber', sx, y + 0.7, sz, 0.7, 0.05, 0.5);
-    b.box('timber', sx, y, sz, 0.08, 0.7, 0.08);
-    const candle = new THREE.PointLight(0xffb25a, 1.6, 6, 1.8);
-    candle.position.set(sx, y + 1.0, sz);
-    group.add(candle);
-    b.box('plaster', sx, y + 0.75, sz, 0.06, 0.16, 0.06);
-  }
-
-  function bed(x, y, z) {
-    b.box('timber', x, y, z, 1.0, 0.42, 2.0, { collide: true });
-    b.box('linen', x, y + 0.42, z + 0.05, 0.92, 0.18, 1.85);
-    b.box('linen', x, y + 0.6, z - 0.75, 0.6, 0.12, 0.35);                       // pillow
-    b.box('timber', x, y, z - 1.0, 1.0, 0.95, 0.08);                              // headboard
-    things.push({
-      pos: new THREE.Vector3(x, y + 0.7, z), reach: 2.2,
-      label: 'sleep until morning',
-      use() { onSleep(); },
-    });
+    // A little table and chair by the window, with a candle; shelves on the wall.
+    const sx = -away * 0.4, sz = -hz + 0.55;
+    b.box('timber', sx, y + 0.7, sz, 0.8, 0.05, 0.5);
+    b.cylinder('timber', sx, y, sz, 0.04, 0.7, { sides: 8 });
+    b.cylinder('timber', sx, y, sz, 0.22, 0.03, { sides: 12 });
+    addCandle(Furn.candle(b, sx + 0.2, y + 0.725, sz));
+    Furn.chair(b, sx, y, sz + 0.6, 0);
+    sitAt(sx, y, sz + 0.6, 0);
+    Furn.shelves(b, away * (hx - 0.17), y, 0.6, away > 0 ? -Math.PI / 2 : Math.PI / 2, 1.4, rand);
   }
 
   // ---------------------------------------------------------------- the door
+  const front = Furn.hingedDoor(b, group, door.doorX - 0.58, 0, hz + 0.02, 0, 1.15, 2.25, Math.PI / 2);
+  updaters.push((dt) => front.update(dt));
   things.push({
     pos: new THREE.Vector3(door.doorX, 1.2, hz), reach: 2.2, label: 'leave',
-    use() { onLeave(); },
+    use() {
+      if (!front.open) front.toggle();
+      setTimeout(onLeave, 350);
+    },
   });
 
   b.finish(group);
@@ -245,6 +282,20 @@ export function createInterior(door, renderer, { onLeave, onSleep, player }) {
   const room = new THREE.PointLight(0xffd8a8, 0, 14, 1.4);
   room.position.set(0, G - 0.6, 0);
   group.add(room);
+  // Daylight through the back window: a shadow-casting spot and a visible shaft.
+  const sunIn = new THREE.SpotLight(0xfff0d8, 0, 14, 0.55, 0.6, 1.2);
+  sunIn.position.set(0, 1.6, -hz + 0.1);
+  sunIn.target.position.set(0, 0, 1.5);
+  sunIn.castShadow = true;
+  sunIn.shadow.mapSize.set(1024, 1024);
+  group.add(sunIn, sunIn.target);
+  const beamMat = new THREE.MeshBasicMaterial({ color: 0xffe8c0, transparent: true, opacity: 0, blending: THREE.AdditiveBlending, depthWrite: false, side: THREE.DoubleSide });
+  for (let k = 0; k < floors; k++) {
+    const beam = new THREE.Mesh(new THREE.BoxGeometry(0.75, 0.95, 3.4), beamMat);
+    beam.position.set(0, base(k) + 0.9, -hz + 1.55);
+    beam.rotation.x = -0.45;
+    group.add(beam);
+  }
 
   return {
     name: 'interior',
@@ -277,7 +328,9 @@ export function createInterior(door, renderer, { onLeave, onSleep, player }) {
       // Daylight through the windows, or the dark of night.
       sky.color.setRGB(0.05 + 0.7 * day, 0.06 + 0.78 * day, 0.1 + 0.85 * day);
       hemi.intensity = 0.12 + 0.5 * day;
-      room.intensity = 1.5 + 4 * day;
+      room.intensity = 1.0 + 3 * day;
+      sunIn.intensity = 9 * day;
+      beamMat.opacity = 0.07 * day;
       for (const u of updaters) u(dt);
     },
   };

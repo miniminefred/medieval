@@ -25,6 +25,7 @@ import { CLANS, currentClan } from './clans.js';
 import { trade } from './trade.js';
 import { ITEMS } from './inventory.js';
 import { createKnives } from './knives.js';
+import { hunger } from './hunger.js';
 
 const renderer = createRenderer();
 const scene = createScene();
@@ -131,6 +132,7 @@ async function sleep() {
   fade.classList.add('on');
   await new Promise((r) => setTimeout(r, 900));
   clock.wakeAtDawn();
+  hunger.slept();
   player.stamina = player.staminaMax;
   player.winded = false;
   await new Promise((r) => setTimeout(r, 600));
@@ -157,6 +159,7 @@ ctx.combat = combat;
 onClanChosen((id) => { combat.setClan(id); inventory.setStrength(CLANS[id].stats.strength); });
 const knives = createKnives(scene);
 trade.init(player.controls);
+inventory.setCapacityPenalty(() => hunger.capacityPenalty);
 
 // What using an item from the inventory (I) does.
 //   food and potions   eaten or drunk: health back (water: breath too), antidote cures poison
@@ -173,8 +176,9 @@ function hold(w) {
 }
 trade.onUse((key) => {
   const it = ITEMS[key];
-  if (it.heal || it.cure || it.stamina) {
+  if (it.heal || it.cure || it.stamina || it.food) {
     inventory.addItem(key, -1);
+    if (it.food) hunger.eat(it.food, it.effect, it.seconds);
     if (it.heal) combat.heal(it.heal);
     if (it.cure) combat.cure();
     if (it.stamina) { player.stamina = player.staminaMax; player.winded = false; }
@@ -266,6 +270,9 @@ function animate() {
   const here = drops.filter((d) => d.realm === realm && !d.thing.done).map((d) => d.thing);
   interaction.update(here.length ? realm.interactables.concat(here) : realm.interactables, camera, player.isLocked);
   combat.update(dt);
+  if (!travelling) hunger.update(dt, { running: player.running, healing: combat.healing });
+  player.starving = hunger.starving;
+  player.staminaUse = 1 / hunger.stamina;
   knives.update(dt, player.groundAt);
   orb.update(dt, camera);
   story.update(dt);

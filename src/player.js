@@ -32,6 +32,8 @@ export class Player {
     this.groundAt = () => 0;
     this.seat = null;             // sitting on a chair (sit())
     this.overloaded = false;      // carrying too much: walk slowly, no running
+    this.starving = false;        // hunger at zero: no running
+    this.staminaUse = 1;          // food effects stretch stamina (energised: 0.67)
     this.runMul = 1;              // from the clan's speed stat: apex run fastest
     this.staminaMax = 10;         // seconds of running on a full bar (clan's speed stat)
     this.stamina = this.staminaMax;
@@ -135,9 +137,9 @@ export class Player {
       // fast, and (through staminaMax) for how long. Spent stamina means walking
       // until it has refilled to RECOVER of the bar.
       const moving = this._wish.lengthSq() > 0;
-      this.running = this.keys.sprint && moving && !this.winded && !this.overloaded;
+      this.running = this.keys.sprint && moving && !this.winded && !this.overloaded && !this.starving;
       if (this.running) {
-        this.stamina = Math.max(0, this.stamina - dt);
+        this.stamina = Math.max(0, this.stamina - dt * this.staminaUse);
         if (this.stamina === 0) this.winded = true;
       } else {
         this.stamina = Math.min(this.staminaMax, this.stamina + dt * this.staminaMax / STAMINA_REFILL);

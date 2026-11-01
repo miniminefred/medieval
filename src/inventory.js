@@ -19,9 +19,9 @@ export const ITEMS = {
   coin: { name: 'Ancient coin', kind: 'valuable', weight: 0.05, value: 15 },
   gem: { name: 'Rough gemstone', kind: 'valuable', weight: 0.2, value: 22 },
   // Food and potions.
-  bread: { name: 'Stale bread', kind: 'food', weight: 0.3, value: 1, heal: 8 },
-  stew: { name: 'Bowl of stew', kind: 'food', weight: 0.6, value: 3, heal: 20 },
-  water: { name: 'Flask of water', kind: 'food', weight: 0.8, value: 1, heal: 4, stamina: true },
+  bread: { name: 'Stale bread', kind: 'food', weight: 0.3, value: 1, heal: 8, food: 0.25 },
+  stew: { name: 'Bowl of stew', kind: 'food', weight: 0.6, value: 3, heal: 20, food: 0.5, effect: 'wellfed', seconds: 180 },
+  water: { name: 'Flask of water', kind: 'food', weight: 0.8, value: 1, heal: 4, stamina: true, food: 0.05, effect: 'energised', seconds: 90 },
   potion: { name: 'Healing potion', kind: 'potion', weight: 0.3, value: 15, heal: 60 },
   antidote: { name: 'Antidote', kind: 'potion', weight: 0.2, value: 10, cure: true },
   // Weapons and tools.
@@ -34,7 +34,8 @@ export const ITEMS = {
 };
 for (const it of Object.values(ITEMS)) it.price ??= Math.max(2, Math.round(it.value * 2));
 
-const state = { gold: 25, items: {}, capacity: 30 };   // every prince starts with a small purse
+const state = { gold: 25, items: {}, capacity: 30 };
+let capacityPenalty = null;   // every prince starts with a small purse
 
 function weight() {
   let w = 0;
@@ -52,8 +53,10 @@ export const inventory = {
   get gold() { return state.gold; },
   get items() { return Object.entries(state.items).filter(([, n]) => n > 0); },
   get weight() { return weight(); },
-  get capacity() { return state.capacity; },
-  get overloaded() { return weight() > state.capacity; },
+  get capacity() { return state.capacity - (capacityPenalty?.() ?? 0); },
+  get overloaded() { return weight() > this.capacity; },
+  // Something that lowers what you can carry (hunger.js), asked each time.
+  setCapacityPenalty(fn) { capacityPenalty = fn; },
 
   count(key) { return state.items[key] ?? 0; },
 

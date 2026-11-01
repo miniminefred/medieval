@@ -507,3 +507,40 @@ kbd {
 .itempanel .empty { opacity: 0.6; padding: 0.5rem 0; }
 .itempanel .foot { display: flex; justify-content: space-between; margin-top: 0.8rem; font-size: 0.85rem; opacity: 0.85; }
 .itempanel .over { color: #8e2219; font-weight: bold; }
+
+/* ---------------------------------------------------- hunger and effects */
+
+#hunger {
+  position: absolute;
+  left: calc(1.4rem + 14.6rem);
+  bottom: 1.4rem;
+  width: 7rem;
+  height: 10px;
+  background: rgba(0, 0, 0, 0.5);
+  border: 1px solid rgba(201, 162, 39, 0.55);
+  border-radius: 3px;
+  overflow: hidden;
+}
+#hunger span {
+  display: block;
+  height: 100%;
+  width: 100%;
+  background: linear-gradient(to bottom, #d8a34a, #9a6a1e);
+  transition: width 300ms ease;
+}
+#hunger.low span { background: linear-gradient(to bottom, #c0563d, #7a2a1a); }
+#effects {
+  position: absolute;
+  left: 1.4rem;
+  bottom: calc(1.4rem + 16px);
+  display: flex;
+  gap: 0.4rem;
+}
+#effects span {
+  padding: 0.1rem 0.5rem;
+  font-size: 0.75rem;
+  border-radius: 2px;
+  background: rgba(30, 60, 30, 0.75);
+  color: #dff0c8;
+}
+#effects span.bad { background: rgba(90, 20, 15, 0.8); color: #ffd6cc; }

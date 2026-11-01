@@ -54,6 +54,22 @@ export const hud = {
     if (el) el.firstElementChild.style.width = `${(Math.max(0, frac) * 100).toFixed(1)}%`;
   },
 
+  // Hunger, 0..1: the bar beside health, red when low.
+  hunger(frac) {
+    const el = $('hunger');
+    if (!el) return;
+    el.firstElementChild.style.width = `${(Math.max(0, frac) * 100).toFixed(1)}%`;
+    el.classList.toggle('low', frac < 0.25);
+  },
+
+  // Active effects as small tags: [{ name, good }].
+  effects(list) {
+    const el = $('effects');
+    if (!el) return;
+    const html = list.map((e) => `<span class="${e.good ? '' : 'bad'}">${e.name}</span>`).join('');
+    if (el.innerHTML !== html) el.innerHTML = html;
+  },
+
   // Poisoned: the health bar turns sickly green.
   poisoned(on) {
     $('health')?.classList.toggle('poisoned', on);

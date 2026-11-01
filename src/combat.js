@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import { hud } from './hud.js';
 import { CLANS } from './clans.js';
+import { hunger } from './hunger.js';
 
 // Basic combat (docs/DESIGN.md): the prince's health, the old sword's swing, and
 // the enemies the blade can find.
@@ -78,10 +79,12 @@ export function createCombat({ camera, player, sword }) {
       poisonT = Math.max(poisonT, seconds);
       poisonDps = Math.max(poisonDps, dps);
       hud.poisoned(true);
+      hunger.setPoisoned(true);
     },
 
     heal(n) { health = Math.min(maxHealth, health + n); refresh(); },
-    cure() { poisonT = 0; poisonDps = 0; hud.poisoned(false); },
+    cure() { poisonT = 0; poisonDps = 0; hud.poisoned(false); hunger.setPoisoned(false); },
+    get healing() { return !dead && sinceHurt > REGEN_DELAY && health < maxHealth; },
 
     // After dying: back on your feet with some health.
     revive(fraction = 0.6) {
@@ -98,11 +101,11 @@ export function createCombat({ camera, player, sword }) {
         health = Math.max(0, health - poisonDps * dt);
         sinceHurt = 0;
         refresh();
-        if (poisonT <= 0) { poisonDps = 0; hud.poisoned(false); }
+        if (poisonT <= 0) { poisonDps = 0; hud.poisoned(false); hunger.setPoisoned(false); }
         if (health <= 0) { dead = true; poisonT = 0; hud.poisoned(false); deathHandler(); }
       }
       if (!dead && sinceHurt > REGEN_DELAY && health < maxHealth) {
-        health = Math.min(maxHealth, health + REGEN_RATE * dt);
+        health = Math.min(maxHealth, health + REGEN_RATE * hunger.regen * dt);
         refresh();
       }
       if (sword.hitMoment) {
@@ -116,7 +119,7 @@ export function createCombat({ camera, player, sword }) {
           const d = _to.length();
           if (d > REACH) continue;
           if (d > 0.4 && _to.normalize().dot(_fwd) < ARC) continue;
-          e.hit(weapon === 'dagger' ? Math.round(damage * 0.7) : damage, p);
+          e.hit(Math.round((weapon === 'dagger' ? damage * 0.7 : damage) * hunger.damage), p);
         }
       }
     },

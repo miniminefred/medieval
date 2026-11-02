@@ -207,7 +207,9 @@ exception to "no guns": it belongs to the cyborg clan, not a general shooter loo
 
 - **More realistic everywhere**, starting with the worst: **people**, and
   **interiors and stalls**.
-- **People are real 3D human models** (rigged and animated), not hand-built figures.
+- ~~People are real 3D human models~~ — **changed back 2026-11-02: people are the
+  hand-built figures again** (hooded folk, cartoon cyborgs, apex). The real-model code
+  is kept, switched off.
   The owner will send **drawings of how they should look** later.
 - **Cyborgs are mostly metal**, but keep **a human arm and a human leg**, and **half
   a human face** (the other half metal, with a glowing eye). Most of the cyborg

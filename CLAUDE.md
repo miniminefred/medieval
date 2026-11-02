@@ -346,6 +346,10 @@ comes from the clan's strength; over it, `player.overloaded` slows walking and s
 running. Market traders open the shop their stall's wares name (`COUNTERS[i].shop`).
 
 ### Real people (`humans.js`, `people.js`)
+**Switched off** (owner's call, 2026-11-02): `REAL_PEOPLE = false` in humans.js, so nothing
+loads and every crowd, bandit and trader uses its hand-built figure. The code and the
+four GLBs stay for when the owner's drawings arrive; set the flag true to bring them back.
+
 Four CC0 Quaternius models (`person_man/woman/hooded/farmer` in public/models/medieval,
 listed in fetch-props.mjs) share one 62-bone skeleton and animation names (Idle, Walk,
 Run, Sword_Slash, Interact, HitRecieve, Death). `makeHuman(kind)` clones one with its own

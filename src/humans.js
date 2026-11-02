@@ -28,7 +28,14 @@ const BONES = {
 const lib = {};
 let ready = null;
 
+// Switched off (owner's call, 2026-11-02): people are the hand-built figures of
+// people.js again. With this false nothing is loaded and hasHumans() is false
+// everywhere, so every crowd, bandit and trader falls back to its figure. Set it
+// true to bring the real models back.
+export const REAL_PEOPLE = false;
+
 export function loadHumans() {
+  if (!REAL_PEOPLE) return Promise.resolve();
   ready ??= Promise.all(Object.entries(KINDS).map(([kind, file]) => new Promise((res) => {
     new GLTFLoader().load(BASE + file + '.glb', (g) => {
       const clips = {};

@@ -507,6 +507,17 @@ kbd {
 .itempanel .empty { opacity: 0.6; padding: 0.5rem 0; }
 .itempanel .foot { display: flex; justify-content: space-between; margin-top: 0.8rem; font-size: 0.85rem; opacity: 0.85; }
 .itempanel .over { color: #8e2219; font-weight: bold; }
+.itempanel .item.picked { background: rgba(201, 162, 39, 0.3); }
+.itempanel .info:empty { display: none; }
+.itempanel .info { margin-top: 0.8rem; padding: 0.7rem 0.9rem; background: rgba(107, 74, 22, 0.1); border-left: 3px solid #c9a227; }
+.itempanel .info h4 { margin: 0 0 0.3rem; font-weight: 400; font-size: 1rem; color: #6b4a16; }
+.itempanel .info p { margin: 0.15rem 0; font-size: 0.88rem; }
+.itempanel .info .cost { margin-top: 0.4rem; font-weight: bold; color: #7a5a10; }
+.itempanel .info .cost s { opacity: 0.5; font-weight: 400; }
+.itempanel .info .choice { display: flex; gap: 0.6rem; margin-top: 0.6rem; }
+.itempanel .info button { font: inherit; padding: 0.3rem 0.9rem; border: 1px solid #6b4a16; border-radius: 2px; background: #f3ead6; color: #4a3010; cursor: pointer; }
+.itempanel .info button.yes { background: #6b4a16; color: #f3ead6; }
+.itempanel .info button:disabled { opacity: 0.45; cursor: default; }
 
 /* ---------------------------------------------------- hunger and effects */
 

@@ -1,17 +1,20 @@
 import { inventory, ITEMS } from './inventory.js';
 import { hud } from './hud.js';
 import { dealOf, priceAt, basePrice } from './shops.js';
+import { describe } from './item-info.js';
 
 // The two item screens (docs/DESIGN.md):
 //   I       your inventory — every item with its weight; click to use, eat or
 //           equip; the total against what you can carry.
-//   trader  a trade window — what they sell on the left (click to buy one), what
-//           you carry on the right (click to sell one).
+//   trader  a trade window — what they sell on the left, what you carry on the
+//           right. Clicking an item shows what it does and what it costs (or
+//           what they pay); then you buy (or sell) it, or not.
 // Both release the mouse while open; Esc, I, or the close button shuts them.
 
 let controls = null;
 let openPanel = null;          // 'inventory' | 'trade' | null
 let currentShop = null;
+let picked = null;             // { side: 'buy' | 'sell', key } — shown in the info box
 let useHandler = () => false;  // main.js: what using an item does
 
 const $ = (id) => document.getElementById(id);
@@ -66,12 +69,34 @@ function renderTrade() {
     : '<div class="empty">Nothing to sell.</div>';
   el.querySelector('.gold').textContent = `${inventory.gold} gold`;
   el.querySelector('.weight').textContent = `${inventory.weight.toFixed(1)} / ${inventory.capacity} kg`;
+  // The picked item: what it does, what it costs, and the choice.
+  if (picked?.side === 'sell' && !inventory.count(picked.key)) picked = null;
+  const info = el.querySelector('.info');
+  if (picked) {
+    const k = picked.key, it = ITEMS[k], buying = picked.side === 'buy';
+    const cost = buying
+      ? (deal?.item === k ? `<s>${basePrice(shop, k)}</s> ${priceAt(shop, k)} gold — today's deal` : `${priceAt(shop, k)} gold`)
+      : `They pay ${it.value} gold`;
+    const can = buying ? inventory.gold >= priceAt(shop, k) : true;
+    info.innerHTML = `<h4>${it.name}</h4>${describe(k).map((l) => `<p>${l}</p>`).join('')}
+      <p class="cost">${buying ? 'Costs ' : ''}${cost}</p>
+      <div class="choice"><button class="yes" ${can ? '' : 'disabled'}>${buying ? (can ? 'Buy' : 'Not enough gold') : 'Sell one'}</button>
+      <button class="no">${buying ? 'No thanks' : 'Keep it'}</button></div>`;
+    info.querySelector('.yes').onclick = () => {
+      if (buying) { if (!inventory.buyOne(k, priceAt(shop, k))) hud.toast('You cannot afford that.'); }
+      else inventory.sellOne(k);
+      renderTrade();
+    };
+    info.querySelector('.no').onclick = () => { picked = null; renderTrade(); };
+    const list = buying ? '.sells' : '.buys';
+    el.querySelector(`${list} .item[data-key="${k}"]`)?.classList.add('picked');
+  } else info.innerHTML = '';
   el.querySelectorAll('.sells .item').forEach((b) => b.onclick = () => {
-    if (!inventory.buyOne(b.dataset.key, priceAt(shop, b.dataset.key))) hud.toast('You cannot afford that.');
+    picked = { side: 'buy', key: b.dataset.key };
     renderTrade();
   });
   el.querySelectorAll('.buys .item').forEach((b) => b.onclick = () => {
-    inventory.sellOne(b.dataset.key);
+    picked = { side: 'sell', key: b.dataset.key };
     renderTrade();
   });
 }
@@ -109,6 +134,7 @@ export const trade = {
   // A shop: { name, sells: [item keys] }.
   openShop(shop) {
     currentShop = shop;
+    picked = null;
     open('trade');
     renderTrade();
   },

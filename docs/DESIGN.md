@@ -250,6 +250,9 @@ exception to "no guns": it belongs to the cyborg clan, not a general shooter loo
     - tailor
 
     Each has a hanging sign, a matching inside, and its keeper trading inside.
+- **Tradespeople sell for less or more than the market:** each shop has its own price
+  rate. Makers sell their own goods cheap (the baker, smith, carpenter, butcher,
+  fishmonger). The tavern, the apothecary, the librarian and the tailor charge more.
 
 ## The worlds
 

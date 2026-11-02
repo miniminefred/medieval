@@ -43,7 +43,8 @@ const CAST_POSE = {
   hang:   { pitch: -0.05, push: 0.00,  slack: 0.18, ease: 4 },
   reel:   { pitch: 0.12,  push: 0.02,  slack: 0.03, ease: 6 },
 };
-const CAST_TIME = { rewind: 0.30, whip: 0.16, fly: 0.55, hang: 3.2, reel: 1.0 };
+// The float hangs in the water until you click to reel in (fishing.js waits for a bite).
+const CAST_TIME = { rewind: 0.30, whip: 0.16, fly: 0.55, hang: Infinity, reel: 1.0 };
 const CAST_NEXT = { rewind: 'whip', whip: 'fly', fly: 'hang', hang: 'reel', reel: 'idle' };
 
 const BOBBER_REST = new THREE.Vector3(0.06, -0.80, -3.0);

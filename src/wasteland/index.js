@@ -234,6 +234,8 @@ export function createWastelandRealm(renderer) {
     group,
     terrain,
     portals: [portal],
+    // Where there is water to fish in (fishing.js).
+    waterAt: (x, z) => city.pond.waterAt(x, z),
     // Fallen bandits join the list as they fall, so it is read fresh each time.
     get interactables() { return staticThings.concat(camps.bodies, doorways.interactables); },
     spawn: { x: SPAWN.x, z: SPAWN.z, yaw: Math.PI },   // facing south, away from the portal

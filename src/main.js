@@ -25,6 +25,7 @@ import { trade, setLightShown } from './trade.js';
 import { PointLight } from 'three';
 import { ITEMS } from './inventory.js';
 import { createKnives } from './knives.js';
+import { createFishing } from './fishing.js';
 import { hunger } from './hunger.js';
 
 const renderer = createRenderer();
@@ -145,6 +146,7 @@ if (import.meta.env.DEV) {
 // "old rod" (docs/DESIGN.md), so it starts put away. The first click grabs
 // pointer lock (input.js); only clicks that arrive while locked swing.
 const viewmodel = new Viewmodel(camera, library);
+const fishing = createFishing(viewmodel);
 viewmodel.visible = false;
 const sword = createSword(camera);
 const combat = createCombat({ camera, player, sword });
@@ -208,7 +210,7 @@ inventory.onChange(() => {
 });
 renderer.domElement.addEventListener('mousedown', (e) => {
   if (e.button !== 0 || !player.isLocked) return;
-  if (holding === 'rod') viewmodel.cast();
+  if (holding === 'rod') fishing.click(camera, realm);
   else if (holding === 'knives') {
     if (inventory.count('knives') >= 1) { knives.throw3(camera, combat); inventory.addItem('knives', -1); }
   } else combat.swing();
@@ -299,6 +301,7 @@ function animate() {
     if (portal) travel(portal.target);
   }
   viewmodel.update(dt, { speed: player.speed, grounded: player.grounded, locked: player.isLocked });
+  fishing.update(dt);
   sword.update(dt, { speed: player.speed });
   renderer.render(scene, camera);
 }

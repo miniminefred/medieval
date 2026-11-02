@@ -25,6 +25,7 @@ export const ITEMS = {
   apple: { name: 'Apple', kind: 'food', weight: 0.2, value: 1, heal: 3, food: 0.1 },
   cheese: { name: 'Wedge of cheese', kind: 'food', weight: 0.4, value: 3, heal: 6, food: 0.3 },
   meat: { name: 'Roast meat', kind: 'food', weight: 0.5, value: 5, heal: 15, food: 0.45, effect: 'wellfed', seconds: 240 },
+  freshfish: { name: 'Fresh fish', kind: 'food', weight: 0.5, value: 3, heal: 6, food: 0.25 },
   fish: { name: 'Smoked fish', kind: 'food', weight: 0.4, value: 4, heal: 10, food: 0.35 },
   pie: { name: 'Meat pie', kind: 'food', weight: 0.6, value: 6, heal: 18, food: 0.6, effect: 'wellfed', seconds: 300 },
   juice: { name: 'Berry juice', kind: 'food', weight: 0.6, value: 3, heal: 4, food: 0.1, stamina: true, effect: 'energised', seconds: 150 },

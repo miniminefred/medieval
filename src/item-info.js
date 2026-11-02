@@ -15,7 +15,7 @@ const ABOUT = {
   gem: 'An uncut stone. Worth good gold.',
   dagger: 'A short, quick blade. Click to stab; it lunges you forward.',
   knives: 'Click to throw three at once. Each throw uses one set.',
-  rod: 'Hold it and click to cast.',
+  rod: 'Hold it and click to cast into water (the pond in the cyborg city); click again when a fish bites.',
   lantern: 'Lights the dark around you. Use it to light it or put it out.',
   torch: 'A burning torch: cheap light for dark nights.',
   rope: 'Strong rope. For climbing and tying, later.',

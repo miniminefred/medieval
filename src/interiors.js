@@ -7,28 +7,40 @@ import { hud } from './hud.js';
 import { clock } from './clock.js';
 import * as Furn from './furniture.js';
 
-// The inside of a house, built when you walk in (docs/DESIGN.md: almost every
-// house can be entered). It is generated from the house's own numbers — its
+// The inside of a house (docs/DESIGN.md: almost every house can be entered),
+// built in place — inside the house's own hollow ground floor — the first time
+// its door is opened (doorways.js). No fade, no other realm: the door swings
+// open and you walk in. It is generated from the house's own numbers — its
 // width, depth, floors, where its door is, and its seed — so a house is always
-// the same inside, and no two are quite alike. It stands at the origin of its
-// own little realm; leaving puts you back on the street outside its door.
+// the same inside, and no two are quite alike.
+//
+// Everything is laid out in house-local coordinates (front +z, door in the front
+// wall) under a group placed and turned like the house; colliders and the
+// things to use are moved into the world once at the end. Houses are square to
+// the world grid, so a turned box is still a box.
 //
 // Ground floor: a fireplace on the back wall, a table and chairs, a cupboard,
 // barrels. Upper floors: beds, a chest, a small table. Stairs climb along the
 // side walls, alternating left and right floor by floor. Everything you can use
 // is "press E": sit, light the fire, search the cupboard, open the chest,
-// sleep (until morning), and the door, to leave.
+// sleep (until morning). The ground-floor walls are the house's own (houses.js).
 
 const G = 3.2, F = 2.9;      // floor heights, as outside (houses.js)
 const WALL = 0.2;
 const SLAB = 0.25;
 const RISE = 0.27, TREAD = 0.3;
+const LIFT = 0.03;           // the floorboards sit just above the ground outside
 
-export function createInterior(door, renderer, { onLeave, onSleep, player }) {
+export function createInterior(door, renderer, { onSleep, player }) {
   const rand = mulberry32(door.seed);
   const between = (a, b) => a + rand() * (b - a);
   const group = new THREE.Group();
   group.name = 'interior';
+  group.position.set(door.cx, door.y + LIFT, door.cz);
+  group.rotation.y = door.yaw;
+  group.updateMatrixWorld(true);
+  const M = group.matrixWorld.clone();
+  const toWorld = (x, y, z) => new THREE.Vector3(x, y, z).applyMatrix4(M);
   const b = new CityBuilder(renderer);
   const things = [];          // interactables
   const updaters = [];
@@ -41,23 +53,22 @@ export function createInterior(door, renderer, { onLeave, onSleep, player }) {
   const hx = W / 2, hz = D / 2;
 
   // ------------------------------------------------------------ shell
-  b.box('timber', 0, -0.2, 0, W + 2 * WALL, 0.2, D + 2 * WALL);                   // floorboards
-  const wallKey = (k) => (k === 0 ? 'housestone' : 'plaster');
+  b.box('timber', 0, -0.2, 0, W, 0.2, D);                                          // floorboards
+  b.collider(-hx, hx, -hz, hz, 0);
   for (let k = 0; k < floors; k++) {
     const y = base(k), h = height(k);
-    b.box(wallKey(k), 0, y, -hz - WALL / 2, W + 2 * WALL, h, WALL, { collide: true });         // back
-    b.box(wallKey(k), -hx - WALL / 2, y, 0, WALL, h, D, { collide: true });                     // left
-    b.box(wallKey(k), hx + WALL / 2, y, 0, WALL, h, D, { collide: true });                      // right
-    if (k === 0) {
-      // Front wall, round the door.
-      const dx = door.doorX, half = 0.6;
-      const lw = dx - half + hx, rw = hx - (dx + half);
-      if (lw > 0.05) b.box('housestone', -hx + lw / 2, 0, hz + WALL / 2, lw, h, WALL, { collide: true });
-      if (rw > 0.05) b.box('housestone', hx - rw / 2, 0, hz + WALL / 2, rw, h, WALL, { collide: true });
-      b.box('housestone', dx, 2.25, hz + WALL / 2, 2 * half, h - 2.25, WALL);
-
-    } else {
-      b.box('plaster', 0, y, hz + WALL / 2, W + 2 * WALL, h, WALL, { collide: true });
+    // The ground floor's walls are the house's own; upper floors get theirs here
+    // (outside, they are one solid block).
+    // A shade thinner than the gap, so their outsides never meet the house's
+    // own outer faces (which would flicker).
+    if (k > 0) {
+      const t = WALL - 0.03, ww = W + 2 * t;
+      b.box('plaster', 0, y, -hz - WALL / 2, ww, h, WALL, { collide: true });                // back
+      b.box('plaster', -hx - t / 2, y, 0, t, h, D, { collide: true });                       // left
+      b.box('plaster', hx + t / 2, y, 0, t, h, D, { collide: true });                        // right
+      b.box('plaster', 0, y, hz + WALL / 2, ww, h, WALL, { collide: true });                 // front
+      // They stand on this floor: the doorway below must stay walkable.
+      for (const c of b.colliders.slice(-4)) c.bottom = y;
     }
     // Beams under each ceiling.
     for (let bx = -hx + 0.8; bx < hx; bx += 1.6) b.box('timber', bx, y + h - SLAB - 0.18, 0, 0.16, 0.18, D);
@@ -135,12 +146,9 @@ export function createInterior(door, renderer, { onLeave, onSleep, player }) {
   }
   fire.position.set(fx, 0.05, -hz + 0.62);
   group.add(fire);
-  const fireLight = new THREE.PointLight(0xff9a4a, 0, 10, 1.6);
-  fireLight.castShadow = true;                 // the fire throws the furniture's shadows
-  fireLight.shadow.mapSize.set(512, 512);
-  fireLight.shadow.bias = -0.004;
-  fireLight.position.set(fx, 0.8, -hz + 1.2);
-  group.add(fireLight);
+  // No lights of its own: a house lends doorways.js where its lights would be,
+  // and the few real lights there are move to whichever house you are in.
+  const firePos = toWorld(fx, 0.8, -hz + 1.2);
   let burning = rand() < 0.6;
   const hearth = {
     pos: new THREE.Vector3(fx, 0.8, -hz + 1.0), reach: 2.6,
@@ -153,22 +161,21 @@ export function createInterior(door, renderer, { onLeave, onSleep, player }) {
     tf += dt;
     fire.visible = burning;
     fire.scale.y = 1 + Math.sin(tf * 13) * 0.08;
-    fireLight.intensity = burning ? 6 * (1 + Math.sin(tf * 11) * 0.1) : 0;
   });
 
-  const lights = [];          // candle flames: [position, light]
+  const candles = [];         // where the candle flames are, in the world
   const addCandle = (pos) => {
-    const l = new THREE.PointLight(0xffb25a, 2.4, 7, 1.6);
-    l.position.copy(pos);
-    group.add(l);
     const flame = new THREE.Mesh(new THREE.ConeGeometry(0.012, 0.045, 6), flameMat);
     flame.position.copy(pos).add({ x: 0, y: -0.02, z: 0 });
     group.add(flame);
-    lights.push(l);
+    candles.push(pos.clone().applyMatrix4(M));
   };
   const sitAt = (x, y, z, yaw) => things.push({
     pos: new THREE.Vector3(x, y + 0.6, z), reach: 1.8, label: 'sit down',
-    use() { player.sit({ x, y: y + 0.45, z, yaw: yaw + Math.PI }); },
+    use() {
+      const p = toWorld(x, y + 0.45, z);
+      player.sit({ x: p.x, y: p.y, z: p.z, yaw: yaw + Math.PI + door.yaw });
+    },
   });
 
   // Table, chairs and a rug in the middle.
@@ -227,7 +234,15 @@ export function createInterior(door, renderer, { onLeave, onSleep, player }) {
   }
 
   // Barrels by the front, tools on the wall at the back.
-  for (let i = 0; i < 2; i++) b.cylinder('timber', hx - 0.5 - i * 0.75, 0, hz - 0.6, 0.33, 0.85, { rTop: 0.29, collide: true });
+  // In the front corner away from the door — never in the doorway, nor at the
+  // foot of the stairs (the left front corner, when there is an upstairs).
+  const barrelSide = door.doorX > 0 ? -1 : 1;
+  if (!(barrelSide < 0 && floors > 1)) {
+    for (let i = 0; i < 2; i++) {
+      const bx = barrelSide * (hx - 0.5 - i * 0.75);
+      if (Math.abs(bx - door.doorX) > 1.2) b.cylinder('timber', bx, 0, hz - 0.6, 0.33, 0.85, { rTop: 0.29, collide: true });
+    }
+  }
   if (floors === 1 || stairSide(0) >= 0) Furn.hungTools(b, -hx + 0.05, 0, -0.5, Math.PI / 2);
   else Furn.hungTools(b, (fx - hx) / 2 - 0.3, 0, -hz + 0.04, 0);
 
@@ -240,7 +255,7 @@ export function createInterior(door, renderer, { onLeave, onSleep, player }) {
     for (let i = 0; i < beds; i++) {
       const bx = away * (hx - 0.75 - i * 1.5), bz = -hz + 1.08;
       Furn.bed(b, bx, y, bz, 0);
-      things.push({ pos: new THREE.Vector3(bx, y + 0.7, bz), reach: 2.2, label: 'sleep until morning', use() { onSleep(); } });
+      things.push({ pos: new THREE.Vector3(bx, y + 0.7, bz), reach: 2.2, label: 'sleep until morning', use() { onSleep(rest); } });
     }
     Furn.rug(b, away * (hx - 1.6), y, -hz + 2.6, 0, 2.0, 1.2);
     // A chest at the foot of the first bed.
@@ -264,31 +279,35 @@ export function createInterior(door, renderer, { onLeave, onSleep, player }) {
   }
 
   // ---------------------------------------------------------------- the door
+  // The house's front door itself, in the doorway of the front wall; it swings
+  // in. Used from outside or in through doorways.js.
   const front = Furn.hingedDoor(b, group, door.doorX - 0.58, 0, hz + 0.02, 0, 1.15, 2.25, Math.PI / 2);
   updaters.push((dt) => front.update(dt));
-  things.push({
-    pos: new THREE.Vector3(door.doorX, 1.2, hz), reach: 2.2, label: 'leave',
-    use() {
-      if (!front.open) front.toggle();
-      setTimeout(onLeave, 350);
-    },
-  });
+  // Where you wake after sleeping here (or after dying, having slept here):
+  // just inside the door, facing in.
+  const restAt = toWorld(door.doorX, 0, hz - 1.0);
+  const rest = { x: restAt.x, z: restAt.z, yaw: door.yaw + Math.PI };
 
   b.finish(group);
 
+  // Into the world: what you can use, and what you bump into.
+  for (const t of things) t.pos.applyMatrix4(M);
+  const colliders = b.colliders;
+  const yOff = door.y + LIFT;
+  const corner = new THREE.Vector3();
+  for (const c of colliders) {
+    let x0 = Infinity, x1 = -Infinity, z0 = Infinity, z1 = -Infinity;
+    for (const [cx, cz] of [[c.minX, c.minZ], [c.maxX, c.minZ], [c.minX, c.maxZ], [c.maxX, c.maxZ]]) {
+      corner.set(cx, 0, cz).applyMatrix4(M);
+      x0 = Math.min(x0, corner.x); x1 = Math.max(x1, corner.x);
+      z0 = Math.min(z0, corner.z); z1 = Math.max(z1, corner.z);
+    }
+    c.minX = x0; c.maxX = x1; c.minZ = z0; c.maxZ = z1;
+    c.top += yOff;
+    if (c.bottom !== undefined) c.bottom += yOff;
+  }
+
   // --------------------------------------------------------------- light
-  const hemi = new THREE.HemisphereLight(0xfff0dc, 0x3a2c20, 0.4);
-  group.add(hemi);
-  const room = new THREE.PointLight(0xffd8a8, 0, 14, 1.4);
-  room.position.set(0, G - 0.6, 0);
-  group.add(room);
-  // Daylight through the back window: a shadow-casting spot and a visible shaft.
-  const sunIn = new THREE.SpotLight(0xfff0d8, 0, 14, 0.55, 0.6, 1.2);
-  sunIn.position.set(0, 1.6, -hz + 0.1);
-  sunIn.target.position.set(0, 0, 1.5);
-  sunIn.castShadow = true;
-  sunIn.shadow.mapSize.set(1024, 1024);
-  group.add(sunIn, sunIn.target);
   const beamMat = new THREE.MeshBasicMaterial({ color: 0xffe8c0, transparent: true, opacity: 0, blending: THREE.AdditiveBlending, depthWrite: false, side: THREE.DoubleSide });
   for (let k = 0; k < floors; k++) {
     const beam = new THREE.Mesh(new THREE.BoxGeometry(0.75, 0.95, 3.4), beamMat);
@@ -297,39 +316,27 @@ export function createInterior(door, renderer, { onLeave, onSleep, player }) {
     group.add(beam);
   }
 
+  const inv = M.clone().invert();
+  const local = new THREE.Vector3();
+
   return {
-    name: 'interior',
     group,
     door,
-    portals: [],
-    interactables: things,
-    spawn: { x: door.doorX, z: hz - 1.0, yaw: 0 },
-    arrival: { x: door.doorX, z: hz - 1.0, yaw: 0 },     // facing in, away from the door
-
-    enter({ scene, renderer: r, camera, player: pl }) {
-      scene.add(group);
-      scene.background = new THREE.Color(0x070605);
-      scene.fog = null;
-      scene.environment = null;
-      r.toneMapping = THREE.ACESFilmicToneMapping;
-      r.toneMappingExposure = 1.1;
-      camera.far = 300;
-      camera.updateProjectionMatrix();
-      pl.setWorld({ colliders: b.colliders });
+    front,                    // the front door: { open, toggle(), angle }
+    things,                   // what you can use inside
+    colliders,                // already in world space
+    rest,
+    // Where the lights belong, in the world (doorways.js lends the real ones).
+    lights: { room: toWorld(0, G - 0.6, 0), fire: firePos, candles, get burning() { return burning; } },
+    // Is this world point inside the house?
+    contains(p) {
+      local.copy(p).applyMatrix4(inv);
+      return Math.abs(local.x) < hx + WALL && Math.abs(local.z) < hz + WALL && local.y > -1 && local.y < top + 1;
     },
-
-    exit({ scene }) {
-      scene.remove(group);
-      group.traverse((o) => { if (o.isMesh) o.geometry.dispose(); });
-    },
-
     update(dt) {
       const { day } = clock.light();
       // Daylight through the windows, or the dark of night.
       sky.color.setRGB(0.05 + 0.7 * day, 0.06 + 0.78 * day, 0.1 + 0.85 * day);
-      hemi.intensity = 0.12 + 0.5 * day;
-      room.intensity = 1.0 + 3 * day;
-      sunIn.intensity = 9 * day;
       beamMat.opacity = 0.07 * day;
       for (const u of updaters) u(dt);
     },

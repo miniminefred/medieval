@@ -169,10 +169,14 @@ export function hingedDoor(b, parent, hingeX, y, hingeZ, yaw, w = 1.0, h = 2.1, 
   return {
     pos: new THREE.Vector3(cx, y + 1.1, cz),
     get open() { return open; },
+    // How far it has swung (0 shut): still moving shows as not quite 0.
+    get angle() { return angle; },
     toggle() {
       open = !open;
-      // Open: no wall (the leaf stands against the jamb, out of the way).
-      collider.top = open ? -10 : shut.top;
+      // Open: no wall (the leaf stands against the jamb, out of the way). The
+      // shut height is read back from the collider, which its owner may have
+      // moved into the world since (interiors.js).
+      if (open) { collider.shutTop = collider.top; collider.top = -1e4; } else collider.top = collider.shutTop;
     },
     update(dt) {
       const goal = open ? swing : 0;

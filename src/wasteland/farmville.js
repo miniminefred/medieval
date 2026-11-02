@@ -21,8 +21,8 @@ export function buildFarmville(group, renderer, heightAt) {
     [-27, -6, 8, 7.5, Math.PI / 2],
     [30, -32, 9.5, 8, -Math.PI / 2],    // east of the stem, facing west
     [31, -10, 8, 8, -Math.PI / 2],
-    [-38, 22, 9, 8, -0.25],             // south of the west branch
-    [44, 24, 8.5, 8, 0.4],              // south of the east branch
+    [-38, 22, 9, 8, 0],                // south of the west branch (square to the grid: houses are walked into)
+    [44, 24, 8.5, 8, 0],                // south of the east branch
   ];
   for (const [dx, dz, w, d, yaw] of houses) {
     const x = fx + dx, z = fz + dz;

@@ -17,8 +17,7 @@ import { createJournal } from './journal.js';
 import { createMinimap } from './minimap.js';
 import { explored } from './explored.js';
 import { clock } from './clock.js';
-import { onDoorOpened, isLocked } from './doorways.js';
-import { createInterior } from './interiors.js';
+import { onSleep } from './doorways.js';
 import { createSword } from './sword.js';
 import { createCombat } from './combat.js';
 import { CLANS, currentClan } from './clans.js';
@@ -111,19 +110,12 @@ async function travel(name) {
   await goTo(async () => (realms[name] ??= await builders[name]()));
 }
 
-// Houses: walking in builds the inside on the spot (interiors.js); leaving
-// puts you back on the street, just outside the door, facing out.
-onDoorOpened((door) => {
-  if (travelling) return;
-  if (isLocked(door)) { hud.toast('The door is locked.'); return; }
-  const outside = realm;
-  const step = { x: door.x + Math.sin(door.yaw) * 0.9, z: door.z + Math.cos(door.yaw) * 0.9, yaw: door.yaw + Math.PI };
-  const inside = createInterior(door, renderer, {
-    player,
-    onLeave: () => goTo(async () => outside, step),
-    onSleep: () => { lastRest = { make: async () => outside, at: step }; sleep(); },
-  });
-  goTo(async () => inside);
+// Houses are walked into where they stand (doorways.js); sleeping in one of
+// their beds makes it where you wake — just inside its door.
+onSleep((at) => {
+  const here = realm;
+  lastRest = { make: async () => here, at };
+  sleep();
 });
 
 // A bed: sleep until morning — a long rest (docs/DESIGN.md).

@@ -12,7 +12,7 @@ import { buildFarmville } from './farmville.js';
 import { buildCityFolk, buildFarmFolk } from './townsfolk.js';
 import { buildApexCity } from './apex.js';
 import { createChest } from '../chest.js';
-import { doorInteractable } from '../doorways.js';
+import { createDoorways } from '../doorways.js';
 import { clock } from '../clock.js';
 import { setNight } from '../builder.js';
 import { createLamps } from '../lamps.js';
@@ -119,7 +119,7 @@ export function createWastelandRealm(renderer) {
   // ------------------------------------------------- Farmville and the camps
   const farmville = buildFarmville(group, renderer, terrain.heightAt);
   const camps = buildCamps(group, renderer, terrain.heightAt);
-  const cityFolk = buildCityFolk(group, renderer);
+  const cityFolk = buildCityFolk(group, renderer, city.doors);
 
   // Street lamps: down both sides of the main street from the gate to the market,
   // round the market, and about Farmville's green.
@@ -151,6 +151,9 @@ export function createWastelandRealm(renderer) {
 
   const colliders = portal.colliders.concat(city.colliders, farmville.colliders, camps.colliders, lamps.colliders, apex.colliders,
     desertChests.map((c) => c.collider));
+  // House doors in the city and Farmville open where they stand (doorways.js).
+  const doorways = createDoorways(city.doors.concat(farmville.doors), renderer, { colliders });
+  group.add(doorways.group);
 
   const fog = new THREE.FogExp2(MOODS.desert.horizon, MOODS.desert.fog);
   const mood = MOOD_VECS.desert.slice();
@@ -224,8 +227,7 @@ export function createWastelandRealm(renderer) {
     return dustI;
   }
 
-  const staticThings = camps.chests.concat(desertChests, city.traders, cityFolk.shops, farmFolk.shops,
-    city.doors.concat(farmville.doors).map(doorInteractable));
+  const staticThings = camps.chests.concat(desertChests, city.traders, cityFolk.shops, farmFolk.shops);
 
   return {
     name: 'wasteland',
@@ -233,7 +235,7 @@ export function createWastelandRealm(renderer) {
     terrain,
     portals: [portal],
     // Fallen bandits join the list as they fall, so it is read fresh each time.
-    get interactables() { return staticThings.concat(camps.bodies); },
+    get interactables() { return staticThings.concat(camps.bodies, doorways.interactables); },
     spawn: { x: SPAWN.x, z: SPAWN.z, yaw: Math.PI },   // facing south, away from the portal
     // Each clan's prince arrives at their clan's home (clans.js); without a clan
     // (the F2 dev hop), at the map's centre.
@@ -286,6 +288,7 @@ export function createWastelandRealm(renderer) {
       for (const t of city.traders) t.update(dt, { playerPos: p, playerHere: false });
       cityFolk.update(dt, p);
       lamps.update(dt, p);
+      doorways.update(dt, player);
       farmFolk.update(dt, p);
       apex.update(dt, p, ctx.combat);
       for (const c of desertChests) c.update(dt);

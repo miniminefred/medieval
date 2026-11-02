@@ -7,7 +7,7 @@ import { createPortal } from './portal.js';
 import { createClanStands } from './clan-stands.js';
 import { currentClan } from './clans.js';
 import { createChest } from './chest.js';
-import { doorInteractable } from './doorways.js';
+import { createDoorways } from './doorways.js';
 import { clock } from './clock.js';
 import { setNight } from './builder.js';
 import { createLamps } from './lamps.js';
@@ -91,6 +91,9 @@ export function createCastleRealm(library, renderer) {
 
   const colliders = world.colliders.concat(village.colliders, portal.colliders, stands.colliders,
     chests.map((c) => c.collider), lamps.colliders);
+  // The village's house doors, which open where they stand (doorways.js).
+  const doorways = createDoorways(village.doors, renderer, { colliders });
+  group.add(doorways.group);
 
   // Blades follow the player and skip anywhere the village says is built on —
   // roads, the plaza, footprints, the courtyard and the pond. Seeded at the
@@ -111,7 +114,7 @@ export function createCastleRealm(library, renderer) {
     portal,
     portals: [portal],
     stands,
-    interactables: chests.concat(village.doors.map(doorInteractable)),
+    get interactables() { return chests.concat(doorways.interactables); },
     // Out on the grass facing the gatehouse; back from a trip, in front of the portal.
     spawn: { x: 0, z: 36, yaw: 0 },
     arrival: { x: 10, z: -9, yaw: Math.PI },
@@ -158,6 +161,7 @@ export function createCastleRealm(library, renderer) {
       stands.update(dt, camera, player.isLocked);
       grass.update(dt, player.object.position);
       village.update(dt);
+      doorways.update(dt, player);
       for (const c of chests) c.update(dt);
       portal.update(dt);
     },

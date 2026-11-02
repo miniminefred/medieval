@@ -42,9 +42,19 @@ export function buildHouse(b, x, z, w, d, yaw, floors, { y = CITY.y, tech: techS
   const top = G + F * upper;
   const D = d + 2 * JET;               // upper-floor depth
   const front = D / 2;
+  let door = null;
 
   // ------------------------------------------------------------ the shell
-  put('housestone', 0, -0.4, 0, w, G + 0.4, d);
+  // The ground floor is hollow — four stone walls, the front one round the
+  // doorway — so the door opens straight into the house (doorways.js puts the
+  // door in, interiors.js the rooms, both built in place). Upper floors are a
+  // solid block until the inside is built.
+  const T = 0.2;                       // wall thickness (interiors.js WALL)
+  const wall = (lx, lz, bw, bd, ly = -0.4, bh = G + 0.4) =>
+    b.box('housestone', x + lx * c + lz * s, y + ly, z - lx * s + lz * c, bw, bh, bd, { yaw, collide: true });
+  wall(0, -d / 2 + T / 2, w, T);                                  // back
+  wall(-w / 2 + T / 2, 0, T, d - 2 * T);                          // sides
+  wall(w / 2 - T / 2, 0, T, d - 2 * T);
   if (upper > 0) put('plaster', 0, G, 0, w, F * upper, D);
 
   // ------------------------------------------------- facades (front, back)
@@ -89,14 +99,22 @@ export function buildHouse(b, x, z, w, d, yaw, floors, { y = CITY.y, tech: techS
     for (let i = 0; i < bays; i++) {
       const bx = -w / 2 + 0.15 + (i + 0.5) * bay;
       if (side === 1 && i === doorBay) {
-        put('timber', bx, 0, gz, 1.15, 2.25, 0.12);
         put('housestone', bx, 2.25, gz, 1.6, 0.32, 0.2);              // stone lintel
+        // The front wall, round a doorway 1.2 m wide.
+        const half = 0.6, fz = d / 2 - T / 2;
+        const lw = bx - half + w / 2 - T, rw = w / 2 - T - (bx + half);
+        if (lw > 0.02) wall(-w / 2 + T + lw / 2, fz, lw, T);
+        if (rw > 0.02) wall(w / 2 - T - rw / 2, fz, rw, T);
+        wall(-w / 2 + T / 2, fz, T, T);                               // the corners
+        wall(w / 2 - T / 2, fz, T, T);
+        put('housestone', bx, 2.25, fz, 2 * half, G - 2.25, T);       // over the door
         // Remember the door, so it can be opened and the house walked into
-        // (interiors.js builds the inside from these numbers).
-        b.doors.push({
+        // (doorways.js, interiors.js build them from these numbers).
+        door = {
           x: x + bx * c + (gz + 0.2) * s, y, z: z - bx * s + (gz + 0.2) * c, yaw,
-          w, d, floors, doorX: bx, tech, seed: Math.floor(rand() * 1e9),
-        });
+          cx: x, cz: z, w, d, floors, doorX: bx, tech, seed: Math.floor(rand() * 1e9),
+        };
+        b.doors.push(door);
         if (tech && rand() < 0.6) {                                   // a machine box by the door
           put('steel', bx + 1.2, 0, gz + 0.25, 0.6, 0.9, 0.45);
           put('rust', bx + 1.2, 0.9, gz + 0.1, 0.12, top - 0.9, 0.12);  // its pipe up the wall
@@ -130,10 +148,12 @@ export function buildHouse(b, x, z, w, d, yaw, floors, { y = CITY.y, tech: techS
     put('steel', between(-w / 3, w / 3), top + rh * 0.6, 0, 0.1, 4.5, 0.1);
   }
 
-  // Solid to walk into; too tall to climb.
+  // Above the ground floor the house is solid (too tall to climb anyway),
+  // until its inside is built and the upper rooms take over (door.block).
   const swap = Math.abs(s) > 0.5;
-  const hw = (swap ? d : w) / 2, hd = (swap ? w : d) / 2;
-  b.collider(x - hw, x + hw, z - hd, z + hd, y + top + rh);
+  const hw = (swap ? D : w) / 2, hd = (swap ? w : D) / 2;
+  b.collider(x - hw, x + hw, z - hd, z + hd, y + top + rh, y + G);
+  door.block = b.colliders[b.colliders.length - 1];
 }
 
 // Lay a row of houses along one side of a block. `from`..`to` runs along the

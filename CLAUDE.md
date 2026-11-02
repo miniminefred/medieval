@@ -142,8 +142,8 @@ src/
   signs.js        Painted signs and chalkboards (canvas textures)
   clock.js        Time of day: 20 min day, 10 min night; sun/moon direction and daylight
   lamps.js        Street lamps; a pool of 8 real lights hops to the nearest
-  doorways.js     House doors as interactables (1 in 7 locked); main.js handles entering
-  interiors.js    Generated house insides: stairs, fire, table, chairs, cupboard, beds, chest
+  doorways.js     House doors that open in place (1 in 7 locked); builds the rooms, lends lights
+  interiors.js    House insides, built in place: stairs, fire, table, chairs, cupboard, beds, chest
   sword.js        The old sword (or dagger) in first person, and its swing
   combat.js       Health, poison, enemies the blade strikes, dying
   knives.js       Throwing knives, three at a time
@@ -324,11 +324,24 @@ a position hash. Stars are drawn by the sky dome only, never by `skyColor()`, or
 fogged terrain would sparkle. Sleeping in a bed calls `clock.wakeAtDawn()`.
 
 ### Houses (`doorways.js`, `interiors.js`)
-`buildHouse` pushes each front door onto `builder.doors` with the house's size, floors,
-door position and a seed. Opening one builds an interior realm from those numbers on
-the spot (same house, same inside) and `goTo()`s it; leaving goes back to the street
-outside the door. Upper floors are colliders with a `bottom` (player.js lets you walk
-under a box whose bottom is above your head), with the stairwell cut out of the slab.
+**A house door is just a door** (owner's call): E swings it open where it stands and you
+walk in — no fade, no interior realm. `buildHouse` makes the ground floor a hollow shell
+(four stone walls, the front one round a 1.2 m doorway, each its own collider) and the
+upper floors one solid collider with `bottom` at the first floor, kept as `door.block`.
+It pushes each door onto `builder.doors` with the house's centre, size, floors, door
+position and a seed. Each realm owns a `createDoorways(doors, renderer, { colliders })`:
+shut doors are **one InstancedMesh** (hundreds of houses, one draw call) plus a doorway
+collider each; the first time a door opens, `createInterior` builds that house's rooms
+in place (house-local layout under a group turned like the house; colliders and
+interactables moved into world space once), pushes its colliders onto the realm's list,
+and disables the doorway collider and `door.block`. Built rooms stay built (a searched
+cupboard stays searched) but are **drawn only while their door is open or you are
+inside** — a dozen furnished houses would be hundreds of draw calls. Houses have no
+lights of their own: a room light, a fire light and a candle light move to the house
+you are in (adding lights would recompile every shader). Houses must be square to the
+world grid (Farmville's two turned ones were squared up) — turned AABBs would not fit.
+Upper-floor wall colliders need a `bottom`, or they block the doorway under them.
+Sleeping in a bed makes "just inside that door" where you wake.
 
 ### Combat (`combat.js`, `sword.js`, `wasteland/bandits.js`, `scorpions.js`)
 Enemies register with combat as `{ pos, alive, hit(damage, from) }`; the sword's

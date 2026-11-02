@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 Browser-based 3D **first-person fantasy/medieval adventure** built with **Three.js**,
 bundled by **Vite**. It is *not* a shooter — no crosshair-and-trigger loop (the cyborg
-clan's plasma cannon is a deliberate exception). Five worlds, four clans, a Lava King to
+clan's plasma cannon is a deliberate exception). Five worlds, three playable clans, a Lava King to
 beat: **the full game plan lives in `docs/DESIGN.md` — read it before adding features.**
 
 The code is split into small ES modules under `src/` — **never let a single file grow
@@ -122,7 +122,7 @@ src/
   main.js         Bootstrap, realm switching (portals, fade, F2 dev hop), render loop
   scene.js        Renderer, scene, camera, resize handling
   builder.js      CityBuilder: the realistic building kit (castle, village, cyborg city)
-  clans.js        The four clans: stats, blurbs, World 1 homes, the one-time choice
+  clans.js        The three playable clans: stats, blurbs, World 1 homes, the one-time choice
   clan-stands.js  The clan banners in the castle courtyard (look, E, E to join)
   castle.js       The castle realm: photo sky + matching sun, world, village, banners, portal
   orb.js          The guiding orb: crystal sphere that follows you, talks, points (beam)
@@ -277,7 +277,7 @@ downhill snaps to the ground rather than falling step by step. Space jumps only 
 spikes.
 
 ### Castle and clan choice (`castle.js`, `world.js`, `clan-stands.js`, `clans.js`)
-The game **starts at the castle** (`START` in `main.js`). Four clan banners stand
+The game **starts at the castle** (`START` in `main.js`). Three clan banners stand
 across the courtyard; look at one within reach and a panel describes the clan, E arms
 the choice and E again within 4 s makes it — final, as the design says. Until then
 the courtyard portal is dark (`createPortal({ active: false })`, `setActive`). The

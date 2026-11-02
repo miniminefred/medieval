@@ -69,7 +69,6 @@ depend on it). **You cannot switch clan**; play another prince in another save s
 |------|--------------|-------|
 | **Brutes** | Big, strong people | Close combat with their special swords; ride **mammoths** |
 | **Cyborgs** | Part machine | Tech weapons, e.g. a **plasma cannon** |
-| **Dragons** | Dragon-people (dragonkin), not riders | Fire, and can become a dragon |
 | **Apex** | Dinosaur-people | |
 
 **Base stats** (1–5, set by the owner; last changed 2026-11-02):
@@ -78,7 +77,6 @@ depend on it). **You cannot switch clan**; play another prince in another save s
 |------|:-:|:-:|:-:|:-:|:-:|:-:|
 | **Brutes** | 4 | 3 | 4 | 4 | 4 | 4 |
 | **Cyborgs** | 4 | 4 | 5 | 5 | 3 | 5 |
-| **Dragons** | 5 | 5 | 5 | 5 | 4 | 2 |
 | **Apex** | 5 | 4 | 2 | 4 | 5 | 3 |
 
 - **Speed** is how fast you run *and* how much (how long) you can run. **Walking is
@@ -92,13 +90,16 @@ depend on it). **You cannot switch clan**; play another prince in another save s
 |------|------------------------|
 | **Brutes** | **Train** them: abilities grow stronger with use, and **brute trainers** teach new ones. Other clans have to buy theirs. Brutes are also stronger. |
 | **Cyborgs** | **Many electronic abilities**, bought or found. **Hack electronic locks for free.** |
-| **Dragons** | Born with **fire breath** and **turning into a dragon**. How long you can stay a dragon depends on how rested you are; not rested enough and you cannot transform. |
 | **Apex** | **Find** them in **eggs**, **fossils and bones**, and by **beating beasts**. |
 
-**Where you start:** everyone starts at the castle and picks a clan. A **dragon
-prince** then **wakes up hurt in the fallen dragon city** (World 1, in ruins) and must
-walk to **Farmville** or another city. An **apex prince** can start in the apex city,
-which is being rebuilt.
+**Where you start:** everyone starts at the castle and picks a clan. An **apex prince**
+can start in the apex city, which is being rebuilt.
+
+**The dragons are not a playable clan** (decided 2026-11-02). There are three clans to
+choose from: brutes, cyborgs and apex. The dragons — real dragons and dragon-people —
+remain a people of the story: captured in the dragon war, imprisoned in World 2, freed
+by the prince (the way to World 3), with their fallen city in World 1 and their cave in
+World 3.
 
 ## Combat
 

@@ -13,7 +13,7 @@ import { setNight } from './builder.js';
 import { createLamps } from './lamps.js';
 
 // The intro realm: the castle, its village and the grass around them — where the
-// game starts and where you choose your clan, at the four banners across the
+// game starts and where you choose your clan, at the three banners across the
 // courtyard. The portal in the courtyard to World 1 stays dark until you have.
 //
 // A realm is built once into its own group and then attached/detached as the
@@ -77,8 +77,7 @@ export function createCastleRealm(library, renderer) {
   // The clan banners: a row across the yard between the gate and the keep,
   // facing the gate, leaving the walk up the middle clear.
   const stands = createClanStands(group, [
-    { x: -12, z: 15, yaw: 0 }, { x: -6.5, z: 15, yaw: 0 },
-    { x: 6.5, z: 15, yaw: 0 }, { x: 12, z: 15, yaw: 0 },
+    { x: -11, z: 15, yaw: 0 }, { x: -6, z: 15, yaw: 0 }, { x: 6, z: 15, yaw: 0 },
   ], renderer);
 
   // A starter chest by the keep: a little bread and a few coins for the road.

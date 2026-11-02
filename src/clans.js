@@ -1,4 +1,5 @@
-// The four clans (docs/DESIGN.md) and which one the player belongs to.
+// The three playable clans (docs/DESIGN.md) and which one the player belongs to.
+// The dragons are a people of the story — imprisoned, freed — not a clan to play.
 //
 // Chosen once, at the clan banners in the castle courtyard, and final at once.
 // `stats` run 1–5, as set by the owner (docs/DESIGN.md). Only `speed` acts on
@@ -24,15 +25,6 @@ export const CLANS = {
       'and they hack electronic locks with no gadget at all.',
     stats: { health: 4, strength: 4, armour: 5, damage: 5, speed: 3, intelligence: 5 },
     home: { x: 235, z: 290, yaw: -Math.PI / 2 },    // outside the cyborg city's gate
-  },
-  dragons: {
-    name: 'Dragons',
-    colour: '#1d2a1d',
-    accent: '#ff8a2a',
-    blurb: 'Dragon-people. Born with fire breath, and they can become a dragon for as long ' +
-      'as they are rested. Their city has fallen; their kin are imprisoned.',
-    stats: { health: 5, strength: 5, armour: 5, damage: 5, speed: 4, intelligence: 2 },
-    home: { x: 640, z: -260, yaw: Math.PI },        // the fallen dragon city, north
   },
   apex: {
     name: 'Apex',

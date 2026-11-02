@@ -11,7 +11,6 @@ import { giveQuest, activeQuest } from './quests.js';
 const FIRST_GOAL = {
   brutes: { x: -650, z: 290, r: 40, name: 'the brute city' },
   cyborgs: { x: 300, z: 290, r: 30, name: 'the cyborg city' },
-  dragons: { x: 0, z: 175, r: 45, name: 'Farmville' },          // hurt, to the nearest village
   apex: { x: -100, z: 400, r: 45, name: 'the ruins of the apex city' },
 };
 
@@ -36,9 +35,7 @@ export function createStory({ orb, castle }) {
     const goal = FIRST_GOAL[id];
     speak(
       `A prince of the ${clan.name}. Then I will open the way.`,
-      id === 'dragons'
-        ? 'Step through the portal. I am sorry, prince — the dragon city has fallen, and you will wake among its ruins. Make for Farmville.'
-        : `Step through the portal. Go to ${goal.name}, and let your people see their prince.`,
+      `Step through the portal. Go to ${goal.name}, and let your people see their prince.`,
     );
     castle.portal.setActive(true);
     orb.point(castle.portal.object.position);

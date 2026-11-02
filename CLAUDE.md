@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 Browser-based 3D **first-person fantasy/medieval adventure** built with **Three.js**,
 bundled by **Vite**. It is *not* a shooter — no crosshair-and-trigger loop (the cyborg
-clan's plasma cannon is a deliberate exception). Five worlds, three playable clans, a Lava King to
+clan's plasma cannon is a deliberate exception). Six worlds, three playable clans (and a dragon in World 6), a Lava King to
 beat: **the full game plan lives in `docs/DESIGN.md` — read it before adding features.**
 
 The code is split into small ES modules under `src/` — **never let a single file grow

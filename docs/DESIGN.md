@@ -95,8 +95,9 @@ depend on it). **You cannot switch clan**; play another prince in another save s
 **Where you start:** everyone starts at the castle and picks a clan. An **apex prince**
 can start in the apex city, which is being rebuilt.
 
-**The dragons are not a playable clan** (decided 2026-11-02). There are three clans to
-choose from: brutes, cyborgs and apex. The dragons — real dragons and dragon-people —
+**The dragons are not a playable clan** in the main game (decided 2026-11-02). There are
+three clans to choose from: brutes, cyborgs and apex. **You can play as a dragon in
+World 6** (see below). The dragons — real dragons and dragon-people —
 remain a people of the story: captured in the dragon war, imprisoned in World 2, freed
 by the prince (the way to World 3), with their fallen city in World 1 and their cave in
 World 3.
@@ -243,6 +244,10 @@ exception to "no guns": it belongs to the cyborg clan, not a general shooter loo
 3. **The Skylands.** **An airship takes you on to World 4 and World 5.**
 4. **The Lava World.**
 5. **The Lava King's house.** The final boss.
+6. **World 6, after the final war.** Reached once the Lava King and the final war are
+   beaten. Here you **play as a dragon**: a **new dragon character** (a new save), with
+   the dragon stats: health 5, damage 5, armour 5, strength 5, intelligence 2, speed 4
+   (total 26). Fire breath and turning into a full dragon belong to it.
 
 *For now the game starts in World 1 (owner's request, 2026-10-23); the castle is
 reached through the blue portal at the arrival point.*

@@ -22,6 +22,13 @@ All CC0 (public domain) from [Poly Haven](https://polyhaven.com). Downloaded by
 | `textures/linen` | Rough Linen | colormass, Rico Cilliers | https://polyhaven.com/a/rough_linen |
 | `textures/caban` | Caban | colormass, Rico Cilliers | https://polyhaven.com/a/caban |
 | `textures/hessian` | Hessian 230 | colormass, Rico Cilliers | https://polyhaven.com/a/hessian_230 |
+| `textures/brick` | Medieval Red Brick | Rob Tuytel | https://polyhaven.com/a/medieval_red_brick |
+| `textures/oldbrick` | Worn Brick Wall | Amal Kumar | https://polyhaven.com/a/worn_brick_wall |
+| `textures/ashlar` | Sandstone Brick Wall 01 | Rob Tuytel | https://polyhaven.com/a/sandstone_brick_wall_01 |
+| `textures/oldplaster` | Worn Cracked Plaster | Amal Kumar | https://polyhaven.com/a/worn_cracked_plaster |
+| `textures/siding` | Weathered Plank Siding | Dimitrios Savva | https://polyhaven.com/a/weathered_plank_siding |
+| `textures/slate` | Roof Slates 02 | Rob Tuytel | https://polyhaven.com/a/roof_slates_02 |
+| `textures/roofplanks` | Roof Planks | Rob Tuytel | https://polyhaven.com/a/roof_planks |
 | `textures/meadow` | Leafy Grass | Charlotte Baglioni | https://polyhaven.com/a/leafy_grass |
 | `textures/castlestone` | Castle Wall Variation | Rob Tuytel | https://polyhaven.com/a/castle_wall_varriation |
 | `textures/mossystone` | Mossy Stone Wall | Amal Kumar | https://polyhaven.com/a/mossy_stone_wall |

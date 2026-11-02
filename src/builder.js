@@ -36,6 +36,19 @@ const SURFACES = {
   timber: { size: 1.8 },
   housestone: { size: 1.52 },
   rooftiles: { size: 2.0 },           // 4 m photo; halved so tiles are not twice life-size
+  // Varied houses (houses.js): old and new, rich and poor, in their own colours.
+  brick: { size: 2.0 },
+  oldbrick: { size: 2.0 },
+  ashlar: { size: 2.0 },              // dressed sandstone blocks: the rich
+  oldplaster: { size: 1.8, tint: 0xd8cbb4 },
+  siding: { size: 1.57 },             // weathered plank walls: the poor
+  slate: { size: 1.5 },               // 3 m photo, halved like the tiles
+  roofplanks: { size: 1.5 },
+  // Limewash in a few colours: the same plaster photo, tinted.
+  plasterochre: { size: 2.23, tex: 'plaster', tint: 0xe6c88e },
+  plasterrose: { size: 2.23, tex: 'plaster', tint: 0xdcb4a2 },
+  plasterwhite: { size: 2.23, tex: 'plaster', tint: 0xf4efe4 },
+  plastersage: { size: 2.23, tex: 'plaster', tint: 0xc4cbb0 },
   cobble: { size: 1.0 },
   // Market awnings. The weave is only 0.27 m in the photo; at 0.5 m it still
   // reads as cloth from across the square.

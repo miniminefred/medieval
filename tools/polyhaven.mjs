@@ -43,6 +43,15 @@ const TEXTURES = [
   ['caban', 'caban', '1k', BUILD],                     // orange market awnings
   ['hessian', 'hessian_230', '1k', BUILD],             // sacking on the scrap stalls
 
+  // Varied houses (docs/DESIGN.md, 2026-11-02): old and new, rich and poor.
+  ['brick', 'medieval_red_brick', '1k', BUILD],          // newer brick houses
+  ['oldbrick', 'worn_brick_wall', '1k', BUILD],          // old, crumbling brick
+  ['ashlar', 'sandstone_brick_wall_01', '1k', BUILD],    // dressed stone: the rich
+  ['oldplaster', 'worn_cracked_plaster', '1k', BUILD],   // cracked, flaking plaster
+  ['siding', 'weathered_plank_siding', '1k', BUILD],     // plank walls: the poor
+  ['slate', 'roof_slates_02', '1k', BUILD],              // slate roofs: the rich
+  ['roofplanks', 'roof_planks', '1k', BUILD],            // board roofs: the poor
+
   // The castle.
   ['meadow', 'leafy_grass', '2k', BUILD],              // grass and leaf litter round the castle
   ['castlestone', 'castle_wall_varriation', '1k', BUILD], // the castle's old, weathered walls

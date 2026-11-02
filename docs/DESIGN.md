@@ -244,8 +244,9 @@ exception to "no guns": it belongs to the cyborg clan, not a general shooter loo
 3. **The Skylands.** **An airship takes you on to World 4 and World 5.**
 4. **The Lava World.**
 5. **The Lava King's house.** The final boss.
-6. **World 6, after the final war.** Reached once the Lava King and the final war are
-   beaten. Here you **play as a dragon**: a **new dragon character** (a new save), with
+6. **World 6, after the final war — a DLC.** Reached once the Lava King and the final
+   war are beaten. **The way in is found in the remains of the Lava King's villa** (the
+   white castle of World 5 that he destroys in the final fight). Here you **play as a dragon**: a **new dragon character** (a new save), with
    the dragon stats: health 5, damage 5, armour 5, strength 5, intelligence 2, speed 4
    (total 26). Fire breath and turning into a full dragon belong to it.
 

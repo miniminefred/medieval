@@ -77,6 +77,7 @@ const SURFACES = {
   bookgreen: { color: 0x284a2c, roughness: 0.8, metalness: 0 },
   bookblue: { color: 0x22344f, roughness: 0.8, metalness: 0 },
   bread: { color: 0xb07a3c, roughness: 0.9, metalness: 0 },
+  reed: { color: 0x6b7a3a, roughness: 0.8, metalness: 0 },
   // Potions in the market: coloured, faintly glowing liquids.
   potionred: { color: 0x5a0a0a, roughness: 0.1, metalness: 0, emissive: 0xc0201a, emissiveIntensity: 0.6 },
   potiongreen: { color: 0x0a3a12, roughness: 0.1, metalness: 0, emissive: 0x30b040, emissiveIntensity: 0.6 },
@@ -259,6 +260,7 @@ export class CityBuilder {
     this.parts = new Map();     // `${chunk}|${material}` -> { chunk, key, geometries[] }
     this.colliders = [];
     this.doors = [];            // front doors of houses built with this kit
+    this.signs = [];            // shop signs to hang: { text, x, y, z, yaw } (city/index.js)
     this.chunks = [];
     this._m = new THREE.Matrix4();
     this._q = new THREE.Quaternion();

@@ -4,6 +4,8 @@ import { buildWall } from './wall.js';
 import { buildStreets } from './streets.js';
 import { buildHouses } from './houses.js';
 import { buildMarket, COUNTERS } from './market.js';
+import { buildPond } from './pond.js';
+import { paintedSign } from '../../signs.js';
 import { createBandit } from '../bandits.js';
 import { trade } from '../../trade.js';
 import { SHOPS } from '../../shops.js';
@@ -23,8 +25,17 @@ export function buildCity(renderer) {
   buildStreets(b);
   const houses = buildHouses(b);
   const updateBoards = buildMarket(b, group);
+  const pond = buildPond(b, group);
 
   b.finish(group);
+
+  // The special buildings' signs, hung from their brackets.
+  for (const s of b.signs) {
+    const sign = paintedSign(s.text, 1.3, 0.5);
+    sign.position.set(s.x, s.y, s.z);
+    sign.rotation.y = s.yaw;
+    group.add(sign);
+  }
 
   // A trader behind every one of the market's counters. You can sell them what you
   // carry (docs/DESIGN.md). Hooded, like everyone for now, but in their own cloth.
@@ -45,6 +56,7 @@ export function buildCity(renderer) {
     doors: b.doors,
     houses,
     traders,
+    pond,
     // Skip whole chunks the haze has already hidden.
     update(camera, viewDistance) {
       b.updateVisibility(camera.position, viewDistance);

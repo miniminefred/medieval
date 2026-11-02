@@ -70,6 +70,18 @@ for (let i = 0; i + 1 < xEdges.length; i++) {
   }
 }
 
+// The fish pond (docs/DESIGN.md): a green with a stone-rimmed pond on a block at
+// the city's east edge, where the fishmonger keeps shop. houses.js leaves the
+// block empty; pond.js builds it.
+const east = Math.max(...BLOCKS.map((k) => k.maxX));
+const pondBlock = BLOCKS.filter((k) => k.maxX > east - 1 && (k.minZ > MAIN.z + MAIN.width || k.maxZ < MAIN.z - MAIN.width))
+  .sort((a, b) => Math.abs((a.minZ + a.maxZ) / 2 - MAIN.z - 60) - Math.abs((b.minZ + b.maxZ) / 2 - MAIN.z - 60))[0];
+export const POND = {
+  block: pondBlock,
+  x: (pondBlock.minX + pondBlock.maxX) / 2, z: (pondBlock.minZ + pondBlock.maxZ) / 2,
+  r: Math.min(pondBlock.maxX - pondBlock.minX, pondBlock.maxZ - pondBlock.minZ) / 2 - 6,
+};
+
 // Paving. North–south streets sit a hair higher than east–west ones so their
 // crossings never z-fight; the market's disc sits above both.
 export function buildStreets(b) {

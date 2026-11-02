@@ -13,7 +13,7 @@ export const CLANS = {
     accent: '#e9d7b0',
     blurb: 'Big and strong. Close combat with their special swords, and they ride mammoths. ' +
       'Brutes train their abilities; every other clan has to buy theirs.',
-    stats: { health: 4, strength: 5, armour: 3, damage: 4, speed: 2, intelligence: 1 },
+    stats: { health: 4, strength: 3, armour: 4, damage: 4, speed: 4, intelligence: 4 },
     home: { x: -650, z: 290, yaw: -Math.PI / 2 },   // the brute city, west; facing east
   },
   cyborgs: {
@@ -22,7 +22,7 @@ export const CLANS = {
     accent: '#5fe3ff',
     blurb: 'Part machine. Tech weapons like the plasma cannon, many electronic abilities, ' +
       'and they hack electronic locks with no gadget at all.',
-    stats: { health: 3, strength: 4, armour: 4, damage: 3, speed: 1, intelligence: 3 },
+    stats: { health: 4, strength: 4, armour: 5, damage: 5, speed: 3, intelligence: 5 },
     home: { x: 235, z: 290, yaw: -Math.PI / 2 },    // outside the cyborg city's gate
   },
   dragons: {
@@ -31,7 +31,7 @@ export const CLANS = {
     accent: '#ff8a2a',
     blurb: 'Dragon-people. Born with fire breath, and they can become a dragon for as long ' +
       'as they are rested. Their city has fallen; their kin are imprisoned.',
-    stats: { health: 3, strength: 3, armour: 2, damage: 4, speed: 4, intelligence: 3 },
+    stats: { health: 5, strength: 5, armour: 5, damage: 5, speed: 4, intelligence: 2 },
     home: { x: 640, z: -260, yaw: Math.PI },        // the fallen dragon city, north
   },
   apex: {
@@ -40,7 +40,7 @@ export const CLANS = {
     accent: '#d8cfa4',
     blurb: 'Dinosaur-people, the fastest of the clans. They find their abilities in eggs, ' +
       'fossils and bones, and by beating beasts. Their city is rising from ruins.',
-    stats: { health: 4, strength: 3, armour: 2, damage: 3, speed: 5, intelligence: 2 },
+    stats: { health: 5, strength: 4, armour: 2, damage: 4, speed: 5, intelligence: 3 },
     home: { x: -100, z: 400, yaw: 0 },              // the apex city, toward the snow
   },
 };

@@ -226,6 +226,31 @@ exception to "no guns": it belongs to the cyborg clan, not a general shooter loo
 - **Market stalls:** real-looking goods, fuller stalls, signs, and maybe **small
   signs showing discounts and offers**.
 
+### Decided 2026-11-02
+
+- **House doors are just doors:** they swing open where they stand and you walk in.
+  No fade, no teleport.
+- **Different houses**, starting with the **cyborg city**:
+  - **Outside shapes** vary, and so do **inside layouts**.
+  - **Each town has its own style**.
+  - **Walls and colours** vary.
+  - **Old and new houses, mixed.** The cyborgs' metal is how **old houses get
+    repaired**: patched with steel plates and tin. New houses are clean, with no metal.
+  - **Rich and poor houses**, mixed side by side. Richness shows on the **houses**,
+    **not on the cyborg people**: they all look alike.
+  - **Special buildings with signs:**
+    - smithy
+    - tavern / inn
+    - bakery
+    - library
+    - carpenter
+    - fishmonger, by a **pond at the edge of the city**
+    - butcher
+    - apothecary
+    - tailor
+
+    Each has a hanging sign, a matching inside, and its keeper trading inside.
+
 ## The worlds
 
 0. **Intro: the castle.** You pick your clan here, at four clan banners in the

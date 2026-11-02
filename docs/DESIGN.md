@@ -75,8 +75,8 @@ depend on it). **You cannot switch clan**; play another prince in another save s
 
 | Clan | Health | Strength | Armour | Damage | Speed | Intelligence |
 |------|:-:|:-:|:-:|:-:|:-:|:-:|
-| **Brutes** | 4 | 3 | 4 | 4 | 4 | 4 |
-| **Cyborgs** | 4 | 4 | 5 | 5 | 3 | 5 |
+| **Brutes** | 4 | 3 | 4 | 5 | 4 | 4 |
+| **Cyborgs** | 4 | 4 | 4 | 5 | 2 | 5 |
 | **Apex** | 5 | 4 | 2 | 4 | 5 | 3 |
 
 - **Speed** is how fast you run *and* how much (how long) you can run. **Walking is

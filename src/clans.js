@@ -14,7 +14,7 @@ export const CLANS = {
     accent: '#e9d7b0',
     blurb: 'Big and strong. Close combat with their special swords, and they ride mammoths. ' +
       'Brutes train their abilities; every other clan has to buy theirs.',
-    stats: { health: 4, strength: 3, armour: 4, damage: 4, speed: 4, intelligence: 4 },
+    stats: { health: 4, strength: 3, armour: 4, damage: 5, speed: 4, intelligence: 4 },
     home: { x: -650, z: 290, yaw: -Math.PI / 2 },   // the brute city, west; facing east
   },
   cyborgs: {
@@ -23,7 +23,7 @@ export const CLANS = {
     accent: '#5fe3ff',
     blurb: 'Part machine. Tech weapons like the plasma cannon, many electronic abilities, ' +
       'and they hack electronic locks with no gadget at all.',
-    stats: { health: 4, strength: 4, armour: 5, damage: 5, speed: 3, intelligence: 5 },
+    stats: { health: 4, strength: 4, armour: 4, damage: 5, speed: 2, intelligence: 5 },
     home: { x: 235, z: 290, yaw: -Math.PI / 2 },    // outside the cyborg city's gate
   },
   apex: {

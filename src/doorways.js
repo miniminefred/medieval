@@ -31,7 +31,7 @@ export function onSleep(fn) {
 }
 
 export function isLocked(door) {
-  return door.seed % 7 === 0;
+  return !door.kind && door.seed % 7 === 0;     // shops are always open
 }
 
 const LEAF_W = 1.15, LEAF_H = 2.25, LEAF_T = 0.06;

@@ -6,6 +6,7 @@ import { inventory, ITEMS } from './inventory.js';
 import { hud } from './hud.js';
 import { clock } from './clock.js';
 import * as Furn from './furniture.js';
+import { shopFloor } from './shop-floors.js';
 
 // The inside of a house (docs/DESIGN.md: almost every house can be entered),
 // built in place — inside the house's own hollow ground floor — the first time
@@ -29,7 +30,8 @@ const G = 3.2, F = 2.9;      // floor heights, as outside (houses.js)
 const WALL = 0.2;
 const SLAB = 0.25;
 const RISE = 0.27, TREAD = 0.3;
-const LIFT = 0.03;           // the floorboards sit just above the ground outside
+const LIFT = 0.03;
+const INN_BED = 6;           // gold for a night at the tavern           // the floorboards sit just above the ground outside
 
 export function createInterior(door, renderer, { onSleep, player }) {
   const rand = mulberry32(door.seed);
@@ -43,6 +45,10 @@ export function createInterior(door, renderer, { onSleep, player }) {
   const toWorld = (x, y, z) => new THREE.Vector3(x, y, z).applyMatrix4(M);
   const b = new CityBuilder(renderer);
   const things = [];          // interactables
+  // A special building's trade (shop-floors.js), and how well off a home is.
+  const kind = door.kind ?? null;
+  const wealth = door.wealth ?? 'mid';
+  const rich = wealth === 'rich', poor = wealth === 'poor';
   const updaters = [];
 
   const W = door.w - 2 * WALL, D = door.d - 2 * WALL;
@@ -130,7 +136,7 @@ export function createInterior(door, renderer, { onSleep, player }) {
 
   // ----------------------------------------------------------- ground floor
   // Fireplace on the back wall.
-  const pantry = W > 7;
+  const pantry = W > 7 && !poor && !kind;
   const px = hx - 2.4;                         // the pantry's inner wall
   const pz = -hz + Math.min(3.2, D * 0.55);    // and its front wall
   const fx = Math.min(between(-hx / 3, hx / 3), pantry ? px - 1.25 : hx);
@@ -149,7 +155,7 @@ export function createInterior(door, renderer, { onSleep, player }) {
   // No lights of its own: a house lends doorways.js where its lights would be,
   // and the few real lights there are move to whichever house you are in.
   const firePos = toWorld(fx, 0.8, -hz + 1.2);
-  let burning = rand() < 0.6;
+  let burning = kind === 'smithy' || rand() < 0.6;     // a forge is always lit
   const hearth = {
     pos: new THREE.Vector3(fx, 0.8, -hz + 1.0), reach: 2.6,
     get label() { return burning ? 'put out the fire' : 'light the fire'; },
@@ -178,90 +184,117 @@ export function createInterior(door, renderer, { onSleep, player }) {
     },
   });
 
-  // Table, chairs and a rug in the middle.
-  const tx = stairSide(0) < 0 ? 0.5 : 0, tz = between(-0.2, 0.5);
-  Furn.rug(b, tx, 0, tz, 0, 2.6, 1.9);
-  addCandle(Furn.table(b, tx, 0, tz, 0, 1.6, 0.85, rand));
-  const chairs = [[-1.15, 0, -Math.PI / 2], [1.15, 0, Math.PI / 2], [0, -0.85, Math.PI], [0, 0.85, 0]];
-  for (const [cx, cz, yaw] of chairs.slice(0, 2 + Math.floor(rand() * 3))) {
-    Furn.chair(b, tx + cx, 0, tz + cz, yaw + Math.PI);      // backs away from the table
-    sitAt(tx + cx, 0, tz + cz, yaw + Math.PI);
-  }
-
-  // A cupboard to search once — in the pantry if there is one.
-  let searched = false;
-  const cupboard = (x, z, yaw) => {
-    b.box('timber', x, 0, z, 1.1, 1.9, 0.55, { yaw });
-    b.box('timber', x, 1.9, z, 1.2, 0.06, 0.62, { yaw });
-    b.turnedCollider(x, z, 1.1, 0.55, yaw, 1.9);
-    things.push({
-      pos: new THREE.Vector3(x + Math.sin(yaw) * 0.4, 1.1, z + Math.cos(yaw) * 0.4), reach: 2.2,
-      get label() { return searched ? 'the cupboard is bare' : 'search the cupboard'; },
-      get done() { return searched; },
-      use() {
-        searched = true;
-        const pool = ['bread', 'bread', 'apple', 'cheese', 'scrap', 'wire', 'coin', 'cloth', 'oil'];
-        if (rand() < 0.3) { hud.toast('Nothing but dust and an old spoon.'); return; }
-        const k = pool[Math.floor(rand() * pool.length)];
-        inventory.addItem(k);
-        hud.toast(`Found: ${ITEMS[k].name}`);
-      },
-    });
-  };
-
-  let pantryDoor = null;
-  if (pantry) {
-    // The pantry: a little room in the back corner, behind a door that opens.
-    const T = 0.14;
-    b.box('plaster', px, 0, (-hz + pz) / 2, T, G, pz + hz, { collide: true });            // its side wall
-    const gap0 = px + 0.35, gap1 = gap0 + 1.0;
-    b.box('plaster', (px + gap0) / 2, 0, pz, gap0 - px, G, T, { collide: true });          // front wall, left of the door
-    b.box('plaster', (gap1 + hx) / 2, 0, pz, hx - gap1, G, T, { collide: true });          // right of it
-    b.box('plaster', (gap0 + gap1) / 2, 2.15, pz, 1.0, G - 2.15, T);                       // over it
-    pantryDoor = Furn.hingedDoor(b, group, gap0, 0, pz, 0, 1.0, 2.15, -Math.PI / 2);
-    things.push({
-      pos: pantryDoor.pos, reach: 2.2,
-      get label() { return pantryDoor.open ? 'close the door' : 'open the door'; },
-      use() { pantryDoor.toggle(); },
-    });
-    updaters.push((dt) => pantryDoor.update(dt));
-    Furn.shelves(b, (px + hx) / 2, 0, -hz + 0.2, 0, Math.min(2.0, hx - px - 0.3), rand);
-    for (let i = 0; i < 3; i++) Furn.sack(b, px + 0.4 + i * 0.5, 0, pz - 0.5, rand);
-    b.cylinder('timber', hx - 0.45, 0, pz - 0.55, 0.33, 0.85, { rTop: 0.29, collide: true });
-    cupboard(hx - 0.32, (-hz + pz) / 2 + 0.3, -Math.PI / 2);
+  let shopInfo = {};
+  if (kind) {
+    shopInfo = shopFloor(kind, { b, group, renderer, rand, hx, hz, floors, fx, things, addCandle, sitAt });
   } else {
-    cupboard(hx - 0.32, between(-hz + 1.2, -0.5), -Math.PI / 2);
-  }
+    // Table, chairs and a rug in the middle.
+    const tx = stairSide(0) < 0 ? 0.5 : 0, tz = between(-0.2, 0.5);
+    if (!poor) Furn.rug(b, tx, 0, tz, 0, rich ? 3.2 : 2.6, rich ? 2.3 : 1.9);
+    addCandle(Furn.table(b, tx, 0, tz, 0, 1.6, 0.85, rand));
+    const chairs = [[-1.15, 0, -Math.PI / 2], [1.15, 0, Math.PI / 2], [0, -0.85, Math.PI], [0, 0.85, 0]];
+    for (const [cx, cz, yaw] of chairs.slice(0, poor ? 2 : rich ? 4 : 2 + Math.floor(rand() * 3))) {
+      Furn.chair(b, tx + cx, 0, tz + cz, yaw + Math.PI);      // backs away from the table
+      sitAt(tx + cx, 0, tz + cz, yaw + Math.PI);
+    }
 
-  // Barrels by the front, tools on the wall at the back.
-  // In the front corner away from the door — never in the doorway, nor at the
-  // foot of the stairs (the left front corner, when there is an upstairs).
-  const barrelSide = door.doorX > 0 ? -1 : 1;
-  if (!(barrelSide < 0 && floors > 1)) {
-    for (let i = 0; i < 2; i++) {
-      const bx = barrelSide * (hx - 0.5 - i * 0.75);
-      if (Math.abs(bx - door.doorX) > 1.2) b.cylinder('timber', bx, 0, hz - 0.6, 0.33, 0.85, { rTop: 0.29, collide: true });
+    // A cupboard to search once — in the pantry if there is one.
+    let searched = false;
+    const cupboard = (x, z, yaw) => {
+      b.box('timber', x, 0, z, 1.1, 1.9, 0.55, { yaw });
+      b.box('timber', x, 1.9, z, 1.2, 0.06, 0.62, { yaw });
+      b.turnedCollider(x, z, 1.1, 0.55, yaw, 1.9);
+      things.push({
+        pos: new THREE.Vector3(x + Math.sin(yaw) * 0.4, 1.1, z + Math.cos(yaw) * 0.4), reach: 2.2,
+        get label() { return searched ? 'the cupboard is bare' : 'search the cupboard'; },
+        get done() { return searched; },
+        use() {
+          searched = true;
+          const pool = ['bread', 'bread', 'apple', 'cheese', 'scrap', 'wire', 'coin', 'cloth', 'oil'];
+          if (rand() < 0.3) { hud.toast('Nothing but dust and an old spoon.'); return; }
+          const k = pool[Math.floor(rand() * pool.length)];
+          inventory.addItem(k);
+          hud.toast(`Found: ${ITEMS[k].name}`);
+        },
+      });
+    };
+
+    let pantryDoor = null;
+    if (pantry) {
+      // The pantry: a little room in the back corner, behind a door that opens.
+      const T = 0.14;
+      b.box('plaster', px, 0, (-hz + pz) / 2, T, G, pz + hz, { collide: true });            // its side wall
+      const gap0 = px + 0.35, gap1 = gap0 + 1.0;
+      b.box('plaster', (px + gap0) / 2, 0, pz, gap0 - px, G, T, { collide: true });          // front wall, left of the door
+      b.box('plaster', (gap1 + hx) / 2, 0, pz, hx - gap1, G, T, { collide: true });          // right of it
+      b.box('plaster', (gap0 + gap1) / 2, 2.15, pz, 1.0, G - 2.15, T);                       // over it
+      pantryDoor = Furn.hingedDoor(b, group, gap0, 0, pz, 0, 1.0, 2.15, -Math.PI / 2);
+      things.push({
+        pos: pantryDoor.pos, reach: 2.2,
+        get label() { return pantryDoor.open ? 'close the door' : 'open the door'; },
+        use() { pantryDoor.toggle(); },
+      });
+      updaters.push((dt) => pantryDoor.update(dt));
+      Furn.shelves(b, (px + hx) / 2, 0, -hz + 0.2, 0, Math.min(2.0, hx - px - 0.3), rand);
+      for (let i = 0; i < 3; i++) Furn.sack(b, px + 0.4 + i * 0.5, 0, pz - 0.5, rand);
+      b.cylinder('timber', hx - 0.45, 0, pz - 0.55, 0.33, 0.85, { rTop: 0.29, collide: true });
+      cupboard(hx - 0.32, (-hz + pz) / 2 + 0.3, -Math.PI / 2);
+    } else {
+      cupboard(hx - 0.32, between(-hz + 1.2, -0.5), -Math.PI / 2);
+    }
+
+    // Barrels by the front, tools on the wall at the back.
+    // In the front corner away from the door — never in the doorway, nor at the
+    // foot of the stairs (the left front corner, when there is an upstairs).
+    const barrelSide = door.doorX > 0 ? -1 : 1;
+    if (!(barrelSide < 0 && floors > 1)) {
+      for (let i = 0; i < 2; i++) {
+        const bx = barrelSide * (hx - 0.5 - i * 0.75);
+        if (Math.abs(bx - door.doorX) > 1.2) b.cylinder('timber', bx, 0, hz - 0.6, 0.33, 0.85, { rTop: 0.29, collide: true });
+      }
+    }
+    if (floors === 1 || stairSide(0) >= 0) Furn.hungTools(b, -hx + 0.05, 0, -0.5, Math.PI / 2);
+    else Furn.hungTools(b, (fx - hx) / 2 - 0.3, 0, -hz + 0.04, 0);
+
+
+    // A rich home: books along a wall, a painting over the table, more light.
+    if (rich) {
+      if (floors === 1) Furn.shelves(b, -hx + 0.17, 0, -0.6, Math.PI / 2, 1.4, rand);
+      const px2 = Math.max(-hx + 1, Math.min(hx - 1, fx > 0 ? fx - 2 : fx + 2));     // beside the chimney
+      b.box('timber', px2, 1.45, -hz + 0.04, 1.3, 0.95, 0.05);
+      b.box(['bookblue', 'bookgreen', 'bookred'][Math.floor(rand() * 3)], px2, 1.53, -hz + 0.07, 1.1, 0.78, 0.02);
+      addCandle(Furn.candle(b, hx - 0.3, 1.9, -hz + 0.35));
     }
   }
-  if (floors === 1 || stairSide(0) >= 0) Furn.hungTools(b, -hx + 0.05, 0, -0.5, Math.PI / 2);
-  else Furn.hungTools(b, (fx - hx) / 2 - 0.3, 0, -hz + 0.04, 0);
 
   // ------------------------------------------------------------ upper floors
   for (let k = 1; k < floors; k++) {
     const y = base(k);
     const away = k % 2 ? 1 : -1;      // the side without this floor's stairwell
     // A bed (or two) against the back wall.
-    const beds = W > 7 ? 2 : 1;
+    const beds = shopInfo.inn || W > 7 ? 2 : 1;
     for (let i = 0; i < beds; i++) {
       const bx = away * (hx - 0.75 - i * 1.5), bz = -hz + 1.08;
       Furn.bed(b, bx, y, bz, 0);
-      things.push({ pos: new THREE.Vector3(bx, y + 0.7, bz), reach: 2.2, label: 'sleep until morning', use() { onSleep(rest); } });
+      if (shopInfo.inn) {
+        // An inn's beds are let by the night.
+        things.push({
+          pos: new THREE.Vector3(bx, y + 0.7, bz), reach: 2.2, label: `rent the bed for the night (${INN_BED} gold)`,
+          use() {
+            if (inventory.gold < INN_BED) { hud.toast('You cannot afford a bed.'); return; }
+            inventory.addGold(-INN_BED);
+            onSleep(rest);
+          },
+        });
+      } else {
+        things.push({ pos: new THREE.Vector3(bx, y + 0.7, bz), reach: 2.2, label: 'sleep until morning', use() { onSleep(rest); } });
+      }
     }
-    Furn.rug(b, away * (hx - 1.6), y, -hz + 2.6, 0, 2.0, 1.2);
+    if (!poor) Furn.rug(b, away * (hx - 1.6), y, -hz + 2.6, 0, rich ? 2.6 : 2.0, rich ? 1.6 : 1.2);
     // A chest at the foot of the first bed.
     const chx = away * (hx - 0.75), chz = -hz + 2.75;
     const chest = createChest(group, renderer, {
-      x: chx, y, z: chz, yaw: 0, gold: 3 + Math.floor(rand() * 12),
+      x: chx, y, z: chz, yaw: 0, gold: poor ? Math.floor(rand() * 5) : rich ? 10 + Math.floor(rand() * 25) : 3 + Math.floor(rand() * 12),
       items: rand() < 0.4 ? { [['coin', 'gem', 'cell', 'dagger', 'crystal'][Math.floor(rand() * 5)]]: 1 } : {},
     });
     things.push(chest);

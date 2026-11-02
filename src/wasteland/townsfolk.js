@@ -69,7 +69,8 @@ function streetGraph() {
   return { ns, ew, neighbours };
 }
 
-export function buildCityFolk(group, renderer) {
+// `doors`: the city's house doors — nobody sets up shop in a doorway.
+export function buildCityFolk(group, renderer, doors = []) {
   const crowd = createCrowd(group, renderer);
   const Y = CITY.y + 0.07;
   const G = streetGraph();
@@ -175,14 +176,25 @@ export function buildCityFolk(group, renderer) {
   }
 
   // ------------------------------------------------------------ standing about
-  // Spots on the street edges, out of the way of the walkers.
-  const edgeSpot = () => {
+  // Spots on the street edges, out of the way of the walkers. (ox, oz) points
+  // from the spot out toward the middle of the street. `clear`: keep this far
+  // from any house door (a smith in a doorway hid the door behind his trade).
+  const oneSpot = () => {
+    const side = rng() < 0.5 ? -1 : 1;
     if (rng() < 0.5) {
       const s = pick(ns.slice(1, -1)), z = between(CITY.minZ + 20, CITY.maxZ - 20);
-      return { x: s.c + (rng() < 0.5 ? -1 : 1) * (s.w / 2 - 1.0), z };
+      return { x: s.c + side * (s.w / 2 - 1.0), z, ox: -side, oz: 0 };
     }
     const s = pick(ew.slice(1, -1)), x = between(CITY.minX + 20, CITY.maxX - 20);
-    return { x, z: s.c + (rng() < 0.5 ? -1 : 1) * (s.w / 2 - 1.0) };
+    return { x, z: s.c + side * (s.w / 2 - 1.0), ox: 0, oz: -side };
+  };
+  const edgeSpot = (clear = 0) => {
+    let spot = oneSpot();
+    for (let tries = 0; tries < 40 && clear > 0; tries++) {
+      if (!doors.some((d) => Math.hypot(d.x - spot.x, d.z - spot.z) < clear)) break;
+      spot = oneSpot();
+    }
+    return spot;
   };
 
   // Little groups chatting, turned to each other, shifting their weight.
@@ -218,14 +230,17 @@ export function buildCityFolk(group, renderer) {
 
   // Smiths at their anvils, hammering.
   const iron = new THREE.MeshStandardMaterial({ color: 0x2e3033, roughness: 0.45, metalness: 0.85 });
+  // The anvil stands on the street side of the smith, never against a house.
   for (let n = 0; n < 6; n++) {
-    const { x, z } = edgeSpot();
+    const { x, z, ox, oz } = edgeSpot(4);
+    const ax = x + ox * 0.75, az = z + oz * 0.75;
     const anvil = new THREE.Mesh(new THREE.BoxGeometry(0.6, 0.55, 0.3), iron);
-    anvil.position.set(x, Y + 0.275, z + 0.75);
+    anvil.position.set(ax, Y + 0.275, az);
+    anvil.rotation.y = Math.atan2(ox, oz);
     anvil.castShadow = true;
     group.add(anvil);
     const p = crowd.add({ x, y: Y, z, color: pick([0x4a3a2e, 0x3d3a36]), ...machine(), tool: 'hammer' });
-    p.yaw = 0;
+    face(p, ax, az);
     shopkeeper(p, 'blacksmith');
     const ph = rng() * 10;
     thinkers.push((dt, t) => {
@@ -238,7 +253,7 @@ export function buildCityFolk(group, renderer) {
   // The general store, the librarian and the carpenter, each by a street.
   for (const [shop, color, tool] of [['general', 0x7a5a3a, null], ['general', 0x6a5040, 'crate'],
     ['librarian', 0x3f4f5f, null], ['carpenter', 0x6d4e3a, 'hammer']]) {
-    const { x, z } = edgeSpot();
+    const { x, z } = edgeSpot(4);
     const p = crowd.add({ x, y: Y, z, color, ...machine(), tool });
     face(p, x + 1, z);
     shopkeeper(p, shop);

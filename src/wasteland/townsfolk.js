@@ -228,31 +228,9 @@ export function buildCityFolk(group, renderer, doors = []) {
     });
   }
 
-  // Smiths at their anvils, hammering.
-  const iron = new THREE.MeshStandardMaterial({ color: 0x2e3033, roughness: 0.45, metalness: 0.85 });
-  // The anvil stands on the street side of the smith, never against a house.
-  for (let n = 0; n < 6; n++) {
-    const { x, z, ox, oz } = edgeSpot(4);
-    const ax = x + ox * 0.75, az = z + oz * 0.75;
-    const anvil = new THREE.Mesh(new THREE.BoxGeometry(0.6, 0.55, 0.3), iron);
-    anvil.position.set(ax, Y + 0.275, az);
-    anvil.rotation.y = Math.atan2(ox, oz);
-    anvil.castShadow = true;
-    group.add(anvil);
-    const p = crowd.add({ x, y: Y, z, color: pick([0x4a3a2e, 0x3d3a36]), ...machine(), tool: 'hammer' });
-    face(p, ax, az);
-    shopkeeper(p, 'blacksmith');
-    const ph = rng() * 10;
-    thinkers.push((dt, t) => {
-      const c = (t * 1.4 + ph) % 1;               // raise slowly, strike fast
-      p.toolSwing = c < 0.75 ? (c / 0.75) * 1.6 : 1.6 * (1 - (c - 0.75) / 0.25);
-      p.lean = 0.12 + p.toolSwing * 0.04;
-    });
-  }
-
-  // The general store, the librarian and the carpenter, each by a street.
-  for (const [shop, color, tool] of [['general', 0x7a5a3a, null], ['general', 0x6a5040, 'crate'],
-    ['librarian', 0x3f4f5f, null], ['carpenter', 0x6d4e3a, 'hammer']]) {
+  // General-store sellers by the streets. (The smith, the librarian, the
+  // carpenter and the other tradespeople keep shop indoors: houses.js SPECIALS.)
+  for (const [shop, color, tool] of [['general', 0x7a5a3a, null], ['general', 0x6a5040, 'crate']]) {
     const { x, z } = edgeSpot(4);
     const p = crowd.add({ x, y: Y, z, color, ...machine(), tool });
     face(p, x + 1, z);

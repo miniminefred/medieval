@@ -144,11 +144,14 @@ src/
   lamps.js        Street lamps; a pool of 8 real lights hops to the nearest
   doorways.js     House doors that open in place (1 in 7 locked); builds the rooms, lends lights
   interiors.js    House insides, built in place: stairs, fire, table, chairs, cupboard, beds, chest
+  shop-floors.js  Ground floors of the special buildings (forge, bar, oven…) with the keeper
+  fishing.js      Cast into water (realm.waterAt), click when a fish bites
+  item-info.js    What an item does, in words (shown in the trade window)
   sword.js        The old sword (or dagger) in first person, and its swing
   combat.js       Health, poison, enemies the blade strikes, dying
   knives.js       Throwing knives, three at a time
-  shops.js        Who sells what; one daily deal per shop (dealOf, priceAt)
-  trade.js        I: the inventory screen; the trade window
+  shops.js        Who sells what; each shop's price `rate`; one daily deal (dealOf, priceAt)
+  trade.js        I: the inventory screen; the trade window (click an item: info, then buy or not)
   portal.js       Standing stone portal with a light sheet; isInside(feet) triggers travel
   sky.js          Sky dome whose horizon colour is driven to match the fog
   noise.js        Seeded Perlin noise, fbm, ridged — the source of all procedural land
@@ -169,7 +172,8 @@ src/
     city/           The cyborg city (east, above the snow line)
       wall.js         Stone + steel curtain wall, towers, west gatehouse
       streets.js      Street plan (STREETS, BLOCKS, MARKET) and cobbles
-      houses.js       Half-timbered houses round every block; ~30% cyborg-touched
+      houses.js       Houses round every block: styles (old/new, rich/poor), metal repairs, SPECIALS
+      pond.js         The fish pond and jetty at the east edge (POND in streets.js)
       market.js       Round market: 10 stalls round the town hall tower, signs, deal boards
       stallgoods.js   What lies on the stalls: swords, shields, potions, gadgets, engines…
   world.js        The castle: weathered stone walls, round towers, gatehouse, keep, props
@@ -357,6 +361,9 @@ have a `slot` and `armour` (each point soaks 5% of a blow, at most 60%); `light`
 (torch, lantern) light a point light on the camera. Each shop has one deal a day. Capacity
 comes from the clan's strength; over it, `player.overloaded` slows walking and stops
 running. Market traders open the shop their stall's wares name (`COUNTERS[i].shop`).
+Tradespeople's shops have a `rate` (`basePrice` = price × rate): makers sell cheap, the
+tavern and apothecary dear. Clicking an item shows `describe(key)` and a Buy / No thanks
+choice; nothing is bought on the first click.
 
 ### Real people (`humans.js`, `people.js`)
 **Switched off** (owner's call, 2026-11-02): `REAL_PEOPLE = false` in humans.js, so nothing
@@ -424,6 +431,16 @@ gets clipped into a hard disc, so puffs fade by *on-screen* size; and a two-stop
 vignette draws a visible ring over a flat storm sky — it is eased over many stops now.
 
 ### Cyborg city (`wasteland/city/`)
+**Houses differ** (houses.js): `houseStyle(rng)` picks age (old 40% / mid / new),
+wealth (poor 30% / mid / rich 22%, mixed side by side), wall, upper-floor and roof
+materials from it. **Metal is how old houses are repaired** (`patched`): steel plates,
+rust patches, tin roofs or tin sheets on tiles, rusty flues. New houses have none. Rich:
+ashlar/brick, quoins, sills, balconies, dormers, porches, two chimneys; poor: no jetty,
+small windows, planks and board roofs. Other towns pass `tech: 0` and get the plain
+house (`PLAIN`) until they get styles of their own. `buildHouses` lays out every house
+first, then gives each of the nine `SPECIALS` the house nearest its spot (a sign on a
+bracket, `b.signs` hung in city/index.js; a shop window; its trade inside via
+shop-floors.js; never locked). The pond's block has no houses.
 Built from boxes, gable roofs and gable-end triangles through `CityBuilder`. UVs are
 in **metres** and each material's textures repeat once per real-world size of the
 photo (`SURFACES` in `builder.js`), so a stone or roof tile is life-size on any box.

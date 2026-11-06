@@ -297,7 +297,7 @@ export function buildFarmFolk(group, renderer, heightAt) {
   // Farmville's general store keeper, by the well.
   const keeper = crowd.add({ x: fx - 9, y: heightAt(fx - 9, fz - 14), z: fz - 14, color: 0x7a5a3a, kind: 'farmer' });
   face(keeper, fx - 12, fz - 14);
-  const shops = [{ pos: keeper.pos, reach: 2.6, label: 'trade with the general store', use() { trade.openShop(SHOPS.general); } }];
+  const shops = [{ pos: keeper.pos, reach: 2.6, label: 'trade with the Farmville store', use() { trade.openShop(SHOPS.farmstore); } }];
   return { ...crowdRunner(crowd, thinkers, new THREE.Vector3(fx, 0, fz), 350), shops };
 }
 

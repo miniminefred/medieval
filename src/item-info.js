@@ -1,5 +1,6 @@
 import { ITEMS } from './inventory.js';
 import { EFFECTS } from './hunger.js';
+import { weaponLines } from './weapons.js';
 
 // What an item does, in words — shown when you click it in a shop before you
 // decide to buy it (trade.js). Built from the item's own numbers (food, heal,
@@ -13,7 +14,6 @@ const ABOUT = {
   cell: 'A cyborg power cell. Gadgets and machines run on them.',
   coin: 'A coin from before the war. Worth a fair bit to collectors.',
   gem: 'An uncut stone. Worth good gold.',
-  dagger: 'A short, quick blade. Click to stab; it lunges you forward.',
   knives: 'Click to throw three at once. Each throw uses one set.',
   rod: 'Hold it and click to cast into water (the pond in the cyborg city); click again when a fish bites.',
   lantern: 'Lights the dark around you. Use it to light it or put it out.',
@@ -52,6 +52,7 @@ export function describe(key) {
   if (it.cure) lines.push('Cures poison.');
   if (it.effect) lines.push(`Makes you ${EFFECTS[it.effect]?.name.toLowerCase() ?? it.effect} for ${Math.round(it.seconds / 60 * 10) / 10} minutes.`);
   if (it.slot) lines.push(`Worn on the ${SLOT[it.slot]}: armour ${it.armour} (soaks ${it.armour * 5}% of every blow).`);
+  if (it.weapon) lines.push(...weaponLines(it.weapon));
   if (ABOUT[key]) lines.push(ABOUT[key]);
   lines.push(`Weighs ${it.weight} kg. Sells back for ${it.value} gold.`);
   return lines;

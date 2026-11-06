@@ -20,6 +20,8 @@ const rng = mulberry32(6060);
 const between = (a, b) => a + rng() * (b - a);
 
 const LOOT = ['scrap', 'gears', 'wire', 'cell', 'dagger', 'coin', 'gem'];
+// Heavy weapons only bandits carry (docs/DESIGN.md: some weapons come only from them).
+const RARE = ['greatsword', 'warhammer', 'mace', 'battleaxe'];
 
 function fireMesh() {
   // Two crossed flame cards and an ember glow, additive, flickered in update().
@@ -78,6 +80,7 @@ export function buildCamps(group, renderer, heightAt) {
             inventory.addGold(gold);
             const found = [`${gold} gold`];
             if (rng() < 0.5) { const k = LOOT[Math.floor(rng() * LOOT.length)]; inventory.addItem(k); found.push(ITEMS[k].name); }
+            if (rng() < 0.12) { const k = RARE[Math.floor(rng() * RARE.length)]; inventory.addItem(k); found.push(ITEMS[k].name); }
             hud.toast(`Found: ${found.join(', ')}`);
           },
         });
@@ -164,6 +167,7 @@ export function buildCamps(group, renderer, heightAt) {
       const k = LOOT[Math.floor(rng() * LOOT.length)];
       items[k] = (items[k] ?? 0) + 1 + Math.floor(rng() * 2);
     }
+    if (big) items[rng() < 0.5 ? 'greatsword' : 'warhammer'] = 1;   // the big camp's prize
     chests.push(createChest(group, renderer, {
       x: chx, y: heightAt(chx, chz), z: chz, yaw: Math.atan2(cx - chx, cz - chz),
       gold: big ? 40 + Math.floor(rng() * 30) : 12 + Math.floor(rng() * 18), items,

@@ -32,17 +32,23 @@ export function priceAt(shop, key) {
 
 export const SHOPS = {
   // The market's stalls, by what is laid out on their counters (market.js).
-  weapons: { name: 'Weapon stall', sells: ['dagger', 'knives', 'helmet', 'jerkin', 'breastplate', 'gloves', 'potion'] },
+  // Weapons are sold spread out (docs/DESIGN.md): the market stall has the
+  // fencing blades and the flail, the smith the swords and the mace, the gadget
+  // stall the cyborg tech, Farmville the club and the axe. The greatsword and the
+  // war hammer come only from bandits, for now.
+  weapons: { name: 'Weapon stall', sells: ['sabre', 'rapier', 'flail', 'dagger', 'knives', 'helmet', 'jerkin', 'breastplate', 'gloves', 'potion'] },
   bodyParts: { name: 'Body-parts stall', sells: ['cell', 'wire', 'gears', 'nightlens', 'scanner', 'antidote'] },
-  gadgets: { name: 'Gadget stall', sells: ['lantern', 'hackkit', 'grapple', 'scanner', 'drone', 'nightlens', 'compass', 'cell'] },
+  gadgets: { name: 'Gadget stall', sells: ['baton', 'buzzsaw', 'plasma', 'lantern', 'hackkit', 'grapple', 'scanner', 'drone', 'nightlens', 'compass', 'cell'] },
   vehicleParts: { name: 'Vehicle-parts stall', sells: ['gears', 'scrap', 'cell', 'wire', 'oil', 'iron', 'glass'] },
   // Tradespeople at their places (the special buildings, houses.js), each with
   // its own `rate` against market prices.
-  blacksmith: { name: 'The blacksmith', rate: 0.85, sells: ['dagger', 'knives', 'helmet', 'breastplate', 'pickaxe', 'woodaxe', 'shovel', 'hammer', 'iron', 'lockpicks'] },
+  blacksmith: { name: 'The blacksmith', rate: 0.85, sells: ['shortsword', 'longsword', 'mace', 'dagger', 'knives', 'helmet', 'breastplate', 'pickaxe', 'woodaxe', 'shovel', 'hammer', 'iron', 'lockpicks'] },
   general: { name: 'General store', rate: 1.1, sells: ['bread', 'stew', 'water', 'apple', 'cheese', 'meat', 'fish', 'pie', 'juice',
     'torch', 'rope', 'bedroll', 'rod', 'hood', 'boots', 'gloves', 'cloth', 'leather', 'oil', 'antidote'] },
   librarian: { name: 'The librarian', rate: 1.2, sells: ['potion', 'antidote', 'lantern', 'compass', 'crystal', 'coin', 'glass'] },
   carpenter: { name: 'The carpenter', rate: 0.85, sells: ['planks', 'rope', 'rod', 'hammer', 'woodaxe', 'stone', 'bone'] },
+  // Farmville's store: farm food, tools, and what farmers fight with.
+  farmstore: { name: 'Farmville store', rate: 0.95, sells: ['bread', 'apple', 'cheese', 'water', 'meat', 'club', 'battleaxe', 'woodaxe', 'shovel', 'rope', 'torch', 'boots'] },
   baker: { name: 'The bakery', rate: 0.75, sells: ['bread', 'pie', 'cheese', 'apple'] },
   tavern: { name: 'The tavern', rate: 1.3, sells: ['stew', 'pie', 'meat', 'bread', 'cheese', 'juice', 'water'] },
   fishmonger: { name: 'The fishmonger', rate: 0.8, sells: ['fish', 'rod', 'rope', 'oil'] },

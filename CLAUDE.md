@@ -147,9 +147,10 @@ src/
   shop-floors.js  Ground floors of the special buildings (forge, bar, oven…) with the keeper
   fishing.js      Cast into water (realm.waterAt), click when a fish bites
   item-info.js    What an item does, in words (shown in the trade window)
-  sword.js        The old sword (or dagger) in first person, and its swing
+  weapons.js      Every weapon: damage, speed, reach, arc, style, stamina, daze, tech (cells)
+  weapon-view.js  The weapon in your hand, built per weapon; slash / chop / thrust / shoot moves
   combat.js       Health, poison, enemies the blade strikes, dying
-  knives.js       Throwing knives, three at a time
+  knives.js       Throwing knives, three at a time; the plasma pistol's bolts
   shops.js        Who sells what; each shop's price `rate`; one daily deal (dealOf, priceAt)
   trade.js        I: the inventory screen; the trade window (click an item: info, then buy or not)
   portal.js       Standing stone portal with a light sheet; isInside(feet) triggers travel

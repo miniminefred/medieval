@@ -108,6 +108,7 @@ export function createBandit(parent, renderer, rng, { x, z, yaw = 0, pose = 'sta
   let sitting = pose === 'sit';
   let mode = 'calm';            // calm | alerted | chase | attack | return | dead
   let wait = 0, wind = 0, cool = 0, fall = 0, hp = HP;
+  let dazed = 0;                // struck by a blunt weapon or a shock baton
 
   const self = {
     object: g,
@@ -119,6 +120,10 @@ export function createBandit(parent, renderer, rng, { x, z, yaw = 0, pose = 'sta
     alert(delay = 0) {
       if (mode === 'calm' || mode === 'return') { mode = 'alerted'; wait = delay; }
     },
+    // Dazed: stands swaying, does nothing, for `seconds`.
+    stun(seconds) { dazed = Math.max(dazed, seconds); wind = 0; },
+    // Lost you (a smoke bomb): give up and walk home.
+    lose() { if (mode === 'chase' || mode === 'attack' || mode === 'alerted') mode = 'return'; },
     hit(damage, from) {
       if (!self.alive) return;
       hp -= damage;
@@ -154,6 +159,13 @@ export function createBandit(parent, renderer, rng, { x, z, yaw = 0, pose = 'sta
         return;
       }
 
+      if (dazed > 0) {
+        dazed -= dt;
+        lean(Math.sin(t * 9) * 0.12);
+        if (dazed <= 0) lean(0);
+        return;
+      }
+
       if (mode === 'calm') {
         if (patrol) {
           // Walk a slow circle round the camp, bobbing with each step.
@@ -164,7 +176,8 @@ export function createBandit(parent, renderer, rng, { x, z, yaw = 0, pose = 'sta
         } else if (!human) {
           g.scale.y = g.scale.x * (1 + Math.sin(t * breathe * 2) * 0.008);
         }
-        if (camp && here && dist < (sitting ? SIGHT_SITTING : SIGHT)) camp.alert(g.position);
+        // How far they see you: less if you drank a shadow potion (combat.sight).
+        if (camp && here && dist < (sitting ? SIGHT_SITTING : SIGHT) * (ctx?.combat?.sight ?? 1)) camp.alert(g.position);
         return;
       }
 

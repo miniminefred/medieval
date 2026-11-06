@@ -18,7 +18,8 @@ import { createMinimap } from './minimap.js';
 import { explored } from './explored.js';
 import { clock } from './clock.js';
 import { onSleep } from './doorways.js';
-import { createSword } from './sword.js';
+import { createWeaponView } from './weapon-view.js';
+import { WEAPONS } from './weapons.js';
 import { createCombat } from './combat.js';
 import { CLANS, currentClan } from './clans.js';
 import { trade, setLightShown } from './trade.js';
@@ -148,17 +149,18 @@ if (import.meta.env.DEV) {
 const viewmodel = new Viewmodel(camera, library);
 const fishing = createFishing(viewmodel);
 viewmodel.visible = false;
-const sword = createSword(camera);
-const combat = createCombat({ camera, player, sword });
+const sword = createWeaponView(camera);
+const knives = createKnives(scene);
+const combat = createCombat({ camera, player, sword, shoot: (damage) => knives.bolt(camera, combat, damage) });
 ctx.combat = combat;
 onClanChosen((id) => { combat.setClan(id); inventory.setStrength(CLANS[id].stats.strength); });
-const knives = createKnives(scene);
 trade.init(player.controls);
 inventory.setCapacityPenalty(() => hunger.capacityPenalty);
 
 // What using an item from the inventory (I) does.
 //   food and potions   eaten or drunk: health back (water: breath too), antidote cures poison
-//   dagger             held instead of the old sword (use the sword again: the dagger again)
+//   a weapon           held instead of the old sword (use it again: back to the sword);
+//                      weapons.js says how each one fights
 //   throwing knives    held; a click throws three
 //   old fishing rod    held; a click casts
 let holding = 'sword';
@@ -170,9 +172,10 @@ camera.add(handLight);
 function hold(w) {
   holding = w;
   viewmodel.visible = w === 'rod';
-  sword.visible = w === 'sword' || w === 'dagger';
-  if (w === 'sword' || w === 'dagger') combat.setWeapon(w);
-  hud.toast(w === 'sword' ? 'You draw the old sword.' : `You take up the ${ITEMS[{ dagger: 'dagger', knives: 'knives', rod: 'rod' }[w]].name.toLowerCase()}.`);
+  sword.visible = !!WEAPONS[w];
+  if (WEAPONS[w]) combat.setWeapon(w);
+  const item = Object.keys(ITEMS).find((k) => ITEMS[k].weapon === w);
+  hud.toast(w === 'sword' ? 'You draw the old sword.' : `You take up the ${ITEMS[item].name.toLowerCase()}.`);
 }
 trade.onUse((key) => {
   const it = ITEMS[key];

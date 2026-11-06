@@ -78,6 +78,7 @@ const SURFACES = {
   bookblue: { color: 0x22344f, roughness: 0.8, metalness: 0 },
   bread: { color: 0xb07a3c, roughness: 0.9, metalness: 0 },
   reed: { color: 0x6b7a3a, roughness: 0.8, metalness: 0 },
+  brass: { color: 0x9a7a3a, roughness: 0.4, metalness: 0.85 },
   meat: { color: 0x8a2c22, roughness: 0.55, metalness: 0 },
   fishscale: { color: 0x9aa3a8, roughness: 0.35, metalness: 0.3 },
   // Potions in the market: coloured, faintly glowing liquids.

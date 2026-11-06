@@ -3,6 +3,7 @@ import * as Furn from './furniture.js';
 import { createBandit } from './wasteland/bandits.js';
 import { trade } from './trade.js';
 import { SHOPS } from './shops.js';
+import { displayShelf } from './shop-display.js';
 
 // The ground floor of a special building (docs/DESIGN.md, 2026-11-02): its
 // trade's things, a counter, and the keeper behind it, who trades with you.
@@ -50,6 +51,17 @@ export function shopFloor(kind, { b, group, renderer, rand, hx, hz, floors, fx, 
   const standard = () => {
     const top = counter(left, hx - 1.1, backZ);
     keeper(keepX, -hz + 1.05, 0, keepX, backZ + 0.3);
+    // What is for sale, on a shelf against the back wall behind the counter:
+    // beside the fireplace on whichever side has room (not where the keeper stands).
+    const fireL = fx - 1.05, fireR = fx + 1.05;
+    const leftRoom = fireL - (-hx + 0.25);
+    const rightFrom = Math.max(fireR, keepX + 0.5), rightRoom = hx - 0.25 - rightFrom;
+    if (Math.max(leftRoom, rightRoom) >= 0.9) {
+      const useLeft = leftRoom >= rightRoom;
+      const wdt = Math.min(2.2, useLeft ? leftRoom : rightRoom);
+      const x = useLeft ? fireL - wdt / 2 : rightFrom + wdt / 2;
+      displayShelf(b, x, -hz + 0.22, wdt, shop.sells);
+    }
     return top;
   };
   const leaning = (key, x, z, h, yaw, tilt = 0.12) => b.box(key, x, 0, z, 0.06, h, 0.06, { yaw, roll: tilt });

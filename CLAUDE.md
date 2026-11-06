@@ -145,6 +145,8 @@ src/
   doorways.js     House doors that open in place (1 in 7 locked); builds the rooms, lends lights
   interiors.js    House insides, built in place: stairs, fire, table, chairs, cupboard, beds, chest
   shop-floors.js  Ground floors of the special buildings (forge, bar, oven…) with the keeper
+  shop-display.js A shelf behind the counter with one of each thing the shop sells
+  shop-themes.js  Each shop window's colours, keeper picture and tool of the trade
   fishing.js      Cast into water (realm.waterAt), click when a fish bites
   item-info.js    What an item does, in words (shown in the trade window)
   weapons.js      Every weapon: damage, speed, reach, arc, style, stamina, daze, tech (cells)
@@ -153,7 +155,7 @@ src/
   bombs.js        Fire bombs, poison flasks, smoke bombs: thrown, burst, clouds
   implants.js     The neural socket (cyborgs born with one) and its two modules
   knives.js       Throwing knives, three at a time; the plasma pistol's bolts
-  shops.js        Who sells what; each shop's price `rate`; one daily deal (dealOf, priceAt)
+  shops.js        Who sells what; rates; deals, bulk, clan, regular and haggling discounts (priceAt)
   trade.js        I: the inventory screen; the trade window (click an item: info, then buy or not)
   portal.js       Standing stone portal with a light sheet; isInside(feet) triggers travel
   sky.js          Sky dome whose horizon colour is driven to match the fog
@@ -176,6 +178,7 @@ src/
       wall.js         Stone + steel curtain wall, towers, west gatehouse
       streets.js      Street plan (STREETS, BLOCKS, MARKET) and cobbles
       houses.js       Houses round every block: styles (old/new, rich/poor), metal repairs, SPECIALS
+      shop-fronts.js  What stands outside each special building (benches, stalls, racks…)
       pond.js         The fish pond and jetty at the east edge (POND in streets.js)
       market.js       Round market: 10 stalls round the town hall tower, signs, deal boards
       stallgoods.js   What lies on the stalls: swords, shields, potions, gadgets, engines…

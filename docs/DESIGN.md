@@ -254,6 +254,45 @@ exception to "no guns": it belongs to the cyborg clan, not a general shooter loo
   rate. Makers sell their own goods cheap (the baker, smith, carpenter, butcher,
   fishmonger). The tavern, the apothecary, the librarian and the tailor charge more.
 
+### Decided 2026-11-06
+
+- **More weapons that really fight differently**, each with its own damage, swing
+  speed, reach and arc.
+  - **Blades:** short sword, longsword, sabre, greatsword, rapier.
+  - **Blunt and axes:** club, mace, war hammer, battle axe, flail.
+  - **Cyborg tech:** shock baton, buzz-saw blade, plasma pistol.
+  - **Heavy weapons cost stamina** to swing (greatsword, war hammer, battle axe);
+    light ones are free.
+  - **Weapons do not wear out.**
+  - **No shields or blocking yet.**
+  - **Sold spread out**, so you have to travel for them: different shops and towns
+    sell different weapons. Some come only from bandits.
+- **Cyborg tech is for anyone, but others need parts.** Cyborgs use tech weapons and
+  modules freely. Everyone else needs:
+  - a **socket**, fitted once and expensive, before any module can go in;
+  - **power cells** to run tech weapons.
+- **Inserters (modules)** go in the socket.
+  - **Translate module:** reads other clans' speech and old writing.
+  - **Night eye:** see in the dark.
+  - **Map module:** shows more of the map.
+- **More gadgets and potions.**
+  - **Stat potions:** strength, speed, iron skin, endurance.
+  - **Night and stealth potions:** night sight, and shadow (bandits notice you later).
+  - **Bombs and poisons** you throw: fire bomb, poison flask, smoke bomb.
+- **More discounts, and how big they are varies from shop to shop:**
+  - **more daily deals:** two or three a day;
+  - **bulk:** buy three or more and each is cheaper;
+  - **clan:** a lower price in your own clan's town;
+  - **friends:** a lower price at shops where you are a regular;
+  - **haggling:** talk to the keeper by picking what to say (polite, firm, cheeky,
+    flattering). Your intelligence and the keeper's mood that day decide how it goes.
+    Fail, and the price goes up for the day.
+- **Shops look different.**
+  - Each trade window has its own colours, sign and keeper.
+  - Each building has its own outside: a tavern porch with benches, the smith's anvil
+    outside, a bakery stall.
+  - **What a shop sells is on display** on racks and shelves.
+
 ## The worlds
 
 0. **Intro: the castle.** You pick your clan here, at four clan banners in the

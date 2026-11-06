@@ -323,6 +323,17 @@ export function createInterior(door, renderer, { onSleep, player }) {
 
   b.finish(group);
 
+  // Everything on an upper floor (beds, chests, the next flight of stairs) must
+  // stand on that floor: a collider with no bottom reaches down through every
+  // floor below and leaves an invisible wall under each upstairs bed. Each one
+  // gets the floor it stands on as its bottom.
+  for (const c of b.colliders) {
+    if (c.bottom !== undefined) continue;
+    let floorY = 0;
+    for (let k = 1; k < floors; k++) if (base(k) < c.top - 0.05) floorY = base(k);
+    if (floorY > 0) c.bottom = floorY;
+  }
+
   // Into the world: what you can use, and what you bump into.
   for (const t of things) t.pos.applyMatrix4(M);
   const colliders = b.colliders;

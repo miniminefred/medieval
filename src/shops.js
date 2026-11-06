@@ -15,6 +15,7 @@
 import { clock } from './clock.js';
 import { ITEMS } from './inventory.js';
 import { CLANS, currentClan } from './clans.js';
+import { THEME_OF } from './shop-themes.js';
 
 function hash(text, salt = 0) {
   let h = (salt * 2654435761) >>> 0;
@@ -149,4 +150,8 @@ export const SHOPS = {
 };
 
 // Every shop but Farmville's is in the cyborg city: cyborg princes get the clan price there.
-for (const [k, shop] of Object.entries(SHOPS)) if (k !== 'farmstore') shop.clan = 'cyborgs';
+// Each shop's window look (shop-themes.js).
+for (const [k, shop] of Object.entries(SHOPS)) {
+  if (k !== 'farmstore') shop.clan = 'cyborgs';
+  shop.theme = THEME_OF[k] ?? 'market';
+}

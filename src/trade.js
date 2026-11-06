@@ -2,6 +2,7 @@ import { inventory, ITEMS } from './inventory.js';
 import { hud } from './hud.js';
 import { dealsOf, priceAt, basePrice, discountsAt, termsOf, spentAt, recordSpend, haggleState, moodOf, LINES, talk } from './shops.js';
 import { describe } from './item-info.js';
+import { THEMES, keeperSVG } from './shop-themes.js';
 
 // The two item screens (docs/DESIGN.md):
 //   I       your inventory — every item with its weight; click to use, eat or
@@ -103,6 +104,13 @@ function renderTrade() {
   const r = shop.rate ?? 1;
   el.querySelector('.title').textContent = shop.name + (r < 0.97 ? ' — cheaper than the market' : r > 1.03 ? ' — dearer than the market' : '');
   el.querySelector('.terms').innerHTML = termsLine(shop);
+  // The shop's own look: colours, the keeper's picture.
+  const th = THEMES[shop.theme] ?? THEMES.market, page = el.querySelector('.page');
+  page.style.setProperty('--shop-paper', th.paper);
+  page.style.setProperty('--shop-ink', th.ink);
+  page.style.setProperty('--shop-accent', th.accent);
+  page.classList.add('themed');
+  el.querySelector('.keeper').innerHTML = keeperSVG(shop.theme);
   const deals = dealsOf(shop);
   const dealOn = (k) => deals.find((d) => d.item === k);
   el.querySelector('.sells').innerHTML = shop.sells.map((k) => {

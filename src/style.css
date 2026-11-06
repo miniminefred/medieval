@@ -565,3 +565,12 @@ kbd {
 .itempanel .info .lines { display: flex; flex-direction: column; gap: 0.35rem; margin: 0.5rem 0; }
 .itempanel .info button.line { text-align: left; font-style: italic; }
 .itempanel .info .hint { font-size: 0.78rem; opacity: 0.7; }
+
+/* Each shop's own look (shop-themes.js) */
+#trade .page.themed { background: var(--shop-paper); color: var(--shop-ink); border-top: 6px solid var(--shop-accent); }
+#trade .page.themed h2 { color: var(--shop-accent); }
+#trade .page.themed h3, #trade .page.themed .gold { color: var(--shop-accent); }
+#trade .page.themed .info { border-left-color: var(--shop-accent); }
+#trade .page.themed .info button.yes { background: var(--shop-accent); border-color: var(--shop-accent); }
+#trade .page.themed .item .price { color: var(--shop-accent); }
+#trade .keeper { line-height: 0; }

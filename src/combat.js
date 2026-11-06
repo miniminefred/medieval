@@ -39,6 +39,8 @@ export function createCombat({ camera, player, sword, shoot = () => {} }) {
     get health() { return health; },
     get maxHealth() { return maxHealth; },
     get dead() { return dead; },
+    // How far enemies see you (1 normally; a shadow potion shrinks it).
+    get sight() { return hunger.sight; },
 
     // Health and sword damage from the clan's stats (1–5).
     setClan(id) {
@@ -83,7 +85,7 @@ export function createCombat({ camera, player, sword, shoot = () => {} }) {
     // Something hurts the player.
     hurt(n) {
       if (dead) return;
-      n *= 1 - Math.min(0.6, inventory.armour * 0.05);
+      n *= 1 - Math.min(0.6, (inventory.armour + hunger.armour) * 0.05);
       health = Math.max(0, health - n);
       sinceHurt = 0;
       hud.hurt(Math.min(1, n / 20));

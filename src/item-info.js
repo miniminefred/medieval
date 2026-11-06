@@ -39,6 +39,25 @@ const ABOUT = {
   glass: 'A pane of glass.',
   oil: 'Fuel for lanterns and machines.',
   crystal: 'A crystal that glows faintly. Rare and valuable.',
+  firebomb: 'Hold it and click to throw. Bursts into flame: a hard blow to everyone within 4 m.',
+  poisonflask: 'Hold it and click to throw. A green cloud for 7 s that hurts whoever stands in it.',
+  smokebomb: 'Hold it and click to throw. A thick cloud: bandits nearby lose you and go home.',
+  socket: 'Fitted behind the ear (use it once). Lets anyone who is not a cyborg use modules. Holds two.',
+  translate: 'A module for the socket: understand other clans’ speech and read old writing.',
+  nighteye: 'A module for the socket: see in the dark.',
+  mapmod: 'A module for the socket: you explore twice as far around you, so the map fills faster.',
+};
+
+// What each effect does, in a sentence.
+const EFFECT_TEXT = {
+  wellfed: 'You heal twice as fast',
+  energised: 'Your stamina lasts half as long again',
+  strength: 'You hit 30% harder',
+  swift: 'You run 25% faster',
+  ironskin: 'Your skin turns hard as iron: +4 armour',
+  endurance: 'Running costs half the stamina',
+  nightsight: 'You see in the dark',
+  shadow: 'Bandits notice you only when you are very close',
 };
 
 const SLOT = { head: 'head', body: 'body', hands: 'hands', feet: 'feet' };
@@ -50,7 +69,7 @@ export function describe(key) {
   if (it.heal) lines.push(`Heals ${it.heal} health.`);
   if (it.stamina) lines.push('Refills your stamina.');
   if (it.cure) lines.push('Cures poison.');
-  if (it.effect) lines.push(`Makes you ${EFFECTS[it.effect]?.name.toLowerCase() ?? it.effect} for ${Math.round(it.seconds / 60 * 10) / 10} minutes.`);
+  if (it.effect) lines.push(`${EFFECT_TEXT[it.effect] ?? EFFECTS[it.effect]?.name ?? it.effect} for ${Math.round(it.seconds / 60 * 10) / 10} minutes.`);
   if (it.slot) lines.push(`Worn on the ${SLOT[it.slot]}: armour ${it.armour} (soaks ${it.armour * 5}% of every blow).`);
   if (it.weapon) lines.push(...weaponLines(it.weapon));
   if (ABOUT[key]) lines.push(ABOUT[key]);

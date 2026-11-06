@@ -36,8 +36,8 @@ export const SHOPS = {
   // fencing blades and the flail, the smith the swords and the mace, the gadget
   // stall the cyborg tech, Farmville the club and the axe. The greatsword and the
   // war hammer come only from bandits, for now.
-  weapons: { name: 'Weapon stall', sells: ['sabre', 'rapier', 'flail', 'dagger', 'knives', 'helmet', 'jerkin', 'breastplate', 'gloves', 'potion'] },
-  bodyParts: { name: 'Body-parts stall', sells: ['cell', 'wire', 'gears', 'nightlens', 'scanner', 'antidote'] },
+  weapons: { name: 'Weapon stall', sells: ['sabre', 'rapier', 'flail', 'firebomb', 'dagger', 'knives', 'helmet', 'jerkin', 'breastplate', 'gloves', 'potion'] },
+  bodyParts: { name: 'Body-parts stall', sells: ['socket', 'translate', 'nighteye', 'mapmod', 'cell', 'wire', 'gears', 'nightlens', 'scanner', 'antidote'] },
   gadgets: { name: 'Gadget stall', sells: ['baton', 'buzzsaw', 'plasma', 'lantern', 'hackkit', 'grapple', 'scanner', 'drone', 'nightlens', 'compass', 'cell'] },
   vehicleParts: { name: 'Vehicle-parts stall', sells: ['gears', 'scrap', 'cell', 'wire', 'oil', 'iron', 'glass'] },
   // Tradespeople at their places (the special buildings, houses.js), each with
@@ -53,6 +53,6 @@ export const SHOPS = {
   tavern: { name: 'The tavern', rate: 1.3, sells: ['stew', 'pie', 'meat', 'bread', 'cheese', 'juice', 'water'] },
   fishmonger: { name: 'The fishmonger', rate: 0.8, sells: ['fish', 'rod', 'rope', 'oil'] },
   butcher: { name: 'The butcher', rate: 0.85, sells: ['meat', 'leather', 'bone'] },
-  apothecary: { name: 'The apothecary', rate: 1.25, sells: ['potion', 'antidote', 'crystal', 'glass'] },
+  apothecary: { name: 'The apothecary', rate: 1.25, sells: ['strengthpot', 'swiftpot', 'ironskin', 'endurance', 'nightsight', 'shadowpot', 'firebomb', 'poisonflask', 'smokebomb', 'potion', 'antidote', 'crystal', 'glass'] },
   tailor: { name: 'The tailor', rate: 1.15, sells: ['hood', 'gloves', 'boots', 'jerkin', 'cloth', 'leather', 'bedroll'] },
 };

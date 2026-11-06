@@ -150,6 +150,8 @@ src/
   weapons.js      Every weapon: damage, speed, reach, arc, style, stamina, daze, tech (cells)
   weapon-view.js  The weapon in your hand, built per weapon; slash / chop / thrust / shoot moves
   combat.js       Health, poison, enemies the blade strikes, dying
+  bombs.js        Fire bombs, poison flasks, smoke bombs: thrown, burst, clouds
+  implants.js     The neural socket (cyborgs born with one) and its two modules
   knives.js       Throwing knives, three at a time; the plasma pistol's bolts
   shops.js        Who sells what; each shop's price `rate`; one daily deal (dealOf, priceAt)
   trade.js        I: the inventory screen; the trade window (click an item: info, then buy or not)

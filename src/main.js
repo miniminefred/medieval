@@ -27,6 +27,8 @@ import { PointLight } from 'three';
 import { ITEMS } from './inventory.js';
 import { createKnives } from './knives.js';
 import { createFishing } from './fishing.js';
+import { createBombs } from './bombs.js';
+import { implants } from './implants.js';
 import { hunger } from './hunger.js';
 
 const renderer = createRenderer();
@@ -43,8 +45,9 @@ const player = new Player(camera, renderer.domElement, keys);
 scene.add(camera);
 
 const ctx = { scene, renderer, camera, player };
+let baseRun = 1;            // the clan's running pace; a swiftness potion adds to it
 onClanChosen((id) => {
-  player.runMul = runMultiplier(id);
+  baseRun = player.runMul = runMultiplier(id);
   player.staminaMax = player.stamina = staminaSeconds(id);
 });
 
@@ -151,6 +154,7 @@ const fishing = createFishing(viewmodel);
 viewmodel.visible = false;
 const sword = createWeaponView(camera);
 const knives = createKnives(scene);
+const bombs = createBombs(scene);
 const combat = createCombat({ camera, player, sword, shoot: (damage) => knives.bolt(camera, combat, damage) });
 ctx.combat = combat;
 onClanChosen((id) => { combat.setClan(id); inventory.setStrength(CLANS[id].stats.strength); });
@@ -174,14 +178,14 @@ function hold(w) {
   viewmodel.visible = w === 'rod';
   sword.visible = !!WEAPONS[w];
   if (WEAPONS[w]) combat.setWeapon(w);
-  const item = Object.keys(ITEMS).find((k) => ITEMS[k].weapon === w);
+  const item = ITEMS[w]?.bomb ? w : Object.keys(ITEMS).find((k) => ITEMS[k].weapon === w);
   hud.toast(w === 'sword' ? 'You draw the old sword.' : `You take up the ${ITEMS[item].name.toLowerCase()}.`);
 }
 trade.onUse((key) => {
   const it = ITEMS[key];
-  if (it.heal || it.cure || it.stamina || it.food) {
+  if (it.heal || it.cure || it.stamina || it.food || it.effect) {
     inventory.addItem(key, -1);
-    if (it.food) hunger.eat(it.food, it.effect, it.seconds);
+    if (it.food || it.effect) hunger.eat(it.food ?? 0, it.effect, it.seconds);
     if (it.heal) combat.heal(it.heal);
     if (it.cure) combat.cure();
     if (it.stamina) { player.stamina = player.staminaMax; player.winded = false; }
@@ -189,6 +193,9 @@ trade.onUse((key) => {
     return true;
   }
   if (it.weapon) { hold(holding === it.weapon ? 'sword' : it.weapon); return true; }
+  if (it.bomb) { hold(holding === key ? 'sword' : key); return true; }
+  if (it.socket) return implants.fitSocket();
+  if (it.module) return implants.toggle(key);
   if (it.slot) {
     inventory.toggleWear(key);
     hud.toast(inventory.isWorn(key) ? `You put on the ${it.name.toLowerCase()}.` : `You take off the ${it.name.toLowerCase()}.`);
@@ -214,6 +221,9 @@ inventory.onChange(() => {
 renderer.domElement.addEventListener('mousedown', (e) => {
   if (e.button !== 0 || !player.isLocked) return;
   if (holding === 'rod') fishing.click(camera, realm);
+  else if (ITEMS[holding]?.bomb) {
+    if (inventory.count(holding) >= 1) { bombs.throw(ITEMS[holding].bomb, camera, combat); inventory.addItem(holding, -1); }
+  }
   else if (holding === 'knives') {
     if (inventory.count('knives') >= 1) { knives.throw3(camera, combat); inventory.addItem('knives', -1); }
   } else combat.swing();
@@ -271,6 +281,7 @@ if (import.meta.env.DEV) {
 }
 
 const interaction = createInteraction();
+let nightVision = false;
 const _dir = new Vector3();
 const timer = new Timer();
 
@@ -291,10 +302,15 @@ function animate() {
   player.starving = hunger.starving;
   player.staminaUse = 1 / hunger.stamina;
   knives.update(dt, player.groundAt);
+  bombs.update(dt, player.groundAt);
+  player.runMul = baseRun * hunger.run;
+  // Night sight (drops or the night-eye module): the dark lifts, colour drains.
+  const nv = (hunger.has('nightsight') || implants.has('nighteye')) && clock.light().day < 0.5;
+  if (nv !== nightVision) { nightVision = nv; renderer.domElement.style.filter = nv ? 'brightness(2.6) contrast(1.15) saturate(0.5)' : ''; }
   orb.update(dt, camera);
   story.update(dt);
   checkQuests(realm.name, player.object.position);
-  if (realm.name === 'wasteland') explored.reveal(player.object.position.x, player.object.position.z);
+  if (realm.name === 'wasteland') explored.reveal(player.object.position.x, player.object.position.z, implants.has('mapmod') ? 2 : 1);
   journal.update(realm.name, player.object.position);
   camera.getWorldDirection(_dir);
   minimap.update(realm.name, player.object.position, Math.atan2(_dir.x, -_dir.z),

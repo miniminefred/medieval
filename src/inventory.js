@@ -31,6 +31,22 @@ export const ITEMS = {
   juice: { name: 'Berry juice', kind: 'food', weight: 0.6, value: 3, heal: 4, food: 0.1, stamina: true, effect: 'energised', seconds: 150 },
   potion: { name: 'Healing potion', kind: 'potion', weight: 0.3, value: 15, heal: 60 },
   antidote: { name: 'Antidote', kind: 'potion', weight: 0.2, value: 10, cure: true },
+  strengthpot: { name: 'Potion of strength', kind: 'potion', weight: 0.3, value: 18, effect: 'strength', seconds: 120 },
+  swiftpot: { name: 'Potion of swiftness', kind: 'potion', weight: 0.3, value: 16, effect: 'swift', seconds: 120 },
+  ironskin: { name: 'Iron-skin draught', kind: 'potion', weight: 0.3, value: 20, effect: 'ironskin', seconds: 150 },
+  endurance: { name: 'Draught of endurance', kind: 'potion', weight: 0.3, value: 14, effect: 'endurance', seconds: 180 },
+  nightsight: { name: 'Night-sight drops', kind: 'potion', weight: 0.1, value: 14, effect: 'nightsight', seconds: 240 },
+  shadowpot: { name: 'Shadow potion', kind: 'potion', weight: 0.3, value: 22, effect: 'shadow', seconds: 120 },
+  // Thrown: hold one and click to throw it (bombs.js).
+  firebomb: { name: 'Fire bomb', kind: 'bomb', weight: 0.5, value: 12, bomb: 'fire' },
+  poisonflask: { name: 'Poison flask', kind: 'bomb', weight: 0.4, value: 10, bomb: 'poison' },
+  smokebomb: { name: 'Smoke bomb', kind: 'bomb', weight: 0.4, value: 8, bomb: 'smoke' },
+  // Cyborg parts (implants.js): a socket for anyone not born with one, and the
+  // modules ("inserters") that go in it.
+  socket: { name: 'Neural socket', kind: 'gadget', weight: 0.2, value: 120, socket: true },
+  translate: { name: 'Translate module', kind: 'gadget', weight: 0.05, value: 60, module: 'translate' },
+  nighteye: { name: 'Night-eye module', kind: 'gadget', weight: 0.05, value: 55, module: 'nighteye' },
+  mapmod: { name: 'Map module', kind: 'gadget', weight: 0.05, value: 45, module: 'mapmod' },
   // Weapons and tools.
   dagger: { name: 'Dagger', kind: 'weapon', weight: 0.6, value: 18, weapon: 'dagger' },
   knives: { name: 'Throwing knives (a throw of 3)', kind: 'weapon', weight: 0.3, value: 4, weapon: 'knives' },

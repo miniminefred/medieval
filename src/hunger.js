@@ -19,6 +19,13 @@ export const EFFECTS = {
   energised: { name: 'Energised', good: true },
   starving: { name: 'Starving', good: false },
   poisoned: { name: 'Poisoned', good: false },
+  // Potions (docs/DESIGN.md, 2026-11-06).
+  strength: { name: 'Strong', good: true },        // hit 30% harder
+  swift: { name: 'Swift', good: true },            // run 25% faster
+  ironskin: { name: 'Iron skin', good: true },     // +4 armour
+  endurance: { name: 'Enduring', good: true },     // running costs half the stamina
+  nightsight: { name: 'Night sight', good: true }, // see in the dark
+  shadow: { name: 'Shadowed', good: true },        // bandits notice you much later
 };
 
 let food = 0.85;                   // 0 empty .. 1 full
@@ -61,7 +68,10 @@ export const hunger = {
 
   // Multipliers the rest of the game asks for.
   get regen() { return this.starving ? 0 : this.has('wellfed') ? 2 : 1; },
-  get damage() { return this.starving ? 0.7 : 1; },
-  get stamina() { return this.has('energised') ? 1.5 : 1; },
+  get damage() { return (this.starving ? 0.7 : 1) * (this.has('strength') ? 1.3 : 1); },
+  get stamina() { return (this.has('energised') ? 1.5 : 1) * (this.has('endurance') ? 2 : 1); },
+  get run() { return this.has('swift') ? 1.25 : 1; },
+  get armour() { return this.has('ironskin') ? 4 : 0; },
+  get sight() { return this.has('shadow') ? 0.35 : 1; },
   get capacityPenalty() { return this.starving ? 10 : 0; },
 };

@@ -21,8 +21,10 @@ export const explored = {
   get version() { return version; },
 
   // Uncover everything within SIGHT of (x, z).
-  reveal(x, z) {
-    const r = Math.ceil(SIGHT / CELL);
+  // `scale` widens it (the map module: twice as far).
+  reveal(x, z, scale = 1) {
+    const SIGHT_NOW = SIGHT * scale;
+    const r = Math.ceil(SIGHT_NOW / CELL);
     const cx = cellOf(x), cz = cellOf(z);
     let changed = false;
     for (let j = cz - r; j <= cz + r; j++) {
@@ -32,7 +34,7 @@ export const explored = {
         const k = j * N + i;
         if (seen[k]) continue;
         const dx = (i - cx) * CELL, dz = (j - cz) * CELL;
-        if (dx * dx + dz * dz <= SIGHT * SIGHT) { seen[k] = 1; changed = true; }
+        if (dx * dx + dz * dz <= SIGHT_NOW * SIGHT_NOW) { seen[k] = 1; changed = true; }
       }
     }
     if (changed) version++;

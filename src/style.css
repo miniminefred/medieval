@@ -558,3 +558,10 @@ kbd {
 .itempanel .item .price s { opacity: 0.5; }
 .itempanel .item .price .sale { background: #8e2219; color: #fff; padding: 0 0.3rem; border-radius: 2px; font-size: 0.75rem; }
 .itempanel .item .price { min-width: 7.5rem; }
+
+/* Shop terms, haggling (trade.js) */
+.itempanel .terms { font-size: 0.8rem; opacity: 0.85; margin: -0.4rem 0 0.7rem; line-height: 1.5; }
+.itempanel .talkbtn { font: inherit; font-size: 0.85rem; padding: 0.25rem 0.8rem; border: 1px solid #6b4a16; border-radius: 2px; background: #f3ead6; color: #4a3010; cursor: pointer; }
+.itempanel .info .lines { display: flex; flex-direction: column; gap: 0.35rem; margin: 0.5rem 0; }
+.itempanel .info button.line { text-align: left; font-style: italic; }
+.itempanel .info .hint { font-size: 0.78rem; opacity: 0.7; }

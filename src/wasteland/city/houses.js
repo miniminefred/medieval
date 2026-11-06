@@ -1,6 +1,7 @@
 import { CITY } from '../terrain.js';
 import { BLOCKS, MAIN, inMarket, POND } from './streets.js';
 import { mulberry32 } from '../../noise.js';
+import { shopFront } from './shop-fronts.js';
 
 // Medieval town houses, and how the cyborg city's differ (docs/DESIGN.md,
 // 2026-11-02): old and new, rich and poor, mixed side by side.
@@ -212,6 +213,16 @@ export function buildHouse(b, x, z, w, d, yaw, floors, { y = CITY.y, tech: techS
           put('timber', sx, 2.85, d / 2 + 0.5, 0.07, 0.07, 1.0);      // the arm
           put('timber', sx, 2.45, d / 2 + 0.06, 0.08, 0.5, 0.08, 0, 0.8);   // its strut
           b.signs.push({ text: SPECIALS[kind], x: wx(sx, d / 2 + 0.62), y: y + 2.5, z: wz(sx, d / 2 + 0.62), yaw: yaw + Math.PI / 2 });
+          // And what stands outside it (shop-fronts.js).
+          shopFront(kind, {
+            put,
+            cyl: (key, lx, ly, lz, r, h, o = {}) => b.cylinder(key, wx(lx, lz), y + ly, wz(lx, lz), r, h, { ...o, yaw: (o.yaw ?? 0) + yaw }),
+            block: (lx, lz, bw, bd, h) => {
+              const xs = [wx(lx - bw / 2, lz - bd / 2), wx(lx + bw / 2, lz + bd / 2)], zs = [wz(lx - bw / 2, lz - bd / 2), wz(lx + bw / 2, lz + bd / 2)];
+              b.collider(Math.min(...xs), Math.max(...xs), Math.min(...zs), Math.max(...zs), y + h);
+            },
+            w, d, doorX: bx,
+          });
         }
       } else if (side === 1 && i === shopBay) {
         put('timber', bx, 0.55, gz, Math.min(bay - 0.3, 2.0), 1.7, 0.1);
